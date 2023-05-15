@@ -6,7 +6,7 @@ import '../../app/globals.css'
 
 export default function ClassMainPage() {
   const router = useRouter()
-  const { query } = router.query
+  const query = router.query
 
   return (
     <SideBar>
