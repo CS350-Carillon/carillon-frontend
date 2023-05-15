@@ -16,7 +16,7 @@ export default function ClassMainPage() {
           flexDirection: 'column',
         }}
       >
-        <div className="vertical">
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="title"> {router.query.classCode} </div>
           <MessageBlock />
           <MessageBlock />

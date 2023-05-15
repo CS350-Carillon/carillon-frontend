@@ -1,115 +1,144 @@
+import * as React from 'react'
+import Accordion from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import Typography from '@mui/material/Typography'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Link from 'next/link'
-import React, { useEffect, useState } from 'react'
-import styles from './SideBar.module.css'
 
 export default function SideBar({ children }: { children: React.ReactNode }) {
-  const [check, setCheck] = useState('false')
-
-  useEffect(() => {
-    if (check === 'false') {
-      const dropdown = document.getElementsByClassName(styles['dropdown-btn'])
-      const v = dropdown[0]
-
-      v.addEventListener('click', () => {
-        const dropdownContent = v.nextElementSibling as HTMLElement
-        if (dropdownContent.style.display === 'block') {
-          dropdownContent.style.display = 'none'
-        } else {
-          dropdownContent.style.display = 'block'
-        }
-      })
-
-      const dropdown2 = document.getElementsByClassName(styles['dropdown-btn2'])
-      const v2 = dropdown2[0]
-
-      dropdown2[0].addEventListener('click', () => {
-        const dropdownContent2 = v2.nextElementSibling as HTMLElement
-        if (dropdownContent2.style.display === 'block') {
-          dropdownContent2.style.display = 'none'
-        } else {
-          dropdownContent2.style.display = 'block'
-        }
-      })
-
-      const dropdown3 = document.getElementsByClassName(styles['dropdown-btn3'])
-      const v3 = dropdown3[0]
-
-      dropdown3[0].addEventListener('click', () => {
-        const dropdownContent3 = v3.nextElementSibling as HTMLElement
-        if (dropdownContent3.style.display === 'block') {
-          dropdownContent3.style.display = 'none'
-        } else {
-          dropdownContent3.style.display = 'block'
-        }
-      })
-    }
-    setCheck('true')
-  })
+  const styles = {
+    accordion: {
+      width: '150px',
+      backgroundColor: '#2f6eba',
+      color: 'white',
+      border: 0,
+      boxShadow: 0,
+    },
+    accordionChild: {
+      textDecoration: 'none',
+      color: 'white',
+    },
+  }
 
   return (
-    <html lang="en-us">
-      <body>
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <div>
-            <Link className={styles['title']} href="/workspace">
-              {' '}
-              Carrilon{' '}
-            </Link>
-            <div className={styles['sidenav']}>
-              <button type="button" className={styles['dropdown-btn2']}>
-                Workspace
-                <i className={styles['fa fa-caret-down']}></i>
-              </button>
-              <div className={styles['dropdown-container2']}>
-                <Link href="/workspace/cs350" className={styles.content}>
-                  CS350
-                </Link>
-              </div>
-
-              <button type="button" className={styles['dropdown-btn3']}>
-                Channel
-                <i className={styles['fa fa-caret-down']}></i>
-              </button>
-              <div className={styles['dropdown-container3']}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        width: '90%',
+        justifyContent: 'center',
+        margin: '20px',
+        overflowX: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          marginRight: '40px',
+          height: '100vh',
+        }}
+      >
+        <Link
+          href="/workspace"
+          style={{
+            fontSize: '18pt',
+            fontWeight: '900',
+            color: '#2f6eba',
+            marginBottom: '10px',
+            textDecoration: 'none',
+          }}
+        >
+          {' '}
+          Carrilon{' '}
+        </Link>
+        <div
+          style={{
+            width: '200px',
+            backgroundColor: '#2f6eba',
+            height: '90vh',
+            borderRadius: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+          }}
+        >
+          <Accordion sx={styles.accordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography> Workspace </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Link href="/workspace/cs350" style={styles.accordionChild}>
+                {' '}
+                CS350{' '}
+              </Link>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion sx={styles.accordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel2a-content"
+              id="panel2a-header"
+            >
+              <Typography> Channels </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Link
                   href="/workspace/cs350/channel1"
-                  className={styles.content}
+                  style={styles.accordionChild}
                 >
-                  Channel1
+                  {' '}
+                  Channel1{' '}
+                </Link>
+                <Link
+                  href="/workspace/cs350/channel2"
+                  style={styles.accordionChild}
+                >
+                  {' '}
+                  Channel2{' '}
                 </Link>
               </div>
-
-              <button type="button" className={styles['dropdown-btn']}>
-                Direct Message
-                <i className={styles['fa fa-caret-down']}></i>
-              </button>
-              <div className={styles['dropdown-container']}>
-                <Link href="/workspace/cs350/Susan" className={styles.content}>
-                  Sunsan
+            </AccordionDetails>
+          </Accordion>
+          <Accordion sx={styles.accordion}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel3a-content"
+              id="panel3a-header"
+            >
+              <Typography> DM </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <Link
+                  href="/workspace/cs350/Sally"
+                  style={styles.accordionChild}
+                >
+                  {' '}
+                  Sally{' '}
                 </Link>
-                <Link href="/workspace/cs350/Tom" className={styles.content}>
-                  Tom
-                </Link>
-                <Link href="/workspace/cs350/Jimmy" className={styles.content}>
-                  Jimmy
+                <Link href="/workspace/cs350/Sam" style={styles.accordionChild}>
+                  {' '}
+                  Sam{' '}
                 </Link>
               </div>
-              <Link href="/workspace/myinfo">My Information</Link>
-            </div>
-          </div>
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              display: 'flex',
-              marginTop: '60px',
-              height: '85vh',
-            }}
-          >
-            {children}
-          </div>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion sx={styles.accordion}>
+            <AccordionSummary
+              aria-controls="panel3a-content"
+              id="panel3a-header"
+            >
+              <Typography> My Information </Typography>
+            </AccordionSummary>
+          </Accordion>
         </div>
-      </body>
-    </html>
+      </div>
+      <div style={{ width: '90%' }}>{children}</div>
+    </div>
   )
 }
