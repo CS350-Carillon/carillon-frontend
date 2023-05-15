@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 
-import SideBar from '../../../comps/SideBar'
-import MessageBlock from '../../../comps/MessageBlock'
+import SideBar from '../../components/SideBar'
+import MessageBlock from '../../components/MessageBlock'
 import '../../app/globals.css'
 
 export default function ClassMainPage() {

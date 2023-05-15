@@ -1,4 +1,4 @@
-import SideBar from '../../../comps/SideBar'
+import SideBar from '../../components/SideBar'
 
 export default function Workspace() {
   return (

@@ -40,7 +40,12 @@
       }
     ],
     "no-useless-catch": "off",
-    "jsx-a11y/label-has-associated-control" :"off",
-    "react/self-closing-comp": "off"
+    "jsx-a11y/label-has-associated-control": "off",
+    "react/self-closing-comp": "off",
+    "dot-notation": 0,
+    "quotes": [
+      "error",
+      "single"
+    ]
   }
 }
