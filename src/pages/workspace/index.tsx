@@ -1,5 +1,3 @@
-"use client";
-
 import SideBar from '../../../comps/SideBar'
 
 export default function Workspace() {

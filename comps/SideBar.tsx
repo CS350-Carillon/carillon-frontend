@@ -10,7 +10,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             var v = dropdown[0]
 
             v.addEventListener("click", () => {
-                var dropdownContent = v.nextElementSibling;
+                var dropdownContent = v.nextElementSibling as HTMLElement;
                 if (dropdownContent.style.display === "block") {
                     dropdownContent.style.display = "none";
                 } else {
@@ -23,7 +23,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
 
             var v2 = dropdown2[0]
             dropdown2[0].addEventListener("click", () => {
-                var dropdownContent2 = v2.nextElementSibling;
+                var dropdownContent2 = v2.nextElementSibling as HTMLElement;
                 if (dropdownContent2.style.display === "block") {
                     dropdownContent2.style.display = "none";
                 } else {
@@ -34,7 +34,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             var dropdown3 = document.getElementsByClassName(styles["dropdown-btn3"]);
             var v3 = dropdown3[0]
             dropdown3[0].addEventListener("click", () => {
-                var dropdownContent3 = v3.nextElementSibling;
+                var dropdownContent3 = v3.nextElementSibling as HTMLElement;
                 if (dropdownContent3.style.display === "block") {
                     dropdownContent3.style.display = "none";
                 } else {
