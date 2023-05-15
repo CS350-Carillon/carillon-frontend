@@ -81,7 +81,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                             <a href="/workspace/myinfo">My Information</a>
                         </div>
                     </div>
-                    <div style={{ position: 'relative', width: '100%', display: 'flex', marginTop: '60px', height:"85vh" }}>
+                    <div style={{ position: 'relative', width: '100%', display: 'flex', marginTop: '60px', height: "85vh" }}>
                         {children}
                     </div>
                 </div>

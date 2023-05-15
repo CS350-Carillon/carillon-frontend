@@ -10,7 +10,7 @@ export default function SignUp() {
         className={styles.inputsection}
       >
         <div className={styles.inputoneline}>
-          <label for="first">ID</label>
+          <label htmlFor="first">ID</label>
           <input
             className={styles.inputstyle}
             type="text"
@@ -20,7 +20,7 @@ export default function SignUp() {
           />
         </div>
         <div className={styles.inputoneline}>
-          <label for="first">Password</label>
+          <label htmlFor="first">Password</label>
           <input
             className={styles.inputstyle}
             type="text"
@@ -30,7 +30,7 @@ export default function SignUp() {
           />
         </div>
         <div className={styles.inputoneline}>
-          <label for="first">Name</label>
+          <label htmlFor="first">Name</label>
           <input
             className={styles.inputstyle}
             type="text"

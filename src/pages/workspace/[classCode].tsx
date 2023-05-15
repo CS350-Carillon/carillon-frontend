@@ -6,7 +6,6 @@ import '../../app/globals.css'
 
 export default function ClassMainPage() {
   const router = useRouter()
-  const query = router.query
 
   return (
     <SideBar>
@@ -18,7 +17,7 @@ export default function ClassMainPage() {
         }}
       >
         <div className="vertical">
-          <div className="title"> {query.classCode} </div>
+          <div className="title"> {router.query.classCode} </div>
           <MessageBlock />
           <MessageBlock />
         </div>
