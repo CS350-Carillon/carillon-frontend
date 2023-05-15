@@ -21,7 +21,7 @@ export default function ClassMainPage() {
           <MessageBlock />
           <MessageBlock />
         </div>
-        <div> INPUT BOX</div>
+        <div> INPUT BOX HERE</div>
       </div>
     </SideBar>
   )
