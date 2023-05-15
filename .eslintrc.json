@@ -39,6 +39,8 @@
         ]
       }
     ],
-    "no-useless-catch": "off"
+    "no-useless-catch": "off",
+    "jsx-a11y/label-has-associated-control" :"off",
+    "react/self-closing-comp": "off"
   }
 }
