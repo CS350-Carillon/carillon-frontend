@@ -1,4 +1,3 @@
-import SideBar from '../../components/SideBar'
 import '../../app/globals.css'
 import TextField from '@mui/material/TextField'
 import Grid from '@mui/material/Grid'
@@ -10,6 +9,7 @@ import Accordion, { AccordionProps } from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import SideBar from '../../components/SideBar'
 
 const dummyData = {
   id: 'Dohyedo',
@@ -37,7 +37,7 @@ const StyledButton = styled(Button)({
 
 const StyledAccordion = styled((props: AccordionProps) => (
   <Accordion elevation={0} {...props} />
-))(({ theme }) => ({
+))(() => ({
   border: 0,
   padding: 0,
   margin: 0,
@@ -73,7 +73,7 @@ function Field({ label, value }: { label: string; value: string }) {
           variant="standard"
           defaultValue={value}
           placeholder={label}
-          fullWidth={true}
+          fullWidth
         />
       </Grid>
     </>
@@ -86,40 +86,38 @@ function ChannelList({
   channelList: { workspace: string; channels: string[] }[]
 }) {
   return (
-    <>
-      <Grid item xs={12} paddingBottom={1}>
-        <StyledAccordion>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-            sx={{ padding: 0, margin: 0 }}
-          >
-            <Typography>My Workspaces / Channels</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container rowSpacing={0.4}>
-              {channelList.map((item) => (
-                <>
-                  <Grid item xs={12}>
+    <Grid item xs={12} paddingBottom={1}>
+      <StyledAccordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+          sx={{ padding: 0, margin: 0 }}
+        >
+          <Typography>My Workspaces / Channels</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Grid container rowSpacing={0.4}>
+            {channelList.map((item) => (
+              <div key={item.workspace}>
+                <Grid item xs={12}>
+                  <StyledButton variant="text">
+                    <Typography>{item.workspace}</Typography>
+                  </StyledButton>
+                </Grid>
+                {item.channels.map((channel) => (
+                  <Grid item xs={12} paddingLeft={2} key={channel}>
                     <StyledButton variant="text">
-                      <Typography>{item.workspace}</Typography>
+                      <Typography>{channel}</Typography>
                     </StyledButton>
                   </Grid>
-                  {item.channels.map((channel) => (
-                    <Grid item xs={12} paddingLeft={2}>
-                      <StyledButton variant="text">
-                        <Typography>{channel}</Typography>
-                      </StyledButton>
-                    </Grid>
-                  ))}
-                </>
-              ))}
-            </Grid>
-          </AccordionDetails>
-        </StyledAccordion>
-      </Grid>
-    </>
+                ))}
+              </div>
+            ))}
+          </Grid>
+        </AccordionDetails>
+      </StyledAccordion>
+    </Grid>
   )
 }
 
