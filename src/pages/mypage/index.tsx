@@ -6,10 +6,48 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
+import Accordion, { AccordionProps } from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+
+const dummyData = {
+  id: 'Dohyedo',
+  password: '12345678aa',
+  name: 'Dohye Kim',
+  channelList: [
+    {
+      workspace: 'CS350',
+      channels: ['Channel 1', 'Channel 2'],
+    },
+    {
+      workspace: 'CS420',
+      channels: ['Channel A', 'Channel B'],
+    },
+  ],
+}
 
 const StyledButton = styled(Button)({
   textTransform: 'none',
+  color: 'black',
+  '& .MuiAccordionSummary-root': {
+    padding: '40px',
+  },
 })
+
+const StyledAccordion = styled((props: AccordionProps) => (
+  <Accordion elevation={0} {...props} />
+))(({ theme }) => ({
+  border: 0,
+  padding: 0,
+  margin: 0,
+  '& > .MuiAccordionSummary-root, .Mui-expanded': {
+    minHeight: 0,
+  },
+  '& > .MuiAccordionSummary-root > .MuiAccordionSummary-content': {
+    margin: 0,
+  },
+}))
 
 function Field({ label, value }: { label: string; value: string }) {
   const styles: { [key: string]: React.CSSProperties } = {
@@ -23,7 +61,7 @@ function Field({ label, value }: { label: string; value: string }) {
 
   return (
     <>
-      <Grid item xs={3}>
+      <Grid item xs={4}>
         <div style={styles.label}>
           <Typography style={{ marginBottom: '3px' }}>{label}</Typography>
         </div>
@@ -49,38 +87,43 @@ function ChannelList({
 }) {
   return (
     <>
-      <Grid item xs={12} marginTop={2}>
-        <Typography>My Workspace / Channels</Typography>
-      </Grid>
-      <Grid container rowSpacing={0}>
-        {channelList.map((item) => (
-          <>
-            <Grid item xs={12}>
-              <StyledButton variant="text">{item.workspace}</StyledButton>
+      <Grid item xs={12} paddingBottom={1}>
+        <StyledAccordion>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+            sx={{ padding: 0, margin: 0 }}
+          >
+            <Typography>My Workspaces / Channels</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container rowSpacing={0.4}>
+              {channelList.map((item) => (
+                <>
+                  <Grid item xs={12}>
+                    <StyledButton variant="text">
+                      <Typography>{item.workspace}</Typography>
+                    </StyledButton>
+                  </Grid>
+                  {item.channels.map((channel) => (
+                    <Grid item xs={12} paddingLeft={2}>
+                      <StyledButton variant="text">
+                        <Typography>{channel}</Typography>
+                      </StyledButton>
+                    </Grid>
+                  ))}
+                </>
+              ))}
             </Grid>
-            {item.channels.map((channel) => (
-              <Grid item xs={12} paddingLeft={2}>
-                <StyledButton variant="text">{channel}</StyledButton>
-              </Grid>
-            ))}
-          </>
-        ))}
+          </AccordionDetails>
+        </StyledAccordion>
       </Grid>
     </>
   )
 }
 
 export default function Mypage() {
-  const channelList: { workspace: string; channels: string[] }[] = [
-    {
-      workspace: 'CS350',
-      channels: ['Channel 1', 'Channel 2'],
-    },
-    {
-      workspace: 'CS420',
-      channels: ['Channel A', 'Channel B'],
-    },
-  ]
   return (
     <SideBar>
       <Box
@@ -92,11 +135,11 @@ export default function Mypage() {
           height: '100vh',
         }}
       >
-        <Grid container rowSpacing={1} sx={{ width: '50%' }}>
-          <Field label="ID" value="Doheydo" />
-          <Field label="Password" value="12345678aa" />
-          <Field label="Name" value="Dohye Kim" />
-          <ChannelList channelList={channelList} />
+        <Grid container rowSpacing={3} sx={{ width: '65%' }}>
+          <Field label="ID" value={dummyData.id} />
+          <Field label="Password" value={dummyData.password} />
+          <Field label="Name" value={dummyData.name} />
+          <ChannelList channelList={dummyData.channelList} />
           <Grid
             item
             xs={12}
