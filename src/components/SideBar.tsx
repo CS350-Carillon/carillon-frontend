@@ -133,7 +133,11 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               aria-controls="panel3a-content"
               id="panel3a-header"
             >
-              <Typography> My Information </Typography>
+              <div>
+                <Link href="/mypage" style={styles.accordionChild}>
+                  <Typography> My Informaion </Typography>
+                </Link>
+              </div>
             </AccordionSummary>
           </Accordion>
         </div>
