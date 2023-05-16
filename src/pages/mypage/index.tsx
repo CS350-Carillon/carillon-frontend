@@ -1,4 +1,5 @@
 import '../../app/globals.css'
+import React from 'react'
 import TextField from '@mui/material/TextField'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
@@ -41,8 +42,11 @@ const StyledAccordion = styled((props: AccordionProps) => (
   border: 0,
   padding: 0,
   margin: 0,
-  '& > .MuiAccordionSummary-root, .Mui-expanded': {
-    minHeight: 0,
+  '& > .MuiAccordionSummary-root': {
+    minHeight: '0 !important',
+  },
+  '& > .Mui-expanded': {
+    marginBottom: '8px',
   },
   '& > .MuiAccordionSummary-root > .MuiAccordionSummary-content': {
     margin: 0,
@@ -99,7 +103,7 @@ function ChannelList({
         <AccordionDetails>
           <Grid container rowSpacing={0.4}>
             {channelList.map((item) => (
-              <div key={item.workspace}>
+              <React.Fragment key={item.workspace}>
                 <Grid item xs={12}>
                   <StyledButton variant="text">
                     <Typography>{item.workspace}</Typography>
@@ -112,7 +116,7 @@ function ChannelList({
                     </StyledButton>
                   </Grid>
                 ))}
-              </div>
+              </React.Fragment>
             ))}
           </Grid>
         </AccordionDetails>
