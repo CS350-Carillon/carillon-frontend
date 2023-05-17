@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 
 import SideBar from '../../components/SideBar'
 import MessageBlock from '../../components/MessageBlock'
+import InputBox from '../../components/InputBox'
 import '../../app/globals.css'
 
 export default function ClassMainPage() {
@@ -21,7 +22,10 @@ export default function ClassMainPage() {
           <MessageBlock />
           <MessageBlock />
         </div>
-        <div> INPUT BOX HERE</div>
+        <div>
+          {' '}
+          <InputBox />{' '}
+        </div>
       </div>
     </SideBar>
   )
