@@ -1,19 +1,15 @@
-import Link from 'next/link'
+import React from 'react'
+import LinkButton from '@/components/LinkButton'
 import styles from '../pages/auth.module.css'
+import Title from './title'
 
 export default function MainPage() {
   return (
     <div className={styles.format}>
-      <div className={styles.title}>Carrillon</div>
+      <Title />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <Link href="/login" className={styles.button}>
-          {' '}
-          Login{' '}
-        </Link>
-        <Link href="/signup" className={styles.button}>
-          {' '}
-          SignUp
-        </Link>
+        <LinkButton href="/login">Log In</LinkButton>
+        <LinkButton href="/signup">Sign Up</LinkButton>
       </div>
     </div>
   )
