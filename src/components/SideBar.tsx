@@ -75,7 +75,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             >
               <Typography> Workspace </Typography>
             </AccordionSummary>
-            <AccordionDetails sx={{display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
+            <AccordionDetails sx={{display:'flex', flexDirection:'column', justifyContent:'space-between', height:'60vh'}}>
               <div>
                 <Link href="/workspace/cs350" className={style.accordionChild}>
                   {' '}
@@ -93,7 +93,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             >
               <Typography> Channels </Typography>
             </AccordionSummary>
-            <AccordionDetails>
+            <AccordionDetails sx={{height:'60vh'}}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Link
                   href="/workspace/cs350/channel1"
@@ -120,7 +120,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             >
               <Typography> DM </Typography>
             </AccordionSummary>
-            <AccordionDetails>
+            <AccordionDetails sx={{height:'60vh'}}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Link
                   href="/workspace/cs350/Sally"
