@@ -1,11 +1,11 @@
 import * as React from 'react'
+import Link from 'next/link'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import style from './SideBar.module.css'
-import Link from 'next/link'
 
 export default function SideBar({ children }: { children: React.ReactNode }) {
   const styles = {
@@ -18,12 +18,12 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
     },
   }
 
-  const [expanded, setExpanded] = React.useState<string | false>(false);
+  const [expanded, setExpanded] = React.useState<string | false>(false)
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false);
-    };
+      setExpanded(isExpanded ? panel : false)
+    }
 
   return (
     <div
@@ -67,7 +67,11 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             padding: '10px',
           }}
         >
-          <Accordion expanded={expanded === 'workspace'} onChange={handleChange('workspace')} sx={styles.accordion}>
+          <Accordion
+            expanded={expanded === 'workspace'}
+            onChange={handleChange('workspace')}
+            sx={styles.accordion}
+          >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1a-content"
@@ -75,7 +79,14 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             >
               <Typography> Workspace </Typography>
             </AccordionSummary>
-            <AccordionDetails sx={{display:'flex', flexDirection:'column', justifyContent:'space-between', height:'60vh'}}>
+            <AccordionDetails
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                height: '60vh',
+              }}
+            >
               <div>
                 <Link href="/workspace/cs350" className={style.accordionChild}>
                   {' '}
@@ -85,7 +96,11 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               <Link href="/new"> New Workspace </Link>
             </AccordionDetails>
           </Accordion>
-          <Accordion expanded={expanded === 'channels'}  onChange={handleChange('channels')} sx={styles.accordion}>
+          <Accordion
+            expanded={expanded === 'channels'}
+            onChange={handleChange('channels')}
+            sx={styles.accordion}
+          >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel2a-content"
@@ -93,7 +108,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             >
               <Typography> Channels </Typography>
             </AccordionSummary>
-            <AccordionDetails sx={{height:'60vh'}}>
+            <AccordionDetails sx={{ height: '60vh' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Link
                   href="/workspace/cs350/channel1"
@@ -112,7 +127,11 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               </div>
             </AccordionDetails>
           </Accordion>
-          <Accordion expanded={expanded === 'dm'}  onChange={handleChange('dm')} sx={styles.accordion}>
+          <Accordion
+            expanded={expanded === 'dm'}
+            onChange={handleChange('dm')}
+            sx={styles.accordion}
+          >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel3a-content"
@@ -120,7 +139,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             >
               <Typography> DM </Typography>
             </AccordionSummary>
-            <AccordionDetails sx={{height:'60vh'}}>
+            <AccordionDetails sx={{ height: '60vh' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Link
                   href="/workspace/cs350/Sally"
@@ -139,7 +158,11 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               </div>
             </AccordionDetails>
           </Accordion>
-          <Accordion expanded={expanded === 'myinfo'}  onChange={handleChange('myinfo')} sx={styles.accordion}>
+          <Accordion
+            expanded={expanded === 'myinfo'}
+            onChange={handleChange('myinfo')}
+            sx={styles.accordion}
+          >
             <AccordionSummary
               aria-controls="panel3a-content"
               id="panel3a-header"
