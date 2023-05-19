@@ -9,6 +9,20 @@
   width: 240px;
 }
 
+.accordionChild {
+  text-decoration: none;
+  color: white;
+  margin-bottom: 10px;
+}
+
+
+.accordionChild:active {
+  width: 100px;
+  height: 40px;
+  background-color: white;
+  color: #2f6eba;
+}
+
 .sidenav {
   margin: 20px;
   width: 240px;

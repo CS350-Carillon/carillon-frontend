@@ -4,6 +4,7 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import style from './SideBar.module.css'
 import Link from 'next/link'
 
 export default function SideBar({ children }: { children: React.ReactNode }) {
@@ -14,10 +15,6 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       color: 'white',
       border: 0,
       boxShadow: 0,
-    },
-    accordionChild: {
-      textDecoration: 'none',
-      color: 'white',
     },
   }
 
@@ -60,6 +57,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             display: 'flex',
             alignItems: 'center',
             flexDirection: 'column',
+            padding: '10px',
           }}
         >
           <Accordion sx={styles.accordion}>
@@ -71,7 +69,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               <Typography> Workspace </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Link href="/workspace/cs350" style={styles.accordionChild}>
+              <Link href="/workspace/cs350" className={style.accordionChild}>
                 {' '}
                 CS350{' '}
               </Link>
@@ -89,14 +87,14 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Link
                   href="/workspace/cs350/channel1"
-                  style={styles.accordionChild}
+                  className={style.accordionChild}
                 >
                   {' '}
                   Channel1{' '}
                 </Link>
                 <Link
                   href="/workspace/cs350/channel2"
-                  style={styles.accordionChild}
+                  className={style.accordionChild}
                 >
                   {' '}
                   Channel2{' '}
@@ -116,12 +114,15 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Link
                   href="/workspace/cs350/Sally"
-                  style={styles.accordionChild}
+                  className={style.accordionChild}
                 >
                   {' '}
                   Sally{' '}
                 </Link>
-                <Link href="/workspace/cs350/Sam" style={styles.accordionChild}>
+                <Link
+                  href="/workspace/cs350/Sam"
+                  className={style.accordionChild}
+                >
                   {' '}
                   Sam{' '}
                 </Link>
