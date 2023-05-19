@@ -18,6 +18,13 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
     },
   }
 
+  const [expanded, setExpanded] = React.useState<string | false>(false);
+
+  const handleChange =
+    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+      setExpanded(isExpanded ? panel : false);
+    };
+
   return (
     <div
       style={{
@@ -60,7 +67,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             padding: '10px',
           }}
         >
-          <Accordion sx={styles.accordion}>
+          <Accordion expanded={expanded === 'workspace'} onChange={handleChange('workspace')} sx={styles.accordion}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1a-content"
@@ -68,14 +75,17 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             >
               <Typography> Workspace </Typography>
             </AccordionSummary>
-            <AccordionDetails>
-              <Link href="/workspace/cs350" className={style.accordionChild}>
-                {' '}
-                CS350{' '}
-              </Link>
+            <AccordionDetails sx={{display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
+              <div>
+                <Link href="/workspace/cs350" className={style.accordionChild}>
+                  {' '}
+                  CS350{' '}
+                </Link>
+              </div>
+              <Link href="/new"> New Workspace </Link>
             </AccordionDetails>
           </Accordion>
-          <Accordion sx={styles.accordion}>
+          <Accordion expanded={expanded === 'channels'}  onChange={handleChange('channels')} sx={styles.accordion}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel2a-content"
@@ -102,7 +112,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               </div>
             </AccordionDetails>
           </Accordion>
-          <Accordion sx={styles.accordion}>
+          <Accordion expanded={expanded === 'dm'}  onChange={handleChange('dm')} sx={styles.accordion}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel3a-content"
@@ -129,7 +139,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               </div>
             </AccordionDetails>
           </Accordion>
-          <Accordion sx={styles.accordion}>
+          <Accordion expanded={expanded === 'myinfo'}  onChange={handleChange('myinfo')} sx={styles.accordion}>
             <AccordionSummary
               aria-controls="panel3a-content"
               id="panel3a-header"
