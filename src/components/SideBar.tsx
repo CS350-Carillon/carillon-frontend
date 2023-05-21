@@ -1,11 +1,14 @@
 import * as React from 'react'
 import Link from 'next/link'
+import { useState, useEffect } from 'react';
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import style from './SideBar.module.css'
+import useWindowDimensions from './WindowSize';
+
 
 export default function SideBar({ children }: { children: React.ReactNode }) {
   const styles = {
@@ -17,6 +20,9 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       boxShadow: 0,
     },
   }
+  const { width, height } = useWindowDimensions();
+
+  const gap = height-400;
 
   const [expanded, setExpanded] = React.useState<string | false>(false)
 
@@ -39,7 +45,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       <div
         style={{
           marginRight: '40px',
-          height: '100vh',
+          height: '${height-100}px',
         }}
       >
         <Link
@@ -84,7 +90,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                height: '60vh',
+                height: gap,
               }}
             >
               <div>
@@ -108,7 +114,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             >
               <Typography> Channels </Typography>
             </AccordionSummary>
-            <AccordionDetails sx={{ height: '60vh' }}>
+            <AccordionDetails sx={{ height: gap }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Link
                   href="/workspace/cs350/channel1"
@@ -139,7 +145,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             >
               <Typography> DM </Typography>
             </AccordionSummary>
-            <AccordionDetails sx={{ height: '60vh' }}>
+            <AccordionDetails sx={{ height: gap }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Link
                   href="/workspace/cs350/Sally"
