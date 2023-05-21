@@ -14,16 +14,30 @@ export default function ChannelRespComp() {
   )
   return (
     <SideBar>
-      <Stack direction="column" spacing={2}>
-        <Typography variant="h3"> {router.query.messageCode} </Typography>
-        <MessageBlock message={dummyData} respond={false} />
-        <Divider orientation="horizontal" flexItem />
-        <div style={{ paddingLeft: '50px' }}>
-          <Stack direction="column" spacing={2}>
-            <div>Responses</div>
-            {replies}
-          </Stack>
-        </div>
+      <Stack
+        direction="column"
+        spacing={2}
+        sx={{ height: '90vh', display: 'flex' }}
+      >
+        <Typography variant="h3">
+          {' '}
+          Channel Name {router.query.messageCode}{' '}
+        </Typography>
+        <Stack
+          sx={{
+            flexGrow: 1,
+            overflowY: 'scroll',
+          }}
+        >
+          <MessageBlock message={dummyData} respond={false} />
+          <Divider orientation="horizontal" flexItem />
+          <div style={{ paddingLeft: '50px' }}>
+            <Stack direction="column" spacing={2}>
+              <div>Responses</div>
+              {replies}
+            </Stack>
+          </div>
+        </Stack>
         <InputBox />
       </Stack>
     </SideBar>

@@ -83,12 +83,17 @@ export default function ChannelComp() {
 
   return (
     <SideBar>
-      <Stack spacing={2}>
+      <Stack spacing={2} sx={{ height: '90vh', display: 'flex' }}>
         <Typography variant="h3">
           {' '}
           Channel Name {router.query.channelCode}{' '}
         </Typography>
-        <Stack sx={{ maxHeight: '50%' }}>
+        <Stack
+          sx={{
+            flexGrow: 1,
+            overflowY: 'scroll',
+          }}
+        >
           <MessageBlock message={dummyData} respond />
           <MessageBlock message={dummyData} respond />
         </Stack>
