@@ -4,6 +4,7 @@ import SideBar from '../../components/SideBar'
 import MessageBlock from '../../components/MessageBlock'
 import InputBox from '../../components/InputBox'
 import '../../app/globals.css'
+import { dummyData } from './channel/[channelCode]/index'
 
 export default function ClassMainPage() {
   const router = useRouter()
@@ -19,8 +20,8 @@ export default function ClassMainPage() {
       >
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="title"> {router.query.classCode} </div>
-          <MessageBlock />
-          <MessageBlock />
+          <MessageBlock message={dummyData} respond />
+          <MessageBlock message={dummyData} respond />
         </div>
         <div>
           {' '}
