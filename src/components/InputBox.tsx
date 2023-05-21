@@ -3,10 +3,17 @@ import Stack from '@mui/material/Stack'
 import IconButton from '@mui/material/IconButton'
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined'
 import SendIcon from '@mui/icons-material/Send'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 
 export default function InputBox() {
   const selectFile = useRef<HTMLInputElement>(null)
+  const [text, setText] = useState('')
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value)
+  }
+  const onClick = () => {
+    setText('')
+  }
   return (
     <Stack
       direction="column"
@@ -20,6 +27,8 @@ export default function InputBox() {
         fullWidth
         rows={4}
         placeholder="Type a message"
+        value={text}
+        onChange={onChange}
         sx={{ '& fieldset': { border: 'none' } }}
       />
       <div style={{ width: '100%' }}>
@@ -36,12 +45,17 @@ export default function InputBox() {
             size="small"
             color="default"
             onClick={() => {
-              selectFile?.current.click()
+              selectFile.current?.click()
             }}
           >
             <AttachFileOutlinedIcon />
           </IconButton>
-          <IconButton aria-label="file" size="small" color="default">
+          <IconButton
+            aria-label="submit"
+            size="small"
+            color="default"
+            onClick={onClick}
+          >
             <SendIcon />
           </IconButton>
         </Stack>

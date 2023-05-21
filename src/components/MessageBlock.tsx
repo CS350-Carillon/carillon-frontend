@@ -7,8 +7,41 @@ import MoodBadIcon from '@mui/icons-material/MoodBad'
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import Tooltip from '@mui/material/Tooltip'
 import Stack from '@mui/material/Stack'
+import { useRouter } from 'next/router'
+import React, { useState } from 'react'
 import styles from './MessageBlock.module.css'
+
+const dummyUser = { userName: 'Sihyun', userID: 1 }
+
+interface MsgProps {
+  chatID: string
+  chatContent: string
+  chatReaction: {
+    [index: string]: { userID: number; userName: string }[]
+    check: { userID: number; userName: string }[]
+    favorite: { userID: number; userName: string }[]
+    moodbad: { userID: number; userName: string }[]
+    thumbup: { userID: number; userName: string }[]
+  }
+  chatSender: { name: string }
+  reply: {
+    chatID: string
+    chatContent: string
+    chatReaction: {
+      check: [
+        { userID: 1; userName: 'Sihyun' },
+        { userID: 2; userName: 'Jack' },
+      ]
+      favorite: [{ userID: 3; userName: 'Susan' }]
+      moodbad: []
+      thumbup: []
+    }
+    chatSender: { name: string }
+  }[]
+}
 
 function Profile() {
   return (
@@ -18,7 +51,7 @@ function Profile() {
   )
 }
 
-function Content() {
+function Content({ content, userName }: { content: string; userName: string }) {
   return (
     <Stack direction="column" spacing={1}>
       <Stack
@@ -27,26 +60,69 @@ function Content() {
         justifyContent="space-between"
         paddingBottom={0.5}
       >
-        <div> UserName </div>
+        <div> {userName} </div>
         <IconButton aria-label="check" size="small">
           <DeleteIcon />
         </IconButton>
       </Stack>
-      <div id="content">
-        {' '}
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-        occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-        mollit anim id est laborum{' '}
-      </div>
+      <div id="content">{content}</div>
     </Stack>
   )
 }
 
-function Reaction() {
+function Reaction({
+  reactions,
+  onClick,
+}: {
+  reactions: {
+    check: { userID: number; userName: string }[]
+    favorite: { userID: number; userName: string }[]
+    moodbad: { userID: number; userName: string }[]
+    thumbup: { userID: number; userName: string }[]
+  }
+  onClick: (
+    targetUser: {
+      userID: number
+      userName: string
+    },
+    reactionType: string,
+    reactionExist: boolean,
+  ) => void
+}) {
+  const checkExist: boolean =
+    reactions.check.filter(
+      (e: { userID: number; userName: string }) =>
+        e.userID === dummyUser.userID,
+    ).length > 0
+  const favoriteExist: boolean =
+    reactions.favorite.filter(
+      (e: { userID: number; userName: string }) =>
+        e.userID === dummyUser.userID,
+    ).length > 0
+  const moodbadExist: boolean =
+    reactions.moodbad.filter(
+      (e: { userID: number; userName: string }) =>
+        e.userID === dummyUser.userID,
+    ).length > 0
+  const thumbupExist: boolean =
+    reactions.thumbup.filter(
+      (e: { userID: number; userName: string }) =>
+        e.userID === dummyUser.userID,
+    ).length > 0
+
+  const checkList = reactions.check.map((e) => (
+    <div key={e.userID}>{e.userName}</div>
+  ))
+  const favoriteList = reactions.favorite.map((e) => (
+    <div key={e.userID}>{e.userName}</div>
+  ))
+  const moodbadList = reactions.moodbad.map((e) => (
+    <div key={e.userID}>{e.userName}</div>
+  ))
+  const thumbupList = reactions.thumbup.map((e) => (
+    <div key={e.userID}>{e.userName}</div>
+  ))
+
   return (
     <div
       style={{
@@ -56,41 +132,191 @@ function Reaction() {
       }}
     >
       <Stack direction="row" spacing={1}>
-        <IconButton aria-label="check" size="small" sx={{ color: 'blue' }}>
-          <CheckCircleIcon />
-        </IconButton>
-        <IconButton aria-label="heart" size="small" sx={{ color: 'red' }}>
-          <FavoriteIcon />
-        </IconButton>
-        <IconButton aria-label="mood-bad" size="small" sx={{ color: 'orange' }}>
-          <MoodBadIcon />
-        </IconButton>
-        <IconButton aria-label="thumb-up" size="small" sx={{ color: 'purple' }}>
-          <ThumbUpAltIcon />
-        </IconButton>
+        <Tooltip
+          title={checkList.length > 0 ? checkList : ''}
+          disableFocusListener={checkList.length === 0}
+          disableHoverListener={checkList.length === 0}
+        >
+          <IconButton
+            aria-label="check"
+            size="small"
+            onClick={() => onClick(dummyUser, 'check', checkExist)}
+            sx={{ color: checkExist ? 'blue' : 'gray' }}
+          >
+            <CheckCircleIcon />
+            <Typography variant="caption">
+              {reactions.check.length !== 0 && reactions.check.length}
+            </Typography>
+          </IconButton>
+        </Tooltip>
+        <Tooltip
+          title={favoriteList.length > 0 ? favoriteList : ''}
+          disableFocusListener={favoriteList.length === 0}
+          disableHoverListener={favoriteList.length === 0}
+        >
+          <IconButton
+            aria-label="heart"
+            size="small"
+            onClick={() => onClick(dummyUser, 'favorite', favoriteExist)}
+            sx={{ color: favoriteExist ? 'red' : 'gray' }}
+          >
+            <FavoriteIcon />
+            <Typography variant="caption">
+              {' '}
+              {reactions.favorite.length !== 0 && reactions.favorite.length}
+            </Typography>
+          </IconButton>
+        </Tooltip>
+        <Tooltip
+          title={moodbadList.length > 0 ? moodbadList : ''}
+          disableFocusListener={moodbadList.length === 0}
+          disableHoverListener={moodbadList.length === 0}
+        >
+          <IconButton
+            aria-label="mood-bad"
+            size="small"
+            onClick={() => onClick(dummyUser, 'moodbad', moodbadExist)}
+            sx={{ color: moodbadExist ? 'orange' : 'gray' }}
+          >
+            <MoodBadIcon />
+            <Typography variant="caption">
+              {' '}
+              {reactions.moodbad.length !== 0 && reactions.moodbad.length}
+            </Typography>
+          </IconButton>
+        </Tooltip>
+        <Tooltip
+          title={thumbupList.length > 0 ? thumbupList : ''}
+          disableFocusListener={thumbupList.length === 0}
+          disableHoverListener={thumbupList.length === 0}
+        >
+          <IconButton
+            aria-label="thumb-up"
+            size="small"
+            onClick={() => onClick(dummyUser, 'thumbup', thumbupExist)}
+            sx={{ color: thumbupExist ? 'purple' : 'gray' }}
+          >
+            <ThumbUpAltIcon />
+            <Typography variant="caption">
+              {' '}
+              {reactions.thumbup.length !== 0 && reactions.thumbup.length}
+            </Typography>
+          </IconButton>
+        </Tooltip>
       </Stack>
     </div>
   )
 }
 
-function RespondButton() {
+function RespondButton({
+  RespondOnClick,
+  respondLength,
+}: {
+  RespondOnClick: React.MouseEventHandler<HTMLButtonElement>
+  respondLength: number
+}) {
   return (
-    <Button>
-      <AddIcon fontSize="small" />N responses
+    <Button onClick={RespondOnClick}>
+      <AddIcon fontSize="small" />
+      {respondLength} responses
     </Button>
   )
 }
 
-export default function MessageBlock({ respond }: { respond: boolean }) {
+export default function MessageBlock({
+  message,
+  respond,
+}: {
+  message: MsgProps
+  respond: boolean
+}) {
+  const router = useRouter()
+  const [msgState, setMsgState] = useState(message)
+  // const onIncrease = (
+  //   newUser: { userID: number; userName: string },
+  //   reactionType: string,
+  // ) => {
+  //   setMsgState((prevMsg) => {
+  //     return {
+  //       ...prevMsg,
+  //       chatReaction: {
+  //         ...prevMsg.chatReaction,
+  //         [reactionType]: [...prevMsg.chatReaction[reactionType], newUser],
+  //       },
+  //     }
+  //   })
+  // }
+  // const onDecrease = (
+  //   delUser: { userID: number; userName: string },
+  //   reactionType: string,
+  // ) => {
+  //   setMsgState((prevMsg) => {
+  //     return {
+  //       ...prevMsg,
+  //       chatReaction: {
+  //         ...prevMsg.chatReaction,
+  //         [reactionType]: prevMsg.chatReaction[reactionType].filter(
+  //           (e) => e.userID !== delUser.userID,
+  //         ),
+  //       },
+  //     }
+  //   })
+  // }
+
+  const onClick = (
+    targetUser: { userID: number; userName: string },
+    reactionType: string,
+    reactionExist: boolean,
+  ) => {
+    if (reactionExist) {
+      setMsgState((prevMsg) => {
+        return {
+          ...prevMsg,
+          chatReaction: {
+            ...prevMsg.chatReaction,
+            [reactionType]: prevMsg.chatReaction[reactionType].filter(
+              (e) => e.userID !== targetUser.userID,
+            ),
+          },
+        }
+      })
+    } else {
+      setMsgState((prevMsg) => {
+        return {
+          ...prevMsg,
+          chatReaction: {
+            ...prevMsg.chatReaction,
+            [reactionType]: [...prevMsg.chatReaction[reactionType], targetUser],
+          },
+        }
+      })
+    }
+  }
+
   return (
     <div className={styles.format}>
       <Stack direction="row" alignItems="flex-start" spacing={2}>
         <Profile />
         <div className={styles.text}>
-          <Content />
+          <Content
+            content={msgState.chatContent}
+            userName={msgState.chatSender.name}
+          />
           <Stack direction="row" justifyContent="space-between">
-            {respond ? <RespondButton /> : <div />}
-            <Reaction />
+            {respond ? (
+              <RespondButton
+                RespondOnClick={() => {
+                  router.push({
+                    pathname: `${router.asPath}/[messageId]`,
+                    query: { messageId: msgState.chatID },
+                  })
+                }}
+                respondLength={msgState.reply.length}
+              />
+            ) : (
+              <div />
+            )}
+            <Reaction reactions={msgState.chatReaction} onClick={onClick} />
           </Stack>
         </div>
       </Stack>
