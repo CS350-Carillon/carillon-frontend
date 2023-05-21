@@ -1,14 +1,12 @@
 import * as React from 'react'
 import Link from 'next/link'
-import { useState, useEffect } from 'react';
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import style from './SideBar.module.css'
-import useWindowDimensions from './WindowSize';
-
+import useWindowDimensions from './WindowSize'
 
 export default function SideBar({ children }: { children: React.ReactNode }) {
   const styles = {
@@ -20,9 +18,14 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       boxShadow: 0,
     },
   }
-  const { width, height } = useWindowDimensions();
+  const { height } = useWindowDimensions()
+  let gap = 0
+  let h = 0
 
-  const gap = height-400;
+  if (height) {
+    gap = height - 400
+    h = height - 100
+  }
 
   const [expanded, setExpanded] = React.useState<string | false>(false)
 
@@ -45,7 +48,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       <div
         style={{
           marginRight: '40px',
-          height: '${height-100}px',
+          height: h,
         }}
       >
         <Link
