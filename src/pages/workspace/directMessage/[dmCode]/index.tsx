@@ -9,9 +9,14 @@ export default function DmComp() {
   const router = useRouter()
   return (
     <SideBar>
-      <Stack spacing={2}>
+      <Stack spacing={2} sx={{ height: '90vh', display: 'flex' }}>
         <Typography variant="h3"> {router.query.dmCode} </Typography>
-        <Stack>
+        <Stack
+          sx={{
+            flexGrow: 1,
+            overflowY: 'scroll',
+          }}
+        >
           <MessageBlock respond />
           <MessageBlock respond />
         </Stack>

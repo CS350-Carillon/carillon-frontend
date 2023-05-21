@@ -10,17 +10,28 @@ export default function DmRespComp() {
   const router = useRouter()
   return (
     <SideBar>
-      <Stack direction="column" spacing={2}>
+      <Stack
+        direction="column"
+        spacing={2}
+        sx={{ height: '90vh', display: 'flex' }}
+      >
         <Typography variant="h3"> {router.query.messageCode} </Typography>
-        <MessageBlock respond={false} />
-        <Divider orientation="horizontal" flexItem />
-        <div style={{ paddingLeft: '50px' }}>
-          <Stack direction="column" spacing={2}>
-            <div>Responses</div>
-            <MessageBlock respond={false} />
-            <MessageBlock respond={false} />
-          </Stack>
-        </div>
+        <Stack
+          sx={{
+            flexGrow: 1,
+            overflowY: 'scroll',
+          }}
+        >
+          <MessageBlock respond={false} />
+          <Divider orientation="horizontal" flexItem />
+          <div style={{ paddingLeft: '50px' }}>
+            <Stack direction="column" spacing={2}>
+              <div>Responses</div>
+              <MessageBlock respond={false} />
+              <MessageBlock respond={false} />
+            </Stack>
+          </div>
+        </Stack>
         <InputBox />
       </Stack>
     </SideBar>
