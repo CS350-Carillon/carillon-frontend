@@ -177,7 +177,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               id="panel3a-header"
             >
               <div>
-                <Link href="/mypage" style={styles.accordionChild}>
+                <Link href="/mypage" className={style.accordionChild}>
                   <Typography> My Informaion </Typography>
                 </Link>
               </div>
