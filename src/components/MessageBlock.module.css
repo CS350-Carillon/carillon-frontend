@@ -5,14 +5,20 @@
   margin-bottom: 30px;
 }
 
-.block {
+.reaction {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
 
+.reactionRespond {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
 .text {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  width: 100%;
 }
