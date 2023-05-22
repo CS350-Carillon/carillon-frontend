@@ -1,44 +1,45 @@
-import Link from 'next/link'
-import styles from './auth.module.css'
+import { Typography, Stack } from '@mui/material'
+import LabeledInputBox from '@/components/LabeledInputBox'
+import LinkButton from '@/components/LinkButton'
 
 export default function Login() {
   return (
-    <div className={styles.format}>
-      <div className={styles.title}> Login </div>
-      <form
-        action="/send-data-here"
-        method="post"
-        className={styles.inputsection}
+    <div style={{ height: '100vh' }}>
+      <Stack
+        spacing={3}
+        justifyContent="center"
+        alignItems="center"
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingX: '400px',
+          height: '100%',
+        }}
       >
-        <div className={styles.inputoneline}>
-          <label>ID</label>
-          <input
-            className={styles.inputstyle}
-            type="text"
-            placeholder="ID"
-            id="id"
-            name="id"
-          />
-        </div>
-        <div className={styles.inputoneline}>
-          <label>Password</label>
-          <input
-            className={styles.inputstyle}
-            type="text"
-            placeholder="Password"
-            id="pwd"
-            name="pwd"
-          />
-        </div>
-        <button type="submit" className={styles.submitbutton}>
-          {' '}
-          Login{' '}
-        </button>
-        <Link href="/signup" className={styles.submitbutton}>
-          {' '}
-          SignUp{' '}
-        </Link>
-      </form>
+        <Typography
+          variant="h2"
+          sx={{ fontWeight: '900', color: '#2f6eba', marginBottom: '60px' }}
+        >
+          Log In
+        </Typography>
+        <LabeledInputBox label="ID" value="" />
+        <LabeledInputBox
+          label="Password"
+          value=""
+          style={{ marginBottom: '60px' }}
+        />
+        <LinkButton
+          onClick={() => {
+            // TODO: API
+          }}
+        >
+          Log in
+        </LinkButton>
+        <LinkButton href="/signup" style={{ background: 'gray' }}>
+          Sign up
+        </LinkButton>
+      </Stack>
     </div>
   )
 }
