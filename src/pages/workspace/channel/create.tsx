@@ -1,4 +1,4 @@
-import '../../app/globals.css'
+import '../../../app/globals.css'
 import React from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -12,21 +12,21 @@ import ListItemText from '@mui/material/ListItemText'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import Avatar from '@mui/material/Avatar'
 import SearchBar from '@/components/SearchBar'
-import SideBar from '../../components/SideBar'
+import SideBar from '../../../components/SideBar'
 
 const dummyData = {
-  workspaceNamePlaceholder: 'Enter Workspace Name',
-  descriptionPlaceholder: 'Enter Workspace Description',
+  workspaceNamePlaceholder: 'Enter Channel Name',
+  descriptionPlaceholder: 'Enter Channel Description',
   members: ['Mina', 'Whyojin', 'Erik'],
 }
 
-export default function Workspace() {
+export default function Channel() {
   return (
     <SideBar>
       <Stack sx={{ paddingTop: 4 }} spacing={2}>
         <Box>
           <Typography sx={{ paddingBottom: 2 }} variant="h5">
-            Workspace Name
+            Channel name
           </Typography>
           <TextField
             fullWidth
