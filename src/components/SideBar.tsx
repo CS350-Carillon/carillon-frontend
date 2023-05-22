@@ -24,7 +24,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
 
   if (height) {
     gap = height - 400
-    h = height - 100
+    h = height
   }
 
   const [expanded, setExpanded] = React.useState<string | false>(false)
