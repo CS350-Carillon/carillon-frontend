@@ -12,15 +12,15 @@ import ListItemText from '@mui/material/ListItemText'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import Avatar from '@mui/material/Avatar'
 import SearchBar from '@/components/SearchBar'
+import { placeholder, localPort } from '@/utils/constants'
+import { IWorkspace, IUser } from '@/utils/types'
 import SideBar from '../../components/SideBar'
 
-const dummyData = {
-  workspaceNamePlaceholder: 'Enter Workspace Name',
-  descriptionPlaceholder: 'Enter Workspace Description',
-  members: ['Mina', 'Whyojin', 'Erik'],
+interface WorkspaceProps {
+  workspace: IWorkspace
 }
 
-export default function Workspace() {
+export default function Workspace({ workspace }: WorkspaceProps) {
   return (
     <SideBar>
       <Stack sx={{ paddingTop: 4 }} spacing={2}>
@@ -30,7 +30,7 @@ export default function Workspace() {
           </Typography>
           <TextField
             fullWidth
-            placeholder={dummyData.workspaceNamePlaceholder}
+            placeholder={placeholder.workspaceName}
             variant="standard"
           />
         </Box>
@@ -40,7 +40,7 @@ export default function Workspace() {
           </Typography>
           <TextField
             fullWidth
-            placeholder={dummyData.descriptionPlaceholder}
+            placeholder={placeholder.description}
             variant="standard"
           />
         </Box>
@@ -48,7 +48,7 @@ export default function Workspace() {
           <Grid container spacing={2}>
             <Grid item xs={10}>
               <Typography variant="h5">
-                Members ({dummyData.members.length})
+                Members ({workspace.members.length})
               </Typography>
             </Grid>
             <Grid item xs={2}>
@@ -61,10 +61,10 @@ export default function Workspace() {
               pl: 2,
             }}
           >
-            {dummyData.members.map((value) => {
+            {workspace.members.map((value: IUser) => {
               const labelId = `member-${value}`
               return (
-                <ListItem key={value} disablePadding>
+                <ListItem key={String(value)} disablePadding>
                   <ListItem>
                     <ListItemAvatar>
                       <Avatar
@@ -99,4 +99,26 @@ export default function Workspace() {
       </Stack>
     </SideBar>
   )
+}
+
+export async function getServerSideProps() {
+  const options = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      token:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NmM4NmMzMGM1ZWZmZjMwNGYxZTlkMSIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg0ODMzOTk3LCJleHAiOjE2ODQ5MjAzOTd9.8q0edHfeXUNh72XRseM-ur3vkOZnoGHvaDfv84VkNq0',
+    },
+    body: JSON.stringify({
+      name: 'CS350',
+    }),
+  }
+
+  const res = await fetch(`${localPort}/workspaces/`, options)
+  const workspace = await res.json()
+
+  return {
+    props: { workspace },
+  }
 }
