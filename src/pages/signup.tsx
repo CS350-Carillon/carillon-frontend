@@ -16,7 +16,7 @@ export default function SignUp() {
     } else {
       setIsLogged(false)
     }
-  })
+  }, [router])
 
   const [failed, setFailed] = useState(false)
 

@@ -35,6 +35,7 @@
     "jsx-a11y/label-has-associated-control": "off",
     "react/self-closing-comp": "off",
     "dot-notation": 0,
-    "quotes": ["error", "single"]
+    "quotes": ["error", "single"],
+    "react/require-default-props": "off"
   }
 }

@@ -5,10 +5,10 @@ import React from 'react'
 
 export default function LinkButton({
   children,
-  href,
-  onClick,
-  style,
-  disabled,
+  href = undefined,
+  onClick = undefined,
+  style = undefined,
+  disabled = undefined,
 }: {
   children: React.ReactNode
   href?: string
@@ -36,11 +36,4 @@ export default function LinkButton({
       {children}
     </Button>
   )
-}
-
-LinkButton.defaultProps = {
-  href: undefined,
-  onClick: undefined,
-  style: undefined,
-  disabled: false,
 }
