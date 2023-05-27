@@ -13,7 +13,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar'
 import Avatar from '@mui/material/Avatar'
 import Checkbox from '@mui/material/Checkbox'
 import SearchBar from '@/components/SearchBar'
-import SideBar from '../../../../components/SideBar'
+import SideBar from '../../../../../components/SideBar'
 
 const dummyData = {
   channelDescription: `Lorem ipsum dolor sit amet, consectetur adipiscing elit.Cras

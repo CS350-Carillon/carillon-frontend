@@ -11,7 +11,7 @@ import ListItemText from '@mui/material/ListItemText'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import Avatar from '@mui/material/Avatar'
 import SearchBar from '@/components/SearchBar'
-import SideBar from '../../../components/SideBar'
+import SideBar from '../../../../components/SideBar'
 
 const dummyData = {
   workspaceNamePlaceholder: 'Enter Channel Name',
