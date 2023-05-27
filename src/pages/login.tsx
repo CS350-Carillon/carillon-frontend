@@ -1,8 +1,31 @@
 import { Typography, Stack } from '@mui/material'
 import LabeledInputBox from '@/components/LabeledInputBox'
 import LinkButton from '@/components/LinkButton'
+import { useState } from 'react'
+import { localPort } from '@/utils/constants'
 
 export default function Login() {
+  const [form, setForm] = useState({
+    userId: '',
+    password: '',
+  })
+
+  const handleOnClick = async () => {
+    try {
+      const res = await fetch(`${localPort}/users/login`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json() // eslint-disable-line no-unused-vars
+    } catch (err) {
+      // eslint-disable-line no-empty
+    }
+  }
+
   return (
     <div style={{ height: '100vh' }}>
       <Stack
@@ -23,16 +46,24 @@ export default function Login() {
         >
           Log In
         </Typography>
-        <LabeledInputBox label="ID" value="" />
+        <LabeledInputBox
+          label="ID"
+          value=""
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, userId: e.target.value }))
+          }
+        />
         <LabeledInputBox
           label="Password"
           value=""
           style={{ marginBottom: '60px' }}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, password: e.target.value }))
+          }
         />
         <LinkButton
-          onClick={() => {
-            // TODO: API
-          }}
+          onClick={handleOnClick}
+          disabled={form.userId === '' || form.password === ''}
         >
           Log in
         </LinkButton>

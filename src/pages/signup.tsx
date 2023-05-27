@@ -2,9 +2,16 @@ import { Typography, Stack } from '@mui/material'
 import LabeledInputBox from '@/components/LabeledInputBox'
 import LinkButton from '@/components/LinkButton'
 import { useState } from 'react'
+import { localPort } from '@/utils/constants'
 
 export default function SignUp() {
-  const [valid, setValid] = useState(true)
+  const [form, setForm] = useState({
+    userId: '',
+    password: '',
+    userName: '',
+  })
+
+  const [valid, setValid] = useState(false)
 
   function validate(password: string) {
     // Minimum ten characters, at least one letter, one number and one special character:
@@ -12,6 +19,22 @@ export default function SignUp() {
     const regex =
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{10,}$/
     setValid(regex.test(password))
+  }
+
+  const handleOnClick = async () => {
+    try {
+      const res = await fetch(`${localPort}/users/signup`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json() // eslint-disable-line no-unused-vars
+    } catch (err) {
+      // eslint-disable-line no-empty
+    }
   }
 
   return (
@@ -34,17 +57,26 @@ export default function SignUp() {
         >
           Sign Up
         </Typography>
-        <LabeledInputBox label="ID" value="" />
+        <LabeledInputBox
+          label="ID"
+          value=""
+          onChange={(e) => {
+            setForm((prev) => ({ ...prev, userId: e.target.value }))
+          }}
+        />
         <Stack style={{ width: '100%' }}>
           <LabeledInputBox
             label="Password"
             value=""
-            onChange={(e) => validate(e.target.value)}
+            onChange={(e) => {
+              setForm((prev) => ({ ...prev, password: e.target.value }))
+              validate(e.target.value)
+            }}
           />
           <Typography
             variant="caption"
             color="#CE0101"
-            display={valid ? 'none' : ''}
+            display={valid || form.password === '' ? 'none' : ''}
           >
             Minimum 10 characters, at least one letter, one number and one
             special character.
@@ -54,12 +86,11 @@ export default function SignUp() {
           label="Name"
           value=""
           style={{ marginBottom: '60px' }}
-        />
-        <LinkButton
-          onClick={() => {
-            // TODO: API
+          onChange={(e) => {
+            setForm((prev) => ({ ...prev, userName: e.target.value }))
           }}
-        >
+        />
+        <LinkButton onClick={handleOnClick} disabled={!valid}>
           Sign up
         </LinkButton>
       </Stack>
