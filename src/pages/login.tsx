@@ -24,7 +24,7 @@ export default function Login() {
     } else {
       setIsLogged(false)
     }
-  }, [])
+  })
 
   const handleOnClick = async () => {
     try {
