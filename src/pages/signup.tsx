@@ -8,6 +8,16 @@ import { useRouter } from 'next/router'
 export default function SignUp() {
   const router = useRouter()
 
+  const [isLogged, setIsLogged] = useState(true)
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      router.push('/workspace') // TODO: change routing page
+    } else {
+      setIsLogged(false)
+    }
+  }, [])
+
   const [failed, setFailed] = useState(false)
 
   const [form, setForm] = useState({
@@ -60,70 +70,72 @@ export default function SignUp() {
   }
 
   return (
-    <div style={{ height: '100vh' }}>
-      <Stack
-        spacing={3}
-        justifyContent="center"
-        alignItems="center"
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          paddingX: '400px',
-          height: '100%',
-        }}
-      >
-        <Typography
-          variant="h2"
-          sx={{ fontWeight: '900', color: '#2f6eba', marginBottom: '60px' }}
-        >
-          Sign Up
-        </Typography>
-        <LabeledInputBox
-          label="ID"
-          value=""
-          onChange={(e) => {
-            setForm((prev) => ({ ...prev, userId: e.target.value }))
+    !isLogged && (
+      <div style={{ height: '100vh' }}>
+        <Stack
+          spacing={3}
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingX: '400px',
+            height: '100%',
           }}
-        />
-        <Stack style={{ width: '100%' }}>
+        >
+          <Typography
+            variant="h2"
+            sx={{ fontWeight: '900', color: '#2f6eba', marginBottom: '60px' }}
+          >
+            Sign Up
+          </Typography>
           <LabeledInputBox
-            label="Password"
+            label="ID"
             value=""
             onChange={(e) => {
-              setForm((prev) => ({ ...prev, password: e.target.value }))
+              setForm((prev) => ({ ...prev, userId: e.target.value }))
             }}
           />
-          <Typography
-            variant="caption"
-            color="#CE0101"
-            display={valid || form.password === '' ? 'none' : ''}
-          >
-            Minimum 10 characters, at least one letter, one number and one
-            special character.
-          </Typography>
+          <Stack style={{ width: '100%' }}>
+            <LabeledInputBox
+              label="Password"
+              value=""
+              onChange={(e) => {
+                setForm((prev) => ({ ...prev, password: e.target.value }))
+              }}
+            />
+            <Typography
+              variant="caption"
+              color="#CE0101"
+              display={valid || form.password === '' ? 'none' : ''}
+            >
+              Minimum 10 characters, at least one letter, one number and one
+              special character.
+            </Typography>
+          </Stack>
+          <LabeledInputBox
+            label="Name"
+            value=""
+            style={{ marginBottom: '60px' }}
+            onChange={(e) => {
+              setForm((prev) => ({ ...prev, userName: e.target.value }))
+            }}
+          />
+          <Stack justifyContent="center" alignItems="center" spacing={1}>
+            <LinkButton onClick={handleOnClick} disabled={!ready || !valid}>
+              Sign up
+            </LinkButton>
+            <Typography
+              variant="caption"
+              color="#CE0101"
+              style={{ visibility: failed ? 'visible' : 'hidden' }}
+            >
+              Failed to sign up. Please try again.
+            </Typography>
+          </Stack>
         </Stack>
-        <LabeledInputBox
-          label="Name"
-          value=""
-          style={{ marginBottom: '60px' }}
-          onChange={(e) => {
-            setForm((prev) => ({ ...prev, userName: e.target.value }))
-          }}
-        />
-        <Stack justifyContent="center" alignItems="center" spacing={1}>
-          <LinkButton onClick={handleOnClick} disabled={!ready || !valid}>
-            Sign up
-          </LinkButton>
-          <Typography
-            variant="caption"
-            color="#CE0101"
-            style={{ visibility: failed ? 'visible' : 'hidden' }}
-          >
-            Failed to sign up. Please try again.
-          </Typography>
-        </Stack>
-      </Stack>
-    </div>
+      </div>
+    )
   )
 }

@@ -1,7 +1,7 @@
 import { Typography, Stack } from '@mui/material'
 import LabeledInputBox from '@/components/LabeledInputBox'
 import LinkButton from '@/components/LinkButton'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { localPort } from '@/utils/constants'
 import { useRouter } from 'next/router'
 
@@ -16,6 +16,16 @@ export default function Login() {
     password: '',
   })
 
+  const [isLogged, setIsLogged] = useState(true)
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      router.push('/workspace') // TODO: change routing page
+    } else {
+      setIsLogged(false)
+    }
+  }, [])
+
   const handleOnClick = async () => {
     try {
       const res = await fetch(`${localPort}/users/login`, {
@@ -26,89 +36,92 @@ export default function Login() {
         },
         body: JSON.stringify(form),
       })
-      await res.json()
-      router.push('/workspace')
+      const data = await res.json()
+      localStorage.setItem('token', data.token)
+      router.push('/workspace') // TODO: change routing page
     } catch (err) {
       setFailed(true)
     }
   }
 
   return (
-    <div style={{ height: '100vh' }}>
-      <Stack
-        spacing={3}
-        justifyContent="center"
-        alignItems="center"
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          paddingX: '400px',
-          height: '100%',
-        }}
-      >
+    !isLogged && (
+      <div style={{ height: '100vh' }}>
         <Stack
+          spacing={3}
           justifyContent="center"
           alignItems="center"
-          sx={{ marginBottom: '40px' }}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingX: '400px',
+            height: '100%',
+          }}
         >
-          <Typography
-            variant="h2"
-            sx={{ fontWeight: '900', color: '#2f6eba', marginBottom: '20px' }}
+          <Stack
+            justifyContent="center"
+            alignItems="center"
+            sx={{ marginBottom: '40px' }}
           >
-            Log In
-          </Typography>
-          <Typography
-            variant="h5"
-            display={isAfterSignUp ? '' : 'none'}
-            color="#2f6eba"
-          >
-            Welcome! Your account has been successfully created!
-          </Typography>
-          <Typography
-            variant="body1"
-            display={isAfterSignUp ? '' : 'none'}
-            color="#2f6eba"
-          >
-            Please log in to continue
-          </Typography>
-        </Stack>
-        <LabeledInputBox
-          label="ID"
-          value=""
-          onChange={(e) => {
-            setForm((prev) => ({ ...prev, userId: e.target.value }))
-            setFailed(false)
-          }}
-        />
-        <LabeledInputBox
-          label="Password"
-          value=""
-          style={{ marginBottom: '60px' }}
-          onChange={(e) => {
-            setForm((prev) => ({ ...prev, password: e.target.value }))
-            setFailed(false)
-          }}
-        />
-        <Stack justifyContent="center" alignItems="center" spacing={1}>
-          <Typography
-            variant="caption"
-            color="#CE0101"
-            style={{ visibility: failed ? 'visible' : 'hidden' }}
-          >
-            Failed to log in. Try agin after check your id or password.
-          </Typography>
-          <LinkButton
-            onClick={handleOnClick}
-            disabled={form.userId === '' || form.password === ''}
-          >
-            Log in
+            <Typography
+              variant="h2"
+              sx={{ fontWeight: '900', color: '#2f6eba', marginBottom: '20px' }}
+            >
+              Log In
+            </Typography>
+            <Typography
+              variant="h5"
+              display={isAfterSignUp ? '' : 'none'}
+              color="#2f6eba"
+            >
+              Welcome! Your account has been successfully created!
+            </Typography>
+            <Typography
+              variant="body1"
+              display={isAfterSignUp ? '' : 'none'}
+              color="#2f6eba"
+            >
+              Please log in to continue
+            </Typography>
+          </Stack>
+          <LabeledInputBox
+            label="ID"
+            value=""
+            onChange={(e) => {
+              setForm((prev) => ({ ...prev, userId: e.target.value }))
+              setFailed(false)
+            }}
+          />
+          <LabeledInputBox
+            label="Password"
+            value=""
+            style={{ marginBottom: '60px' }}
+            onChange={(e) => {
+              setForm((prev) => ({ ...prev, password: e.target.value }))
+              setFailed(false)
+            }}
+          />
+          <Stack justifyContent="center" alignItems="center" spacing={1}>
+            <Typography
+              variant="caption"
+              color="#CE0101"
+              style={{ visibility: failed ? 'visible' : 'hidden' }}
+            >
+              Failed to log in. Try agin after check your id or password.
+            </Typography>
+            <LinkButton
+              onClick={handleOnClick}
+              disabled={form.userId === '' || form.password === ''}
+            >
+              Log in
+            </LinkButton>
+          </Stack>
+          <LinkButton href="/signup" style={{ background: 'gray' }}>
+            Sign up
           </LinkButton>
         </Stack>
-        <LinkButton href="/signup" style={{ background: 'gray' }}>
-          Sign up
-        </LinkButton>
-      </Stack>
-    </div>
+      </div>
+    )
   )
 }
