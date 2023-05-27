@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import '../../../../app/globals.css'
+import '../../../../../app/globals.css'
 import React from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
