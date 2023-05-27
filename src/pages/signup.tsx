@@ -1,18 +1,22 @@
 import { Typography, Stack } from '@mui/material'
 import LabeledInputBox from '@/components/LabeledInputBox'
 import LinkButton from '@/components/LinkButton'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { localPort } from '@/utils/constants'
+import { useRouter } from 'next/router'
 
 export default function SignUp() {
+  const router = useRouter()
+
+  const [failed, setFailed] = useState(false)
+
   const [form, setForm] = useState({
     userId: '',
     password: '',
     userName: '',
   })
 
-  const [valid, setValid] = useState(false)
-
+  const [valid, setValid] = useState(true)
   function validate(password: string) {
     // Minimum ten characters, at least one letter, one number and one special character:
     // ref : https://stackoverflow.com/a/21456918
@@ -20,6 +24,17 @@ export default function SignUp() {
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{10,}$/
     setValid(regex.test(password))
   }
+
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    setFailed(false)
+    validate(form.password)
+    if (form.userId !== '' && form.password !== '' && form.userName !== '') {
+      setReady(true)
+    } else {
+      setReady(false)
+    }
+  }, [form])
 
   const handleOnClick = async () => {
     try {
@@ -31,9 +46,16 @@ export default function SignUp() {
         },
         body: JSON.stringify(form),
       })
-      const data = await res.json() // eslint-disable-line no-unused-vars
+      await res.json()
+      router.push(
+        {
+          pathname: '/login',
+          query: { afterSignUp: true },
+        },
+        '/login',
+      )
     } catch (err) {
-      // eslint-disable-line no-empty
+      setFailed(true)
     }
   }
 
@@ -70,7 +92,6 @@ export default function SignUp() {
             value=""
             onChange={(e) => {
               setForm((prev) => ({ ...prev, password: e.target.value }))
-              validate(e.target.value)
             }}
           />
           <Typography
@@ -90,9 +111,18 @@ export default function SignUp() {
             setForm((prev) => ({ ...prev, userName: e.target.value }))
           }}
         />
-        <LinkButton onClick={handleOnClick} disabled={!valid}>
-          Sign up
-        </LinkButton>
+        <Stack justifyContent="center" alignItems="center" spacing={1}>
+          <LinkButton onClick={handleOnClick} disabled={!ready || !valid}>
+            Sign up
+          </LinkButton>
+          <Typography
+            variant="caption"
+            color="#CE0101"
+            style={{ visibility: failed ? 'visible' : 'hidden' }}
+          >
+            Failed to sign up. Please try again.
+          </Typography>
+        </Stack>
       </Stack>
     </div>
   )

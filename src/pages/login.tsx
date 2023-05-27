@@ -3,8 +3,14 @@ import LabeledInputBox from '@/components/LabeledInputBox'
 import LinkButton from '@/components/LinkButton'
 import { useState } from 'react'
 import { localPort } from '@/utils/constants'
+import { useRouter } from 'next/router'
 
 export default function Login() {
+  const router = useRouter()
+  const isAfterSignUp = 'afterSignUp' in router.query
+
+  const [failed, setFailed] = useState(false)
+
   const [form, setForm] = useState({
     userId: '',
     password: '',
@@ -20,9 +26,10 @@ export default function Login() {
         },
         body: JSON.stringify(form),
       })
-      const data = await res.json() // eslint-disable-line no-unused-vars
+      await res.json()
+      router.push('/workspace')
     } catch (err) {
-      // eslint-disable-line no-empty
+      setFailed(true)
     }
   }
 
@@ -40,33 +47,64 @@ export default function Login() {
           height: '100%',
         }}
       >
-        <Typography
-          variant="h2"
-          sx={{ fontWeight: '900', color: '#2f6eba', marginBottom: '60px' }}
+        <Stack
+          justifyContent="center"
+          alignItems="center"
+          sx={{ marginBottom: '40px' }}
         >
-          Log In
-        </Typography>
+          <Typography
+            variant="h2"
+            sx={{ fontWeight: '900', color: '#2f6eba', marginBottom: '20px' }}
+          >
+            Log In
+          </Typography>
+          <Typography
+            variant="h5"
+            display={isAfterSignUp ? '' : 'none'}
+            color="#2f6eba"
+          >
+            Welcome! Your account has been successfully created!
+          </Typography>
+          <Typography
+            variant="body1"
+            display={isAfterSignUp ? '' : 'none'}
+            color="#2f6eba"
+          >
+            Please log in to continue
+          </Typography>
+        </Stack>
         <LabeledInputBox
           label="ID"
           value=""
-          onChange={(e) =>
+          onChange={(e) => {
             setForm((prev) => ({ ...prev, userId: e.target.value }))
-          }
+            setFailed(false)
+          }}
         />
         <LabeledInputBox
           label="Password"
           value=""
           style={{ marginBottom: '60px' }}
-          onChange={(e) =>
+          onChange={(e) => {
             setForm((prev) => ({ ...prev, password: e.target.value }))
-          }
+            setFailed(false)
+          }}
         />
-        <LinkButton
-          onClick={handleOnClick}
-          disabled={form.userId === '' || form.password === ''}
-        >
-          Log in
-        </LinkButton>
+        <Stack justifyContent="center" alignItems="center" spacing={1}>
+          <Typography
+            variant="caption"
+            color="#CE0101"
+            style={{ visibility: failed ? 'visible' : 'hidden' }}
+          >
+            Failed to log in. Try agin after check your id or password.
+          </Typography>
+          <LinkButton
+            onClick={handleOnClick}
+            disabled={form.userId === '' || form.password === ''}
+          >
+            Log in
+          </LinkButton>
+        </Stack>
         <LinkButton href="/signup" style={{ background: 'gray' }}>
           Sign up
         </LinkButton>
