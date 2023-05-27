@@ -1,10 +1,7 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint",
-    "prettier"
-  ],
+  "plugins": ["@typescript-eslint", "prettier"],
   "parserOptions": {
     "project": "./tsconfig.json",
     "createDefaultProgram": true
@@ -14,9 +11,7 @@
     "node": true,
     "es6": true
   },
-  "ignorePatterns": [
-    "node_modules/"
-  ],
+  "ignorePatterns": ["node_modules/"],
   "extends": [
     "airbnb",
     "airbnb-typescript",
@@ -33,19 +28,13 @@
     "react/jsx-filename-extension": [
       "warn",
       {
-        "extensions": [
-          ".ts",
-          ".tsx"
-        ]
+        "extensions": [".ts", ".tsx"]
       }
     ],
     "no-useless-catch": "off",
     "jsx-a11y/label-has-associated-control": "off",
     "react/self-closing-comp": "off",
     "dot-notation": 0,
-    "quotes": [
-      "error",
-      "single"
-    ]
+    "quotes": ["error", "single"]
   }
 }
