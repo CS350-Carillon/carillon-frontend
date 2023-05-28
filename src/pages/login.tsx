@@ -38,6 +38,7 @@ export default function Login() {
       })
       const data = await res.json()
       localStorage.setItem('token', data.token)
+      localStorage.setItem('_id', data._id) /* eslint no-underscore-dangle: 0 */
       router.push('/workspace') // TODO: change routing page
     } catch (err) {
       setFailed(true)

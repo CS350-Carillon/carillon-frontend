@@ -1,5 +1,6 @@
 import '../../app/globals.css'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -11,23 +12,9 @@ import AccordionDetails from '@mui/material/AccordionDetails'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import LabeledInputBox from '@/components/LabeledInputBox'
 import LinkButton from '@/components/LinkButton'
+import { localPort } from '@/utils/constants'
+import { IUser } from '@/utils/types'
 import SideBar from '../../components/SideBar'
-
-const dummyData = {
-  id: 'Dohyedo',
-  password: '12345678aa',
-  name: 'Dohye Kim',
-  channelList: [
-    {
-      workspace: 'CS350',
-      channels: ['Channel 1', 'Channel 2'],
-    },
-    {
-      workspace: 'CS420',
-      channels: ['Channel A', 'Channel B'],
-    },
-  ],
-}
 
 const StyledButton = styled(Button)({
   textTransform: 'none',
@@ -57,11 +44,7 @@ const StyledAccordion = styled((props: AccordionProps) => (
   },
 }))
 
-function ChannelList({
-  channelList,
-}: {
-  channelList: { workspace: string; channels: string[] }[]
-}) {
+function ChannelList({ userInfo }: { userInfo: IUser }) {
   return (
     <StyledAccordion sx={{ width: '100%' }}>
       <AccordionSummary
@@ -74,22 +57,27 @@ function ChannelList({
       </AccordionSummary>
       <AccordionDetails>
         <Grid container rowSpacing={0.4}>
-          {channelList.map((item) => (
-            <React.Fragment key={item.workspace}>
-              <Grid item xs={12}>
-                <StyledButton variant="text">
-                  <Typography>{item.workspace}</Typography>
-                </StyledButton>
-              </Grid>
-              {item.channels.map((channel) => (
-                <Grid item xs={12} paddingLeft={2} key={channel}>
+          {userInfo.owningWorkspaces
+            .concat(userInfo.participatingWorkspaces)
+            .map((item) => (
+              <React.Fragment key={item.name}>
+                <Grid item xs={12}>
                   <StyledButton variant="text">
-                    <Typography>{channel}</Typography>
+                    <Typography>{item.name}</Typography>
                   </StyledButton>
                 </Grid>
-              ))}
-            </React.Fragment>
-          ))}
+                {userInfo.owningChannels
+                  .concat(userInfo.participatingChannels)
+                  .filter((c) => c.workspace.name === item.name)
+                  .map((channel) => (
+                    <Grid item xs={12} paddingLeft={2} key={channel.name}>
+                      <StyledButton variant="text">
+                        <Typography>{channel.name}</Typography>
+                      </StyledButton>
+                    </Grid>
+                  ))}
+              </React.Fragment>
+            ))}
         </Grid>
       </AccordionDetails>
     </StyledAccordion>
@@ -97,6 +85,77 @@ function ChannelList({
 }
 
 export default function Mypage() {
+  const [token, setToken] = useState('')
+  const [id, setId] = useState('')
+  const router = useRouter()
+  const [form, setForm] = useState({ userId: '', password: '', userName: '' })
+  const [userInfo, setUserInfo] = useState<IUser>()
+  const [saveCode, setSaveCode] = useState(0)
+
+  const submitForm = async () => {
+    try {
+      const res = await fetch(`${localPort}/users/${id}`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          token,
+        },
+        body: JSON.stringify(form),
+      })
+      await res.json()
+      setSaveCode(1)
+    } catch (err) {
+      setSaveCode(-1)
+    }
+  }
+
+  useEffect(() => {
+    const t = localStorage.getItem('token')
+    const i = localStorage.getItem('_id')
+    if (!t || !i) {
+      router.push('/')
+    } else {
+      setToken(t)
+      setId(i)
+      const getData = async () => {
+        try {
+          const res = await fetch(`${localPort}/users/${i}`, {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              token: t,
+            },
+          })
+          const data = await res.json()
+          setUserInfo(data)
+        } catch (err) {
+          router.push('/')
+        }
+      }
+      getData()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (userInfo) {
+      setForm({
+        userId: userInfo.userId,
+        password: userInfo.password,
+        userName: userInfo.userName,
+      })
+    }
+  }, [userInfo])
+
+  useEffect(() => {
+    setSaveCode(0)
+  }, [form])
+
+  if (!userInfo) {
+    return <div></div>
+  }
+
   return (
     <SideBar>
       <Stack
@@ -111,17 +170,40 @@ export default function Mypage() {
           paddingX: '160px',
         }}
       >
-        <LabeledInputBox label="ID" value={dummyData.id} />
-        <LabeledInputBox label="Password" value={dummyData.password} />
-        <LabeledInputBox label="Name" value={dummyData.name} />
-        <ChannelList channelList={dummyData.channelList} />
-        <LinkButton
-          onClick={() => {
-            // TODO: API
-          }}
-        >
-          Save
-        </LinkButton>
+        <LabeledInputBox
+          label="ID"
+          value={form.userId}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, userId: e.target.value }))
+          }
+        />
+        <LabeledInputBox
+          label="Password"
+          value={form.password}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, password: e.target.value }))
+          }
+        />
+        <LabeledInputBox
+          label="Name"
+          value={form.userName}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, userName: e.target.value }))
+          }
+        />
+        <ChannelList userInfo={userInfo} />
+        <Stack justifyContent="center" alignItems="center">
+          <Typography
+            variant="caption"
+            color={saveCode < 0 ? '#CE0101' : '#2f6eba'}
+            style={{ visibility: saveCode !== 0 ? 'visible' : 'hidden' }}
+          >
+            {saveCode < 0
+              ? 'Failed to save. Try agin.'
+              : 'Saved your information successfully.'}
+          </Typography>
+          <LinkButton onClick={submitForm}>Save</LinkButton>
+        </Stack>
       </Stack>
     </SideBar>
   )
