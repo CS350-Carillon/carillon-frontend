@@ -5,16 +5,13 @@
   margin-bottom: 30px;
 }
 
-.reaction {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+.format:focus-within #reaction {
+  display: block;
+  outline: none;
 }
 
-.reactionRespond {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
+.format:not(:focus-within) #reaction {
+  display: none;
 }
 
 .text {

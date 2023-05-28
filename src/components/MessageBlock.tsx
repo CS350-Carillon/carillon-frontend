@@ -61,7 +61,7 @@ function Content({ content, userName }: { content: string; userName: string }) {
         paddingBottom={0.5}
       >
         <div> {userName} </div>
-        <IconButton aria-label="check" size="small">
+        <IconButton aria-label="check" size="small" sx={{ paddingRight: 2 }}>
           <DeleteIcon />
         </IconButton>
       </Stack>
@@ -129,9 +129,10 @@ function Reaction({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'flex-end',
+        paddingRight: 20,
       }}
     >
-      <Stack direction="row" spacing={1}>
+      <Stack direction="row" spacing={1} sx={{ borderRadius: 4, boxShadow: 2 }}>
         <Tooltip
           title={checkList.length > 0 ? checkList : ''}
           disableFocusListener={checkList.length === 0}
@@ -232,36 +233,6 @@ export default function MessageBlock({
 }) {
   const router = useRouter()
   const [msgState, setMsgState] = useState(message)
-  // const onIncrease = (
-  //   newUser: { userID: number; userName: string },
-  //   reactionType: string,
-  // ) => {
-  //   setMsgState((prevMsg) => {
-  //     return {
-  //       ...prevMsg,
-  //       chatReaction: {
-  //         ...prevMsg.chatReaction,
-  //         [reactionType]: [...prevMsg.chatReaction[reactionType], newUser],
-  //       },
-  //     }
-  //   })
-  // }
-  // const onDecrease = (
-  //   delUser: { userID: number; userName: string },
-  //   reactionType: string,
-  // ) => {
-  //   setMsgState((prevMsg) => {
-  //     return {
-  //       ...prevMsg,
-  //       chatReaction: {
-  //         ...prevMsg.chatReaction,
-  //         [reactionType]: prevMsg.chatReaction[reactionType].filter(
-  //           (e) => e.userID !== delUser.userID,
-  //         ),
-  //       },
-  //     }
-  //   })
-  // }
 
   const onClick = (
     targetUser: { userID: number; userName: string },
@@ -294,29 +265,33 @@ export default function MessageBlock({
   }
 
   return (
-    <div className={styles.format}>
+    <div className={styles.format} tabIndex={0}>
       <Stack direction="row" alignItems="flex-start" spacing={2}>
         <Profile />
         <div className={styles.text}>
-          <Content
-            content={msgState.chatContent}
-            userName={msgState.chatSender.name}
-          />
-          <Stack direction="row" justifyContent="space-between">
-            {respond ? (
-              <RespondButton
-                RespondOnClick={() => {
-                  router.push({
-                    pathname: `${router.asPath}/[messageId]`,
-                    query: { messageId: msgState.chatID },
-                  })
-                }}
-                respondLength={msgState.reply.length}
-              />
-            ) : (
-              <div />
-            )}
-            <Reaction reactions={msgState.chatReaction} onClick={onClick} />
+          <Stack direction="column" spacing={2}>
+            <Content
+              content={msgState.chatContent}
+              userName={msgState.chatSender.name}
+            />
+            <Stack direction="row" justifyContent="space-between">
+              {respond ? (
+                <RespondButton
+                  RespondOnClick={() => {
+                    router.push({
+                      pathname: `${router.asPath}/[messageId]`,
+                      query: { messageId: msgState.chatID },
+                    })
+                  }}
+                  respondLength={msgState.reply.length}
+                />
+              ) : (
+                <div />
+              )}
+              <div id={styles.reaction}>
+                <Reaction reactions={msgState.chatReaction} onClick={onClick} />
+              </div>
+            </Stack>
           </Stack>
         </div>
       </Stack>
