@@ -1,6 +1,5 @@
-import { useRouter } from 'next/router'
+import React, { useState, ChangeEvent } from 'react'
 import '../../../app/globals.css'
-import React from 'react'
 import CloudQueueIcon from '@mui/icons-material/CloudQueue'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -13,28 +12,64 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import SearchBar from '@/components/SearchBar'
+import { IWorkspace } from '@/utils/types'
+import { placeholder, localPort } from '@/utils/constants'
+import { useRouter } from 'next/router'
 import SideBar from '../../../components/SideBar'
 
-const dummyData = {
-  workspaceDescription: `Lorem ipsum dolor sit amet, consectetur adipiscing elit.Cras
-            blandit orci id finibus tristique.Donec ac feugiat neque.Proin
-            nulla ipsum, egestas nec finibus quis, tincidunt sed massa.Nulla
-            vestibulum felis magna, sit amet sagittis arcu condimentum non.
-            Donec accumsan ipsum nec leo maximus, at blandit turpis mollis.
-            Mauris ultrices ex nisi, vitae vehicula lorem laoreet quis.
-            Suspendisse in leo at ante ornare pulvinar.Phasellus aliquam
-            rhoncus augue dictum tincidunt.Sed rhoncus purus eget congue
-            accumsan.In non dolor purus.Donec facilisis hendrerit finibus.`,
-  channels: [1, 2, 3],
+interface WorkspacesProps {
+  workspaces: IWorkspace[]
 }
 
-export default function ClassMainPage() {
+export default function ClassMainPage({ workspaces }: WorkspacesProps) {
   const router = useRouter()
+  const [, setSearchQuery] = useState('')
+  const [, setSearchResults] = useState<IWorkspace[]>([])
+  const [selectedWorkspaces, setSelectedWorkspaces] = useState<IWorkspace[]>([])
+
+  const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value
+    setSearchQuery(query)
+
+    const matchedWorkspace = workspaces.find(
+      (workspace) => workspace.name.toLowerCase() === query.toLowerCase(),
+    )
+
+    const matchedWorkspaces = workspaces.filter((workspace) =>
+      workspace.name.toLowerCase().includes(query.toLowerCase()),
+    )
+
+    setSearchResults(matchedWorkspaces.slice(0, 5))
+
+    if (matchedWorkspace && !selectedWorkspaces.includes(matchedWorkspace)) {
+      setSelectedWorkspaces((prevMembers) => [...prevMembers, matchedWorkspace])
+    }
+  }
+
+  const handleDeleteWorkspace = () => {
+    // To Do: token 바꾸기
+    fetch(`${localPort}/workspaces/`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        token:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzM3MTYwZjJjNzNkMDgzMTgxNGM2ZiIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1MzI2OTk3LCJleHAiOjE2ODU0MTMzOTd9.A9vZOlUogSWpsD139orcTyHNVJCjow5Hg5Pb7xp0sZY',
+      },
+      body: JSON.stringify(selectedWorkspaces[0].name),
+    }).then((response) => {
+      if (response.ok) {
+        router.push('/workspace')
+      } else {
+        console.log('not response.ok')
+      }
+    })
+  }
 
   return (
     <SideBar>
       <Stack sx={{ paddingTop: 4 }} spacing={2}>
-        <SearchBar />
+        <SearchBar onChange={handleSearchQueryChange} />
         <Typography
           variant="h3"
           component="h3"
@@ -46,7 +81,9 @@ export default function ClassMainPage() {
           }}
         >
           <CloudQueueIcon sx={{ fontSize: 50, mr: 1 }} />
-          {String(router.query.classCode).toUpperCase()}
+          {selectedWorkspaces.length > 0
+            ? selectedWorkspaces[0].name.toUpperCase()
+            : null}
         </Typography>
         <Box
           sx={{
@@ -58,9 +95,8 @@ export default function ClassMainPage() {
           <Typography sx={{ paddingBottom: 2 }} variant="h5">
             Description
           </Typography>
-          <Typography variant="body1">
-            {dummyData.workspaceDescription}
-          </Typography>
+          {/* To Do: workspace에 description 추가 필요 */}
+          <Typography variant="body1">{placeholder.description}</Typography>
         </Box>
         <Box
           sx={{
@@ -74,7 +110,8 @@ export default function ClassMainPage() {
               <Typography variant="h5">Channels</Typography>
             </Grid>
             <Grid item xs={4}>
-              <SearchBar />
+              {/* To Do: Channel Search 추가 */}
+              <SearchBar onChange={handleSearchQueryChange} />
             </Grid>
             <List
               dense
@@ -82,19 +119,24 @@ export default function ClassMainPage() {
                 pl: 4,
               }}
             >
-              {dummyData.channels.map((value) => {
-                const labelId = `channel-${value}`
-                return (
-                  <ListItem key={value} disablePadding>
-                    <ListItemButton>
-                      <FolderOpenIcon sx={{ mr: 2 }} />
-                      <ListItemText id={labelId} primary={`Channel ${value}`} />
-                    </ListItemButton>
-                  </ListItem>
-                )
-              })}
+              {selectedWorkspaces.length > 0 &&
+                selectedWorkspaces[0].channels.map((value) => {
+                  const labelId = `channel-${value}`
+                  return (
+                    <ListItem key={labelId} disablePadding>
+                      <ListItemButton>
+                        <FolderOpenIcon sx={{ mr: 2 }} />
+                        <ListItemText
+                          id={labelId}
+                          primary={`Channel ${value}`}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  )
+                })}
             </List>
             <Grid item xs={12}>
+              {/* To Do: New Channel 추가 */}
               <Button sx={{ mt: 12 }} variant="text">
                 +New Channel
               </Button>
@@ -109,6 +151,7 @@ export default function ClassMainPage() {
           }}
         >
           <Typography variant="h5">Members</Typography>
+          {/* To Do: New Member 추가 */}
           <Button sx={{ mt: 1 }} variant="text">
             +New Member
           </Button>
@@ -119,11 +162,31 @@ export default function ClassMainPage() {
           }}
         >
           <Box></Box>
-          <Button sx={{ marginLeft: 'auto' }} variant="text">
+          <Button
+            sx={{ marginLeft: 'auto' }}
+            variant="text"
+            onClick={handleDeleteWorkspace}
+          >
             Delete Workspace
           </Button>
         </Box>
       </Stack>
     </SideBar>
   )
+}
+
+export async function getServerSideProps() {
+  const options = {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  }
+
+  const res = await fetch(`${localPort}/workspaces/`, options)
+  const workspaces = await res.json()
+
+  return {
+    props: { workspaces },
+  }
 }
