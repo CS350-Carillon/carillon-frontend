@@ -4,6 +4,7 @@ export interface IWorkspace {
   invitationCode: string
   members: IUser[]
   defaultChannel: IChannel
+  channels: IChannel[]
 }
 
 export interface IUser {
