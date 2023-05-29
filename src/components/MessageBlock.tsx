@@ -16,7 +16,7 @@ import styles from './MessageBlock.module.css'
 
 const dummyUser = { userName: 'Sihyun', userID: 1 }
 
-interface MsgProps {
+export interface MsgProps {
   chatID: string
   chatContent: string
   chatReaction: {
@@ -27,17 +27,14 @@ interface MsgProps {
     thumbup: { userID: number; userName: string }[]
   }
   chatSender: { name: string }
-  reply: {
+  reply?: {
     chatID: string
     chatContent: string
     chatReaction: {
-      check: [
-        { userID: 1; userName: 'Sihyun' },
-        { userID: 2; userName: 'Jack' },
-      ]
-      favorite: [{ userID: 3; userName: 'Susan' }]
-      moodbad: []
-      thumbup: []
+      check: { userID: number; userName: string }[]
+      favorite: { userID: number; userName: string }[]
+      moodbad: { userID: number; userName: string }[]
+      thumbup: { userID: number; userName: string }[]
     }
     chatSender: { name: string }
   }[]
@@ -232,7 +229,7 @@ export default function MessageBlock({
   respond: boolean
 }) {
   const router = useRouter()
-  const [msgState, setMsgState] = useState(message)
+  const [msgState, setMsgState] = useState<MsgProps>(message)
 
   const onClick = (
     targetUser: { userID: number; userName: string },
@@ -266,7 +263,13 @@ export default function MessageBlock({
 
   return (
     <div className={styles.format} tabIndex={0}>
-      <Stack direction="row" alignItems="flex-start" spacing={2}>
+      <Stack
+        direction="row"
+        alignItems="flex-start"
+        justifyContent="space-between"
+        spacing={2}
+        sx={{ width: '100%' }}
+      >
         <Profile />
         <div className={styles.text}>
           <Stack direction="column" spacing={2}>
@@ -283,7 +286,7 @@ export default function MessageBlock({
                       query: { messageId: msgState.chatID },
                     })
                   }}
-                  respondLength={msgState.reply.length}
+                  respondLength={msgState.reply ? msgState.reply.length : 0}
                 />
               ) : (
                 <div />
