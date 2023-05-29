@@ -1,12 +1,15 @@
 import * as React from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import axios from 'axios'
+import { localPort } from '@/utils/constants'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import style from './SideBar.module.css'
 import useWindowDimensions from './WindowSize'
+import style from './SideBar.module.css'
 
 export default function SideBar({ children }: { children: React.ReactNode }) {
   const styles = {
@@ -28,11 +31,25 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
   }
 
   const [expanded, setExpanded] = React.useState<string | false>(false)
+  const [data, setData] = useState(null)
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false)
     }
+
+  const fetchData = async () => {
+    try {
+      const result = await axios(`${localPort}/channels/`)
+      return result
+    } catch (err) {
+      return err
+    }
+  }
+
+  useEffect(() => {
+    fetchData().then((res) => setData(res.data))
+  }, [])
 
   return (
     <div
@@ -97,10 +114,16 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               }}
             >
               <div>
-                <Link href="/workspace/cs350" className={style.accordionChild}>
-                  {' '}
-                  CS350{' '}
-                </Link>
+                {data.map((workspace) => (
+                  <Link
+                    key={workspace.description}
+                    href="/workspace/cs350"
+                    className={style.accordionChild}
+                  >
+                    {workspace.description}
+                    <br />
+                  </Link>
+                ))}
               </div>
               <Link href="/new"> New Workspace </Link>
             </AccordionDetails>
