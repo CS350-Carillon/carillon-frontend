@@ -32,7 +32,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
 
   const [expanded, setExpanded] = React.useState<string | false>(false)
   const [data, setData] = useState(null)
-  const [workspace, setWorkspace] = useState(null)
+  const [currentworkspace, setWorkspace] = useState(null)
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -77,7 +77,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             color: '#2f6eba',
             marginBottom: '10px',
             textDecoration: 'none',
-            width: '100%'
+            width: '100%',
           }}
         >
           {' '}
@@ -95,14 +95,10 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             padding: '10px',
           }}
         >
-          <div style={{
-            margin: '10px',
-            color: 'white',
-            fontWeight:'bold'
-          }}>
-            {workspace}
+          <div style={{ margin: '10px', color: 'white', fontWeight: 'bold' }}>
+            {currentworkspace}
           </div>
-          <div style={{width:'90%', borderTop:'1px solid white'}}/>
+          <div style={{ width: '90%', borderTop: '1px solid white' }} />
           <Accordion
             expanded={expanded === 'workspace'}
             onChange={handleChange('workspace')}
@@ -124,19 +120,20 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               }}
             >
               <div>
-                {data && data.map((workspace) => (
-                  <Link
-                    key={workspace.description}
-                    href={`/workspace/${workspace.description}`}
-                    className={style.accordionChild}
-                    onClick={()=>setWorkspace(workspace.description)}
-                  >
-                    {workspace.description}
-                    <br />
-                  </Link>
-                ))}
+                {data &&
+                  data.map((workspace) => (
+                    <Link
+                      key={workspace.description}
+                      href={`/workspace/${workspace.description}`}
+                      className={style.accordionChild}
+                      onClick={() => setWorkspace(workspace.description)}
+                    >
+                      {workspace.description}
+                      <br />
+                    </Link>
+                  ))}
               </div>
-              <Link href="/workspace/create"> New Workspace </Link>
+              <Link href="/"> New Workspace </Link>
             </AccordionDetails>
           </Accordion>
           <Accordion
