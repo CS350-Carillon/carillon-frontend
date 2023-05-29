@@ -32,6 +32,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
 
   const [expanded, setExpanded] = React.useState<string | false>(false)
   const [data, setData] = useState(null)
+  const [workspace, setWorkspace] = useState(null)
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -76,6 +77,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             color: '#2f6eba',
             marginBottom: '10px',
             textDecoration: 'none',
+            width: '100%'
           }}
         >
           {' '}
@@ -93,6 +95,14 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             padding: '10px',
           }}
         >
+          <div style={{
+            margin: '10px',
+            color: 'white',
+            fontWeight:'bold'
+          }}>
+            {workspace}
+          </div>
+          <div style={{width:'90%', borderTop:'1px solid white'}}/>
           <Accordion
             expanded={expanded === 'workspace'}
             onChange={handleChange('workspace')}
@@ -114,18 +124,19 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               }}
             >
               <div>
-                {data.map((workspace) => (
+                {data && data.map((workspace) => (
                   <Link
                     key={workspace.description}
-                    href="/workspace/cs350"
+                    href={`/workspace/${workspace.description}`}
                     className={style.accordionChild}
+                    onClick={()=>setWorkspace(workspace.description)}
                   >
                     {workspace.description}
                     <br />
                   </Link>
                 ))}
               </div>
-              <Link href="/new"> New Workspace </Link>
+              <Link href="/workspace/create"> New Workspace </Link>
             </AccordionDetails>
           </Accordion>
           <Accordion
