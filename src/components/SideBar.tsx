@@ -32,7 +32,9 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
 
   const [expanded, setExpanded] = React.useState<string | false>(false)
   const [data, setData] = useState(null)
-  const [currentworkspace, setWorkspace] = useState(null)
+  const [currentworkspace, setWorkspace] = useState('')
+  const [allChannels, setChannel] = useState(null)
+  const channels = []
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -40,6 +42,15 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
     }
 
   const fetchData = async () => {
+    try {
+      const result = await axios(`${localPort}/workspaces/`)
+      return result
+    } catch (err) {
+      return err
+    }
+  }
+
+  const fetchChannels = async () => {
     try {
       const result = await axios(`${localPort}/channels/`)
       return result
@@ -50,7 +61,23 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchData().then((res) => setData(res.data))
+    fetchChannels().then((res) => setChannel(res.data))
   }, [])
+
+  // const channels = currentworkspace.channels
+  const currentchannels = currentworkspace.channels
+
+  function filterById(object, id) {
+    return object.filter((o) => o.id === id)[0]
+  }
+
+  if (currentchannels != null) {
+    currentchannels.map((item) => {
+      const tempChannel = filterById(allChannels, item.id)
+      channels.push(tempChannel)
+      return true
+    })
+  }
 
   return (
     <div
@@ -96,7 +123,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
           }}
         >
           <div style={{ margin: '10px', color: 'white', fontWeight: 'bold' }}>
-            {currentworkspace}
+            {currentworkspace.name}
           </div>
           <div style={{ width: '90%', borderTop: '1px solid white' }} />
           <Accordion
@@ -123,12 +150,12 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                 {data &&
                   data.map((workspace) => (
                     <Link
-                      key={workspace.description}
-                      href={`/workspace/${workspace.description}`}
+                      key={workspace.name}
+                      href={`/workspace/${workspace.name}`}
                       className={style.accordionChild}
-                      onClick={() => setWorkspace(workspace.description)}
+                      onClick={() => setWorkspace(workspace)}
                     >
-                      {workspace.description}
+                      {workspace.name}
                       <br />
                     </Link>
                   ))}
@@ -150,20 +177,16 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
             </AccordionSummary>
             <AccordionDetails sx={{ height: gap }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Link
-                  href="/workspace/cs350/channel1"
-                  className={style.accordionChild}
-                >
-                  {' '}
-                  Channel1{' '}
-                </Link>
-                <Link
-                  href="/workspace/cs350/channel2"
-                  className={style.accordionChild}
-                >
-                  {' '}
-                  Channel2{' '}
-                </Link>
+                {channels &&
+                  channels.map((c) => (
+                    <Link
+                      key={c}
+                      href={`/workspace/cs350/channel/${c.description}`}
+                      className={style.accordionChild}
+                    >
+                      {c.description}
+                    </Link>
+                  ))}
               </div>
             </AccordionDetails>
           </Accordion>
