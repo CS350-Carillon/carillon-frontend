@@ -1,6 +1,6 @@
+import React, { useState, ChangeEvent } from 'react'
 import { useRouter } from 'next/router'
 import '../../../../../app/globals.css'
-import React from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
@@ -13,23 +13,44 @@ import ListItemAvatar from '@mui/material/ListItemAvatar'
 import Avatar from '@mui/material/Avatar'
 import Checkbox from '@mui/material/Checkbox'
 import SearchBar from '@/components/SearchBar'
+import { IChannel } from '@/utils/types'
+import { localPort } from '@/utils/constants'
 import SideBar from '../../../../../components/SideBar'
 
-const dummyData = {
-  channelDescription: `Lorem ipsum dolor sit amet, consectetur adipiscing elit.Cras
-            blandit orci id finibus tristique.Donec ac feugiat neque.Proin
-            nulla ipsum, egestas nec finibus quis, tincidunt sed massa.Nulla
-            vestibulum felis magna, sit amet sagittis arcu condimentum non.
-            Donec accumsan ipsum nec leo maximus, at blandit turpis mollis.
-            Mauris ultrices ex nisi, vitae vehicula lorem laoreet quis.
-            Suspendisse in leo at ante ornare pulvinar.Phasellus aliquam
-            rhoncus augue dictum tincidunt.Sed rhoncus purus eget congue
-            accumsan.In non dolor purus.Donec facilisis hendrerit finibus.`,
-  members: ['Mina', 'Whyojin', 'Erik', 'Lion', 'Susana', 'Becky', 'Woojin'],
+interface ChannelProps {
+  channels: IChannel[]
 }
 
-export default function ChannelComp() {
+export default function ChannelComp({ channels }: ChannelProps) {
   const router = useRouter()
+  const [, setSearchQuery] = useState('')
+
+  const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value
+    setSearchQuery(query)
+  }
+
+  const handleDeleteChannel = () => {
+    // To Do: token 바꾸기
+    fetch(`${localPort}/channels/`, {
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        token:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzM3MTYwZjJjNzNkMDgzMTgxNGM2ZiIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1MzI2OTk3LCJleHAiOjE2ODU0MTMzOTd9.A9vZOlUogSWpsD139orcTyHNVJCjow5Hg5Pb7xp0sZY',
+      },
+      body: JSON.stringify(channels[0].name),
+    }).then((response) => {
+      if (response.ok) {
+        console.log('response.ok')
+        // router.push('/workspace')
+      } else {
+        console.log('not response.ok')
+      }
+    })
+  }
+
   return (
     <SideBar>
       <Stack sx={{ paddingTop: 4 }} spacing={2}>
@@ -55,7 +76,9 @@ export default function ChannelComp() {
             </Box>
           </Grid>
           <Grid item xs={2}>
-            <Button variant="text">Delete Workspace</Button>
+            <Button variant="text" onClick={handleDeleteChannel}>
+              Delete Workspace
+            </Button>
           </Grid>
         </Grid>
         <Box
@@ -68,19 +91,15 @@ export default function ChannelComp() {
           <Typography sx={{ paddingBottom: 2 }} variant="h5">
             Description
           </Typography>
-          <Typography variant="body1">
-            {dummyData.channelDescription}
-          </Typography>
+          <Typography variant="body1">{channels[0].description}</Typography>
         </Box>
         <Box>
           <Grid container spacing={2}>
             <Grid item xs={10}>
-              <Typography variant="h5">
-                Members ({dummyData.members.length})
-              </Typography>
+              <Typography variant="h5">Members</Typography>
             </Grid>
             <Grid item xs={2}>
-              <SearchBar />
+              <SearchBar onChange={handleSearchQueryChange} />
             </Grid>
           </Grid>
           <List
@@ -89,10 +108,10 @@ export default function ChannelComp() {
               pl: 2,
             }}
           >
-            {dummyData.members.map((value) => {
+            {channels[0].members.map((value) => {
               const labelId = `member-${value}`
               return (
-                <ListItem key={value} disablePadding>
+                <ListItem key={labelId} disablePadding>
                   <ListItem>
                     <ListItemAvatar>
                       <Avatar
@@ -110,4 +129,20 @@ export default function ChannelComp() {
       </Stack>
     </SideBar>
   )
+}
+
+export async function getServerSideProps() {
+  const options = {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  }
+
+  const res = await fetch(`${localPort}/channels/`, options)
+  const channels = await res.json()
+
+  return {
+    props: { channels },
+  }
 }
