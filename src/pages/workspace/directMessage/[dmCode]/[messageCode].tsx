@@ -13,11 +13,11 @@ export default function DmRespComp() {
   // const [token, setToken] = useState('')
   // const [id, setId] = useState('')
   const [chat, setChat] = useState<MsgProps>({
-    chatID: '',
-    chatContent: '',
-    chatReaction: { check: [], favorite: [], moodbad: [], thumbup: [] },
-    chatSender: { name: '' },
-    reply: [],
+    id: '',
+    content: '',
+    responses: [],
+    reactions: { check: [], favorite: [], moodbad: [], thumbup: [] },
+    sender: { name: '' },
   })
 
   const [response, setResponse] = useState<MsgProps[]>([])
@@ -42,18 +42,18 @@ export default function DmRespComp() {
         })
         const data = await res.json()
         setChat({
-          chatID: data[0]._id /* eslint no-underscore-dangle: 0 */,
-          chatContent: data[0].content,
-          chatReaction: {
+          id: data[0]._id /* eslint no-underscore-dangle: 0 */,
+          content: data[0].content,
+          reactions: {
             check: [],
             favorite: [],
             moodbad: [],
             thumbup: [],
           },
-          chatSender: { name: 'empty sender' },
-          reply: data[0].responses,
+          sender: { name: 'empty sender' },
+          responses: data[0].responses,
         })
-        setResponse(data[0].reply)
+        setResponse(data[0].responses)
       } catch (err) {
         router.push('/')
       }
@@ -62,7 +62,7 @@ export default function DmRespComp() {
     // }
   }, [router])
 
-  if (chat.chatID === '') {
+  if (chat.id === '') {
     return <div></div>
   }
 
@@ -90,11 +90,7 @@ export default function DmRespComp() {
               <div>Responses</div>
               {response &&
                 response.map((msg: MsgProps) => (
-                  <MessageBlock
-                    key={msg.chatID}
-                    message={msg}
-                    respond={false}
-                  />
+                  <MessageBlock key={msg.id} message={msg} respond={false} />
                 ))}
             </Stack>
           </div>

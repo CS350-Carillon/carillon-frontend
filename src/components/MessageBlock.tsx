@@ -17,27 +17,17 @@ import styles from './MessageBlock.module.css'
 const dummyUser = { userName: 'Sihyun', userID: 1 }
 
 export interface MsgProps {
-  chatID: string
-  chatContent: string
-  chatReaction: {
+  id: string
+  content: string
+  responses?: MsgProps[]
+  reactions: {
     [index: string]: { userID: number; userName: string }[]
     check: { userID: number; userName: string }[]
     favorite: { userID: number; userName: string }[]
     moodbad: { userID: number; userName: string }[]
     thumbup: { userID: number; userName: string }[]
   }
-  chatSender: { name: string }
-  reply?: {
-    chatID: string
-    chatContent: string
-    chatReaction: {
-      check: { userID: number; userName: string }[]
-      favorite: { userID: number; userName: string }[]
-      moodbad: { userID: number; userName: string }[]
-      thumbup: { userID: number; userName: string }[]
-    }
-    chatSender: { name: string }
-  }[]
+  sender: { name: string }
 }
 
 function Profile() {
@@ -237,24 +227,24 @@ export default function MessageBlock({
     reactionExist: boolean,
   ) => {
     if (reactionExist) {
-      setMsgState((prevMsg) => {
+      setMsgState((prevMsg: MsgProps) => {
         return {
           ...prevMsg,
-          chatReaction: {
-            ...prevMsg.chatReaction,
-            [reactionType]: prevMsg.chatReaction[reactionType].filter(
+          reactions: {
+            ...prevMsg.reactions,
+            [reactionType]: prevMsg.reactions[reactionType].filter(
               (e) => e.userID !== targetUser.userID,
             ),
           },
         }
       })
     } else {
-      setMsgState((prevMsg) => {
+      setMsgState((prevMsg: MsgProps) => {
         return {
           ...prevMsg,
-          chatReaction: {
-            ...prevMsg.chatReaction,
-            [reactionType]: [...prevMsg.chatReaction[reactionType], targetUser],
+          reactions: {
+            ...prevMsg.reactions,
+            [reactionType]: [...prevMsg.reactions[reactionType], targetUser],
           },
         }
       })
@@ -274,8 +264,8 @@ export default function MessageBlock({
         <div className={styles.text}>
           <Stack direction="column" spacing={2}>
             <Content
-              content={msgState.chatContent}
-              userName={msgState.chatSender.name}
+              content={msgState.content}
+              userName={msgState.sender.name}
             />
             <Stack direction="row" justifyContent="space-between">
               {respond ? (
@@ -283,16 +273,18 @@ export default function MessageBlock({
                   RespondOnClick={() => {
                     router.push({
                       pathname: `${router.asPath}/[messageId]`,
-                      query: { messageId: msgState.chatID },
+                      query: { messageId: msgState.id },
                     })
                   }}
-                  respondLength={msgState.reply ? msgState.reply.length : 0}
+                  respondLength={
+                    msgState.responses ? msgState.responses.length : 0
+                  }
                 />
               ) : (
                 <div />
               )}
               <div id={styles.reaction}>
-                <Reaction reactions={msgState.chatReaction} onClick={onClick} />
+                <Reaction reactions={msgState.reactions} onClick={onClick} />
               </div>
             </Stack>
           </Stack>

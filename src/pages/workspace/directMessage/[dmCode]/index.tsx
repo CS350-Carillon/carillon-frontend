@@ -32,20 +32,30 @@ export default function DmComp() {
           },
         })
         const data = await res.json()
-        setChat([
-          {
-            chatID: data[0]._id /* eslint no-underscore-dangle: 0 */,
-            chatContent: data[0].content,
-            chatReaction: {
-              check: [],
-              favorite: [],
-              moodbad: [],
-              thumbup: [],
+        setChat(
+          data.map(
+            (d: {
+              _id: string
+              content: string
+              channel: string
+              responses: string[]
+              reactions: string[]
+            }) => {
+              return {
+                id: d._id /* eslint no-underscore-dangle: 0 */,
+                content: d.content,
+                responses: d.responses,
+                reactions: {
+                  check: [],
+                  favorite: [],
+                  moodbad: [],
+                  thumbup: [],
+                },
+                sender: { name: 'empty sender' },
+              }
             },
-            chatSender: { name: 'empty sender' },
-            reply: data[0].responses,
-          },
-        ])
+          ),
+        )
       } catch (err) {
         router.push('/')
       }
@@ -65,7 +75,7 @@ export default function DmComp() {
           }}
         >
           {chatList.map((msg: MsgProps) => (
-            <MessageBlock key={msg.chatID} message={msg} respond />
+            <MessageBlock key={msg.id} message={msg} respond />
           ))}
         </Stack>
         <InputBox />
