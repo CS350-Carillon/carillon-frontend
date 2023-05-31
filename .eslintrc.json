@@ -36,6 +36,7 @@
     "jsx-a11y/no-noninteractive-tabindex": "off",
     "react/self-closing-comp": "off",
     "dot-notation": 0,
-    "quotes": ["error", "single"]
+    "quotes": ["error", "single"],
+    "react/require-default-props": "off"
   }
 }

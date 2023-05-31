@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { localPort } from '@/utils/constants'
-import SideBar from '../../../../components/SideBar'
-import MessageBlock, { MsgProps } from '../../../../components/MessageBlock'
-import InputBox from '../../../../components/InputBox'
+import SideBar from '../../../../../components/SideBar'
+import MessageBlock, { MsgProps } from '../../../../../components/MessageBlock'
+import InputBox from '../../../../../components/InputBox'
 
-export default function DmComp() {
+export default function ChannelComp() {
   const router = useRouter()
   // const [token, setToken] = useState('')
   // const [id, setId] = useState('')
@@ -17,13 +17,13 @@ export default function DmComp() {
     // const t = localStorage.getItem('token')
     // const i = localStorage.getItem('_id')
     // if (false) {
-    // router.push('/')
+    //   // router.push('/')
     // } else {
     // setToken(t)
     // setId(i)
     const getData = async () => {
       try {
-        const res = await fetch(`${localPort}/chats`, {
+        const res = await fetch(`${localPort}/chats/`, {
           method: 'GET',
           headers: {
             Accept: 'application/json',
@@ -64,10 +64,17 @@ export default function DmComp() {
     // }
   }, [router])
 
+  if (chatList.length === 0) {
+    return <div></div>
+  }
+
   return (
     <SideBar>
       <Stack spacing={2} sx={{ height: '90vh', display: 'flex' }}>
-        <Typography variant="h3"> DM Name {router.query.dmCode} </Typography>
+        <Typography variant="h3">
+          {' '}
+          Channel Name {router.query.channelCode}{' '}
+        </Typography>
         <Stack
           sx={{
             flexGrow: 1,
