@@ -4,6 +4,7 @@ import LinkButton from '@/components/LinkButton'
 import { useState, useEffect } from 'react'
 import { localPort } from '@/utils/constants'
 import { useRouter } from 'next/router'
+import validatePassword from '@/utils/validatePassword'
 
 export default function SignUp() {
   const router = useRouter()
@@ -27,19 +28,11 @@ export default function SignUp() {
   })
 
   const [valid, setValid] = useState(true)
-  function validate(password: string) {
-    // At least 10 characters by combining two or more of English letters, numbers, and special characters (English letter required),
-    // or at least 8 characters by combining all English letters, numbers, and special characters.
-    // Valid special chracters include !, @, #, $, %, ^, &, or *. Referenced from https://www.ibm.com/support/pages/password-policy-and-passwords-special-characters:
-    const regex =
-      /(?=.*[a-zA-Z])(?=.*[0-9!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{10,}|(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}/
-    setValid(regex.test(password))
-  }
 
   const [ready, setReady] = useState(false)
   useEffect(() => {
     setFailed(false)
-    validate(form.password)
+    setValid(validatePassword(form.password))
     if (form.userId !== '' && form.password !== '' && form.userName !== '') {
       setReady(true)
     } else {
@@ -102,6 +95,7 @@ export default function SignUp() {
             <LabeledInputBox
               label="Password"
               value=""
+              type="password"
               onChange={(e) => {
                 setForm((prev) => ({ ...prev, password: e.target.value }))
               }}

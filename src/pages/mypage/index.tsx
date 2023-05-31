@@ -14,6 +14,7 @@ import LabeledInputBox from '@/components/LabeledInputBox'
 import LinkButton from '@/components/LinkButton'
 import { localPort } from '@/utils/constants'
 import { IUser } from '@/utils/types'
+import validatePassword from '@/utils/validatePassword'
 import SideBar from '../../components/SideBar'
 
 const StyledButton = styled(Button)({
@@ -91,6 +92,7 @@ export default function Mypage() {
   const [form, setForm] = useState({ userId: '', password: '', userName: '' })
   const [userInfo, setUserInfo] = useState<IUser>()
   const [saveCode, setSaveCode] = useState(0)
+  const [valid, setValid] = useState(true)
 
   const submitForm = async () => {
     try {
@@ -136,7 +138,7 @@ export default function Mypage() {
       }
       getData()
     }
-  }, [])
+  }, [router])
 
   useEffect(() => {
     if (userInfo) {
@@ -150,6 +152,7 @@ export default function Mypage() {
 
   useEffect(() => {
     setSaveCode(0)
+    setValid(validatePassword(form.password))
   }, [form])
 
   if (!userInfo) {
@@ -177,13 +180,25 @@ export default function Mypage() {
             setForm((prev) => ({ ...prev, userId: e.target.value }))
           }
         />
-        <LabeledInputBox
-          label="Password"
-          value={form.password}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, password: e.target.value }))
-          }
-        />
+        <Stack style={{ width: '100%' }}>
+          <LabeledInputBox
+            label="New Password"
+            type="password"
+            value=""
+            onChange={(e) => {
+              setForm((prev) => ({ ...prev, password: e.target.value }))
+            }}
+          />
+          <Typography
+            variant="caption"
+            color="#CE0101"
+            display={valid || form.password === '' ? 'none' : ''}
+          >
+            At least 10 characters including English letters and numbers or
+            special characters. At least 8 characters including all three. Only
+            !, @, #, $, %, ^, &, and * are allowed for the special characters.
+          </Typography>
+        </Stack>
         <LabeledInputBox
           label="Name"
           value={form.userName}
@@ -202,7 +217,12 @@ export default function Mypage() {
               ? 'Failed to save. Try agin.'
               : 'Saved your information successfully.'}
           </Typography>
-          <LinkButton onClick={submitForm}>Save</LinkButton>
+          <LinkButton
+            onClick={submitForm}
+            disabled={form.userId === '' || form.userName === '' || !valid}
+          >
+            Save
+          </LinkButton>
         </Stack>
       </Stack>
     </SideBar>
