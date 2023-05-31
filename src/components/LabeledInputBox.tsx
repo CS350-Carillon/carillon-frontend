@@ -41,8 +41,3 @@ export default function LabeledInputBox({
     </Grid>
   )
 }
-
-LabeledInputBox.defaultProps = {
-  style: undefined,
-  onChange: undefined,
-}
