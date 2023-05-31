@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import axios from 'axios'
 import { localPort } from '@/utils/constants'
 import Accordion from '@mui/material/Accordion'
@@ -25,6 +26,8 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
   let gap = 0
   let h = 0
 
+  const router = useRouter()
+
   if (height) {
     gap = height - 400
     h = height
@@ -32,9 +35,9 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
 
   const [expanded, setExpanded] = React.useState<string | false>(false)
   const [data, setData] = useState(null)
-  const [currentworkspace, setWorkspace] = useState('')
+  const [currentworkspace, setWorkspace] = useState("")
   const [allChannels, setChannel] = useState(null)
-  const channels = []
+  const channels:any = []
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -123,7 +126,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
           }}
         >
           <div style={{ margin: '10px', color: 'white', fontWeight: 'bold' }}>
-            {currentworkspace.name}
+            {router.query.classCode == null ? "Select a workspace" : router.query.classCode}
           </div>
           <div style={{ width: '90%', borderTop: '1px solid white' }} />
           <Accordion
