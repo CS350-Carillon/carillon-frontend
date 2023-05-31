@@ -4,6 +4,7 @@ import LinkButton from '@/components/LinkButton'
 import { useEffect, useState } from 'react'
 import { localPort } from '@/utils/constants'
 import { useRouter } from 'next/router'
+import { io } from 'socket.io-client'
 
 export default function Login() {
   const router = useRouter()
@@ -26,6 +27,15 @@ export default function Login() {
     }
   }, [router])
 
+  const handleLogin = ({ id, token }: { id: string; token: string }) => {
+    localStorage.setItem('_id', id)
+    localStorage.setItem('token', token)
+    const socket = io(localPort)
+    socket.emit('connection')
+    socket.emit('init', { userId: id })
+    router.push('/workspace') // TODO: change routing page
+  }
+
   const handleOnClick = async () => {
     try {
       const res = await fetch(`${localPort}/users/login`, {
@@ -37,8 +47,10 @@ export default function Login() {
         body: JSON.stringify(form),
       })
       const data = await res.json()
-      localStorage.setItem('token', data.token)
-      router.push('/workspace') // TODO: change routing page
+      handleLogin({
+        id: data._id,
+        token: data.token,
+      }) /* eslint no-underscore-dangle: 0 */
     } catch (err) {
       setFailed(true)
     }
