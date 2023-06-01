@@ -35,9 +35,9 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
 
   const [expanded, setExpanded] = React.useState<string | false>(false)
   const [data, setData] = useState(null)
-  const [currentworkspace, setWorkspace] = useState("")
+  const [currentworkspace, setWorkspace] = useState('')
   const [allChannels, setChannel] = useState(null)
-  const channels:any = []
+  const channels = []
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -86,163 +86,173 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
     <div
       style={{
         display: 'flex',
-        flexDirection: 'row',
-        width: '90%',
-        justifyContent: 'center',
-        margin: '20px',
-        overflowX: 'hidden',
+        flexDirection: 'column',
       }}
     >
-      <div
+      <Link
+        href="/workspace"
         style={{
-          marginRight: '40px',
-          height: h,
+          fontSize: '18pt',
+          fontWeight: '900',
+          color: '#2f6eba',
+          marginTop: '10px',
+          marginLeft: '10px',
+          textDecoration: 'none',
+          width: '100%',
         }}
       >
-        <Link
-          href="/workspace"
-          style={{
-            fontSize: '18pt',
-            fontWeight: '900',
-            color: '#2f6eba',
-            marginBottom: '10px',
-            textDecoration: 'none',
-            width: '100%',
-          }}
-        >
-          {' '}
-          Carrilon{' '}
-        </Link>
+        {' '}
+        Carrilon{' '}
+      </Link>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          width: '90%',
+          justifyContent: 'center',
+          margin: '10px',
+          overflowX: 'hidden',
+        }}
+      >
         <div
           style={{
-            width: '200px',
-            backgroundColor: '#2f6eba',
-            height: '90vh',
-            borderRadius: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            flexDirection: 'column',
-            padding: '10px',
+            marginRight: '40px',
+            height: h,
           }}
         >
-          <div style={{ margin: '10px', color: 'white', fontWeight: 'bold' }}>
-            {router.query.classCode == null ? "Select a workspace" : router.query.classCode}
+          <div
+            style={{
+              width: '200px',
+              backgroundColor: '#2f6eba',
+              height: '90vh',
+              borderRadius: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'column',
+              padding: '10px',
+            }}
+          >
+            <div style={{ margin: '10px', color: 'white', fontWeight: 'bold' }}>
+              {router.query.classCode == null
+                ? 'Select a workspace'
+                : router.query.classCode}
+            </div>
+            <div style={{ width: '90%', borderTop: '1px solid white' }} />
+            <Accordion
+              expanded={expanded === 'workspace'}
+              onChange={handleChange('workspace')}
+              sx={styles.accordion}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography> Workspace </Typography>
+              </AccordionSummary>
+              <AccordionDetails
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  height: gap,
+                }}
+              >
+                <div>
+                  {data &&
+                    data.map((workspace) => (
+                      <Link
+                        key={workspace.name}
+                        href={`/workspace/${workspace.name}`}
+                        className={style.accordionChild}
+                        onClick={() => setWorkspace(workspace)}
+                      >
+                        {workspace.name}
+                        <br />
+                      </Link>
+                    ))}
+                </div>
+                <Link href="/"> New Workspace </Link>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion
+              expanded={expanded === 'channels'}
+              onChange={handleChange('channels')}
+              sx={styles.accordion}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel2a-content"
+                id="panel2a-header"
+              >
+                <Typography> Channels </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ height: gap }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  {channels &&
+                    channels.map((c) => (
+                      <Link
+                        key={c}
+                        href={`/workspace/cs350/channel/${c.description}`}
+                        className={style.accordionChild}
+                      >
+                        {c.description}
+                      </Link>
+                    ))}
+                </div>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion
+              expanded={expanded === 'dm'}
+              onChange={handleChange('dm')}
+              sx={styles.accordion}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel3a-content"
+                id="panel3a-header"
+              >
+                <Typography> DM </Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ height: gap }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <Link
+                    href="/workspace/cs350/Sally"
+                    className={style.accordionChild}
+                  >
+                    {' '}
+                    Sally{' '}
+                  </Link>
+                  <Link
+                    href="/workspace/cs350/Sam"
+                    className={style.accordionChild}
+                  >
+                    {' '}
+                    Sam{' '}
+                  </Link>
+                </div>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion
+              expanded={expanded === 'myinfo'}
+              onChange={handleChange('myinfo')}
+              sx={styles.accordion}
+            >
+              <AccordionSummary
+                aria-controls="panel3a-content"
+                id="panel3a-header"
+              >
+                <div>
+                  <Link href="/mypage" className={style.accordionChild}>
+                    <Typography> My Informaion </Typography>
+                  </Link>
+                </div>
+              </AccordionSummary>
+            </Accordion>
           </div>
-          <div style={{ width: '90%', borderTop: '1px solid white' }} />
-          <Accordion
-            expanded={expanded === 'workspace'}
-            onChange={handleChange('workspace')}
-            sx={styles.accordion}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography> Workspace </Typography>
-            </AccordionSummary>
-            <AccordionDetails
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                height: gap,
-              }}
-            >
-              <div>
-                {data &&
-                  data.map((workspace) => (
-                    <Link
-                      key={workspace.name}
-                      href={`/workspace/${workspace.name}`}
-                      className={style.accordionChild}
-                      onClick={() => setWorkspace(workspace)}
-                    >
-                      {workspace.name}
-                      <br />
-                    </Link>
-                  ))}
-              </div>
-              <Link href="/"> New Workspace </Link>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion
-            expanded={expanded === 'channels'}
-            onChange={handleChange('channels')}
-            sx={styles.accordion}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel2a-content"
-              id="panel2a-header"
-            >
-              <Typography> Channels </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ height: gap }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {channels &&
-                  channels.map((c) => (
-                    <Link
-                      key={c}
-                      href={`/workspace/cs350/channel/${c.description}`}
-                      className={style.accordionChild}
-                    >
-                      {c.description}
-                    </Link>
-                  ))}
-              </div>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion
-            expanded={expanded === 'dm'}
-            onChange={handleChange('dm')}
-            sx={styles.accordion}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel3a-content"
-              id="panel3a-header"
-            >
-              <Typography> DM </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ height: gap }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Link
-                  href="/workspace/cs350/Sally"
-                  className={style.accordionChild}
-                >
-                  {' '}
-                  Sally{' '}
-                </Link>
-                <Link
-                  href="/workspace/cs350/Sam"
-                  className={style.accordionChild}
-                >
-                  {' '}
-                  Sam{' '}
-                </Link>
-              </div>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion
-            expanded={expanded === 'myinfo'}
-            onChange={handleChange('myinfo')}
-            sx={styles.accordion}
-          >
-            <AccordionSummary
-              aria-controls="panel3a-content"
-              id="panel3a-header"
-            >
-              <div>
-                <Link href="/mypage" className={style.accordionChild}>
-                  <Typography> My Informaion </Typography>
-                </Link>
-              </div>
-            </AccordionSummary>
-          </Accordion>
         </div>
+        <div style={{ width: '90%' }}>{children}</div>
       </div>
-      <div style={{ width: '90%' }}>{children}</div>
     </div>
   )
 }
