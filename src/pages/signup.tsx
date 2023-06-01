@@ -44,7 +44,7 @@ export default function SignUp() {
       /(?=.*[a-zA-Z])(?=.*[0-9!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{10,}|(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}/
     setValid(regex.test(password))
   }
-  const [emailState, setEmailState] = useState(0) // 0 before sending email, 1 after sending email, 2 after email is authorized
+  const [emailState, setEmailState] = useState(0) // 0 before sending email, 1 after sending email, 2 after email is authorized, -1 if failed to send email, -2 if code is wrong
 
   const [ready, setReady] = useState(false)
   useEffect(() => {
@@ -108,12 +108,54 @@ export default function SignUp() {
     },
   })
 
-  const sendEmail = () => {
+  const [code, setCode] = useState('')
+
+  const sendEmail = async () => {
     setEmailState(1)
+    const body = {
+      email: `${form.email}@kaist.ac.kr`,
+    }
+    try {
+      const res = await fetch(`${localPort}/users/email`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+      const data = await res.text()
+      if (data !== 'OK') {
+        throw new Error('Email sent error')
+      }
+    } catch (err) {
+      setEmailState(-1)
+    }
   }
 
-  const verifyCode = () => {
-    setEmailState(2)
+  const verifyCode = async () => {
+    const body = {
+      email: `${form.email}@kaist.ac.kr`,
+      authCode: code,
+    }
+    try {
+      const res = await fetch(`${localPort}/users/verify`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+      const data = await res.text()
+      if (data !== 'OK') {
+        throw new Error('Code verify error')
+      } else {
+        setEmailState(2)
+      }
+    } catch (err) {
+      setEmailState(-2)
+    }
   }
 
   return (
@@ -181,8 +223,11 @@ export default function SignUp() {
                     value={form.email}
                     type="text"
                     onChange={(e) => {
-                      setForm((prev) => ({ ...prev, email: e.target.value }))
-                      if (emailState > 0) {
+                      setForm((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                      if (emailState !== 0) {
                         setEmailState(0)
                       }
                     }}
@@ -204,18 +249,40 @@ export default function SignUp() {
                     fullWidth
                     sx={{ marginTop: '-4px', textTransform: 'none' }}
                     onClick={sendEmail}
-                    disabled={emailState > 0}
+                    disabled={
+                      emailState === 1 || emailState === 2 || emailState === -2
+                    }
                   >
-                    {emailState > 0 ? 'Code sent' : 'Send code'}
+                    {emailState === 1 || emailState === 2 || emailState === -2
+                      ? 'Code sent'
+                      : 'Send code'}
                   </Button>
                 </Grid>
-                <Grid item xs={12}>
-                  <Collapse in={emailState > 0}>
+                <Grid
+                  item
+                  xs={12}
+                  style={{
+                    display: emailState === -1 ? 'flex' : 'none',
+                    justifyContent: 'end',
+                  }}
+                >
+                  <Typography variant="caption" color="#CE0101">
+                    Failed to send an email. Please try again.
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} paddingTop={emailState === 2 ? 1 : 0}>
+                  <Collapse
+                    in={
+                      emailState === 1 || emailState === 2 || emailState === -2
+                    }
+                  >
                     <Grid container paddingTop={0.5} rowSpacing={1}>
                       <Grid item xs={12}>
-                        <Typography variant="caption" color="#2f6eba">
-                          We emailed you a verification code. Please
-                        </Typography>
+                        <Collapse in={emailState !== 2}>
+                          <Typography variant="caption" color="#2f6eba">
+                            {`We emailed you a verification code. Please enter the verification code sent to ${form.email}@kaist.ac.kr.`}
+                          </Typography>
+                        </Collapse>
                       </Grid>
                       <Grid item xs={9}>
                         <TextField
@@ -223,9 +290,10 @@ export default function SignUp() {
                           placeholder="Verification Code"
                           fullWidth
                           sx={{ textAlign: 'right !important' }}
-                          // onChange={onChange}
+                          onChange={(e) => setCode(e.target.value)}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') verifyCode()
+                            if (e.key === 'Enter' && emailState === 1)
+                              verifyCode()
                           }}
                         />
                       </Grid>
@@ -239,6 +307,18 @@ export default function SignUp() {
                           {emailState === 2 ? 'Verified' : 'Verify'}
                         </Button>
                       </Grid>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      style={{
+                        display: emailState === -2 ? 'flex' : 'none',
+                        justifyContent: 'end',
+                      }}
+                    >
+                      <Typography variant="caption" color="#CE0101">
+                        Failed to verify. Please try again.
+                      </Typography>
                     </Grid>
                   </Collapse>
                 </Grid>
