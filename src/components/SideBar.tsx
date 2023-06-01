@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import Image from 'next/image'
 import axios from 'axios'
 import { localPort } from '@/utils/constants'
 import Accordion from '@mui/material/Accordion'
@@ -89,21 +90,31 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
         flexDirection: 'column',
       }}
     >
-      <Link
-        href="/workspace"
+      <div
         style={{
-          fontSize: '18pt',
-          fontWeight: '900',
-          color: '#2f6eba',
+          display: 'flex',
+          flexDirection: 'row',
           marginTop: '10px',
           marginLeft: '10px',
-          textDecoration: 'none',
-          width: '100%',
+          alignItems: 'center',
         }}
       >
-        {' '}
-        Carrilon{' '}
-      </Link>
+        <Image src="/logo.svg" height={30} width={30} alt="logo" />
+        <Link
+          href="/workspace"
+          style={{
+            fontSize: '18pt',
+            fontWeight: '900',
+            color: '#2f6eba',
+            marginLeft: '5px',
+            textDecoration: 'none',
+            width: '100%',
+          }}
+        >
+          {' '}
+          Carrilon{' '}
+        </Link>
+      </div>
       <div
         style={{
           display: 'flex',
