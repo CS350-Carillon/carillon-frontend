@@ -208,9 +208,7 @@ export default function SignUp() {
           <Grid container alignItems="center" justifyContent="center">
             <Grid item xs={4}>
               <div style={styles.label}>
-                <Typography style={{ marginBottom: '3px' }}>
-                  KAIST Email
-                </Typography>
+                <Typography>KAIST Email</Typography>
               </div>
             </Grid>
             <Grid item xs={8}>
@@ -218,7 +216,7 @@ export default function SignUp() {
                 <Grid item xs={6}>
                   <TextField
                     variant="standard"
-                    placeholder="KAIST email"
+                    placeholder="KAIST Email"
                     fullWidth
                     value={form.email}
                     type="text"
@@ -254,8 +252,8 @@ export default function SignUp() {
                     }
                   >
                     {emailState === 1 || emailState === 2 || emailState === -2
-                      ? 'Code sent'
-                      : 'Send code'}
+                      ? 'Code Sent'
+                      : 'Send Code'}
                   </Button>
                 </Grid>
                 <Grid
