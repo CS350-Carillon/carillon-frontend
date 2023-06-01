@@ -1,7 +1,15 @@
-import { Typography, Stack } from '@mui/material'
+import {
+  Button,
+  Typography,
+  Stack,
+  Grid,
+  TextField,
+  styled,
+  Collapse,
+} from '@mui/material'
 import LabeledInputBox from '@/components/LabeledInputBox'
 import LinkButton from '@/components/LinkButton'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { localPort } from '@/utils/constants'
 import { useRouter } from 'next/router'
 
@@ -24,6 +32,7 @@ export default function SignUp() {
     userId: '',
     password: '',
     userName: '',
+    email: '',
   })
 
   const [valid, setValid] = useState(true)
@@ -35,12 +44,18 @@ export default function SignUp() {
       /(?=.*[a-zA-Z])(?=.*[0-9!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{10,}|(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}/
     setValid(regex.test(password))
   }
+  const [emailState, setEmailState] = useState(0) // 0 before sending email, 1 after sending email, 2 after email is authorized
 
   const [ready, setReady] = useState(false)
   useEffect(() => {
     setFailed(false)
     validate(form.password)
-    if (form.userId !== '' && form.password !== '' && form.userName !== '') {
+    if (
+      form.userId !== '' &&
+      form.password !== '' &&
+      form.userName !== '' &&
+      form.email !== ''
+    ) {
       setReady(true)
     } else {
       setReady(false)
@@ -48,6 +63,9 @@ export default function SignUp() {
   }, [form])
 
   const handleOnClick = async () => {
+    if (!ready || !valid || emailState !== 2) {
+      return
+    }
     try {
       const res = await fetch(`${localPort}/users/signup`, {
         method: 'POST',
@@ -68,6 +86,34 @@ export default function SignUp() {
     } catch (err) {
       setFailed(true)
     }
+  }
+
+  const styles: { [key: string]: React.CSSProperties } = {
+    label: {
+      display: 'flex',
+      justifyContent: 'left',
+      alignItems: 'end',
+      height: '100%',
+    },
+  }
+
+  const EmailField = styled(TextField)({
+    '& .Mui-disabled:before': {
+      borderBottomStyle: 'solid',
+    },
+    '& .MuiInputBase-input': {
+      borderBottomStyle: 'solid',
+      color: 'black',
+      WebkitTextFillColor: 'black',
+    },
+  })
+
+  const sendEmail = () => {
+    setEmailState(1)
+  }
+
+  const verifyCode = () => {
+    setEmailState(2)
   }
 
   return (
@@ -117,6 +163,88 @@ export default function SignUp() {
               characters.
             </Typography>
           </Stack>
+          <Grid container alignItems="center" justifyContent="center">
+            <Grid item xs={4}>
+              <div style={styles.label}>
+                <Typography style={{ marginBottom: '3px' }}>
+                  KAIST Email
+                </Typography>
+              </div>
+            </Grid>
+            <Grid item xs={8}>
+              <Grid container alignItems="center" justifyContent="center">
+                <Grid item xs={6}>
+                  <TextField
+                    variant="standard"
+                    placeholder="KAIST email"
+                    fullWidth
+                    value={form.email}
+                    type="text"
+                    onChange={(e) => {
+                      setForm((prev) => ({ ...prev, email: e.target.value }))
+                      if (emailState > 0) {
+                        setEmailState(0)
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') sendEmail()
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={3}>
+                  <EmailField
+                    variant="standard"
+                    value="@kaist.ac.kr"
+                    fullWidth
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={3} width="100%">
+                  <Button
+                    fullWidth
+                    sx={{ marginTop: '-4px', textTransform: 'none' }}
+                    onClick={sendEmail}
+                    disabled={emailState > 0}
+                  >
+                    {emailState > 0 ? 'Code sent' : 'Send code'}
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
+                  <Collapse in={emailState > 0}>
+                    <Grid container paddingTop={0.5} rowSpacing={1}>
+                      <Grid item xs={12}>
+                        <Typography variant="caption" color="#2f6eba">
+                          We emailed you a verification code. Please
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={9}>
+                        <TextField
+                          variant="standard"
+                          placeholder="Verification Code"
+                          fullWidth
+                          sx={{ textAlign: 'right !important' }}
+                          // onChange={onChange}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') verifyCode()
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={3}>
+                        <Button
+                          fullWidth
+                          sx={{ marginTop: '-4px', textTransform: 'none' }}
+                          onClick={verifyCode}
+                          disabled={emailState === 2}
+                        >
+                          {emailState === 2 ? 'Verified' : 'Verify'}
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Collapse>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
           <LabeledInputBox
             label="Name"
             value=""
@@ -124,9 +252,13 @@ export default function SignUp() {
             onChange={(e) => {
               setForm((prev) => ({ ...prev, userName: e.target.value }))
             }}
+            onEnter={handleOnClick}
           />
           <Stack justifyContent="center" alignItems="center" spacing={1}>
-            <LinkButton onClick={handleOnClick} disabled={!ready || !valid}>
+            <LinkButton
+              onClick={handleOnClick}
+              disabled={!ready || !valid || emailState !== 2}
+            >
               Sign up
             </LinkButton>
             <Typography
