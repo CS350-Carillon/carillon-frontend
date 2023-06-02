@@ -8,10 +8,10 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import { localPort } from '@/utils/constants'
-import SearchBar from '@/components/SearchBar'
 import { IUser } from '@/utils/types'
 import { useRouter } from 'next/router'
 import SideBar from '@/components/SideBar'
+import TextField from '@mui/material/TextField'
 
 interface UsersProps {
   users: IUser[]
@@ -19,9 +19,16 @@ interface UsersProps {
 
 export default function Channel({ users }: UsersProps) {
   const router = useRouter()
-  const [, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<IUser[]>([])
   const [selectedMembers, setSelectedMembers] = useState<IUser[]>([])
+  const [searchModalOpen, setSearchModalOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const handleAddMember = (member: IUser) => {
+    if (!selectedMembers.includes(member)) {
+      setSelectedMembers((prevMembers) => [...prevMembers, member])
+    }
+  }
 
   const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value
@@ -53,25 +60,33 @@ export default function Channel({ users }: UsersProps) {
       muteMembers: [],
     }
 
-    // To Do: token 가져오는 방식
-    fetch(`${localPort}/workspaces/`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzM3MTYwZjJjNzNkMDgzMTgxNGM2ZiIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1Mjk2NDY1LCJleHAiOjE2ODUzODI4NjV9.-5OLJTlGNBc63n8UNoJdOp60gBYOPqQLI90mAI3ZEr0',
-      },
-      body: JSON.stringify(directMessageData),
-    }).then((response) => {
-      if (response.ok) {
-        router.push(
-          `/workspace/${router.query.classCode}/directMessage/${1111}`,
-        )
-      } else {
-        console.log('not response.ok')
-      }
-    })
+    // To Do: dmCreate 정보 저장 어떻게??
+    // fetch(`${localPort}/workspaces/`, {
+    //   method: 'POST',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //     token:
+    //       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzM3MTYwZjJjNzNkMDgzMTgxNGM2ZiIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1Mjk2NDY1LCJleHAiOjE2ODUzODI4NjV9.-5OLJTlGNBc63n8UNoJdOp60gBYOPqQLI90mAI3ZEr0',
+    //   },
+    //   body: JSON.stringify(directMessageData),
+    // }).then((response) => {
+    //   if (response.ok) {
+    //     router.push(
+    //       `/workspace/${router.query.classCode}/directMessage/${1111}`,
+    //     )
+    //   } else {
+    //     console.log('not response.ok')
+    //   }
+    // })
+  }
+
+  const openSearchModal = () => {
+    setSearchModalOpen(true)
+  }
+
+  const closeSearchModal = () => {
+    setSearchModalOpen(false)
   }
 
   return (
@@ -85,7 +100,13 @@ export default function Channel({ users }: UsersProps) {
               </Typography>
             </Grid>
             <Grid item xs={2}>
-              <SearchBar onChange={handleSearchQueryChange} />
+              <Button
+                variant="outlined"
+                onClick={openSearchModal}
+                disableRipple
+              >
+                🔍 Search members
+              </Button>
             </Grid>
           </Grid>
           <List dense sx={{ pl: 2 }}>
@@ -100,26 +121,6 @@ export default function Channel({ users }: UsersProps) {
               )
             })}
           </List>
-          {searchResults.length > 0 && (
-            <Box mt={4}>
-              <Typography variant="h6">Search Results</Typography>
-              <List dense sx={{ pl: 2 }}>
-                {searchResults.map((value) => {
-                  const labelId = `member-${value.userId}`
-                  return (
-                    <ListItem key={value.userId} disablePadding>
-                      <ListItem>
-                        <ListItemText
-                          id={labelId}
-                          primary={`${value.userId}`}
-                        />
-                      </ListItem>
-                    </ListItem>
-                  )
-                })}
-              </List>
-            </Box>
-          )}
         </Box>
         <Box
           sx={{
@@ -140,6 +141,55 @@ export default function Channel({ users }: UsersProps) {
           </Button>
         </Box>
       </Stack>
+      {/* Search Modal */}
+      {searchModalOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              background: '#fff',
+              padding: 20,
+              borderRadius: 4,
+            }}
+          >
+            {/* Modal content goes here */}
+            <TextField
+              fullWidth
+              placeholder="Search members"
+              variant="standard"
+              value={searchQuery}
+              onChange={handleSearchQueryChange}
+            />
+
+            <List dense>
+              {searchResults.map((value) => {
+                const labelId = `member-${value.userId}`
+                return (
+                  <ListItem key={value.userId} disablePadding>
+                    <ListItem button onClick={() => handleAddMember(value)}>
+                      <ListItemText id={labelId} primary={`${value.userId}`} />
+                    </ListItem>
+                  </ListItem>
+                )
+              })}
+            </List>
+
+            <Button onClick={closeSearchModal}>Close</Button>
+          </div>
+        </div>
+      )}
     </SideBar>
   )
 }
