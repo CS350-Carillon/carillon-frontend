@@ -89,6 +89,20 @@ export default function ChannelComp({
     })
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const onEditMessage = (res: { messageId: string; content: string }) => {
+    // FIXME: uncomment after server socket is fixed
+    // setChat((prevChat: MsgProps[]) => {
+    //   return [
+    //     ...prevChat.filter((c) => c.id !== res.messageId),
+    //     {
+    //       ...prevChat.filter((c) => c.id === res.messageId)[0],
+    //       content: res.content,
+    //     },
+    //   ]
+    // })
+  }
+
   useEffect(() => {
     const skt = io(localPort)
     setSocket(skt)
@@ -110,6 +124,7 @@ export default function ChannelComp({
     socket.emit('init', { userId: id })
     socket.on('postMessage', onPostMessage)
     socket.on('deleteMessage', onDeleteMessage)
+    socket.on('editMessage', onEditMessage)
   }, [socket, router])
 
   useEffect(() => {

@@ -19,3 +19,16 @@
   flex-direction: column;
   width: 100%;
 }
+
+.content {
+  padding-right: 16px !important;
+}
+
+.content > div > input {
+  padding: 8px !important;
+  -webkit-text-fill-color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.content > div:global(.Mui-disabled) > fieldset {
+  border-width: 0 !important;
+}
