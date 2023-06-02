@@ -19,9 +19,9 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
   // const [user, setUser] = useState(null)
 
   // const [currentworkspace, setWorkspace] = useState(null)
-  const [includedWorkspace, setIncludedWorkspace] = useState(null)
+  const [includedWorkspace, setIncludedWorkspace] = useState<any>(null)
   // 해당 유저가 속한 워크스페이스의 목록
-  const [userChannel, setUserChannel] = useState(null)
+  const [userChannel, setUserChannel] = useState<any>(null)
   // 디비 전체의 채널 목록
   // const [allChannels, setChannel] = useState(null)
   const styles = {
@@ -62,17 +62,18 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       const workspaceList = await axios.get(`${localPort}/workspaces/`)
       const channelList = await axios.get(`${localPort}/channels/`)
       const filteredList = userList.data.filter(
-        (u) => localStorage.getItem('user') === u.userId,
+        (u: any) => localStorage.getItem('user') === u.userId,
       )
-      const filteredWorkspace = workspaceList.data.filter((a) =>
+      const filteredWorkspace = workspaceList.data.filter((a: any) =>
         filteredList[0].participatingWorkspaces.includes(a._id),
       )
+      // console.log(filteredWorkspace)
 
-      const filteredChannel = channelList.data.filter((c) =>
+      const filteredChannel = channelList.data.filter((c: any) =>
         filteredList[0].participatingChannels.includes(c._id),
       )
       const finalfilteredChannel = filteredChannel.filter(
-        (c) => c.workspace.name === router.query.classCode,
+        (c: any) => c.workspace.name === router.query.classCode,
       )
       setIncludedWorkspace(filteredWorkspace)
       if (router.query.classCode == null) {
@@ -175,7 +176,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               >
                 <div>
                   {includedWorkspace &&
-                    includedWorkspace.map((workspace) => (
+                    includedWorkspace.map((workspace: any) => (
                       <Link
                         key={workspace.id}
                         href={`/workspace/${workspace.name}`}
@@ -204,7 +205,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               <AccordionDetails sx={{ height: gap }}>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   {userChannel &&
-                    userChannel.map((c) => (
+                    userChannel.map((c: any) => (
                       <Link
                         key={c}
                         href={`/workspace/cs350/channel/${c.name}`}
