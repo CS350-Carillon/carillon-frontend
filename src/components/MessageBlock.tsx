@@ -3,6 +3,7 @@ import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import CheckIcon from '@mui/icons-material/Check'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import MoodBadIcon from '@mui/icons-material/MoodBad'
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt'
@@ -11,6 +12,7 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import Tooltip from '@mui/material/Tooltip'
 import Stack from '@mui/material/Stack'
+import { TextField } from '@mui/material'
 import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
 import { Socket } from 'socket.io-client'
@@ -50,8 +52,11 @@ function Content({
   userName: string
   myMsg: boolean
   onDelete: () => void
-  onEdit: () => void
+  onEdit: (content: string) => void
 }) {
+  const [editing, setEditing] = useState(false)
+  const [cont, setCont] = useState(content)
+
   return (
     <Stack direction="column" spacing={1}>
       <Stack
@@ -67,9 +72,16 @@ function Content({
               aria-label="check"
               size="small"
               sx={{ paddingRight: 2 }}
-              onClick={onEdit}
+              onClick={() => {
+                if (editing) {
+                  setEditing(false)
+                  onEdit(cont)
+                } else {
+                  setEditing(true)
+                }
+              }}
             >
-              <EditIcon />
+              {editing ? <CheckIcon /> : <EditIcon />}
             </IconButton>
             <IconButton
               aria-label="check"
@@ -84,7 +96,12 @@ function Content({
           <div />
         )}
       </Stack>
-      <div id="content">{content}</div>
+      <TextField
+        className={styles.content}
+        value={cont}
+        disabled={!editing}
+        onChange={(e) => setCont(e.target.value)}
+      />
     </Stack>
   )
 }
@@ -297,8 +314,17 @@ export default function MessageBlock({
     socket.emit('deleteMessage', { id: msgState.id, content: '' })
   }
 
-  const onEdit = () => {
-    socket.emit('editMessage', msgState.id)
+  const onEdit = (content: string) => {
+    socket.emit('editMessage', {
+      chatId: msgState.id,
+      id: msgState.id,
+      sender: user.userID,
+      content,
+    })
+    setMsgState((prevMsg: MsgProps) => ({
+      ...prevMsg,
+      content,
+    }))
   }
 
   return (
@@ -339,7 +365,6 @@ export default function MessageBlock({
               <div id={styles.reaction}>
                 <Reaction
                   reactions={msgState.reactions}
-                  msgState={msgState}
                   onClick={onClick}
                   user={user}
                 />
