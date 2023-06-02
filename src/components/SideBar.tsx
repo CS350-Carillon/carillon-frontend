@@ -89,7 +89,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
     getUser()
   })
 
-  getUser()
+  // getUser()
 
   return (
     <div
