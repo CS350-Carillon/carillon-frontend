@@ -65,11 +65,11 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
         (u) => localStorage.getItem('user') === u.userId,
       )
       const filteredWorkspace = workspaceList.data.filter((a) =>
-        filteredList[0].participatingWorkspaces.includes(a.id),
+        filteredList[0].participatingWorkspaces.includes(a._id),
       )
 
       const filteredChannel = channelList.data.filter((c) =>
-        filteredList[0].participatingChannels.includes(c.id),
+        filteredList[0].participatingChannels.includes(c._id),
       )
       const finalfilteredChannel = filteredChannel.filter(
         (c) => c.workspace.name === router.query.classCode,
@@ -81,7 +81,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
         setUserChannel(finalfilteredChannel)
       }
     } catch (err) {
-      setIncludedWorkspace(null)
+      setUserChannel(null)
     }
   }
 
