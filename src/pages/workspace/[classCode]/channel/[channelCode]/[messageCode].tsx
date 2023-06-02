@@ -64,7 +64,7 @@ export default function ChannelRespComp({
     content: string
   }) => {
     setChat((prevChat: MsgProps) => {
-      if (res.chatId === prevChat.id) {
+      if (res.chatId !== prevChat.id) {
         return prevChat
       }
       return {
@@ -72,7 +72,7 @@ export default function ChannelRespComp({
         responses: [
           ...(prevChat.responses ? prevChat.responses : []),
           {
-            id: '10',
+            id: '1000',
             content: res.content,
             reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
             sender: { id: '100', name: res.sender },
@@ -164,37 +164,167 @@ export default function ChannelRespComp({
             _id: string
             content: string
             channel: string
-            responses: string[]
-            reactions: string[]
-            sender: { _id: string; userId: string; userName: string }
+            responses_info: {
+              _id: string
+              content: string
+              channel: string
+              reactions_info: {
+                reactionType: string
+                user_info: { _id: string; userName: string }[]
+              }[]
+              sender: string
+            }[]
+            reactions_info: {
+              reactionType: string
+              user_info: { _id: string; userName: string }[]
+            }[]
+            sender: string
+            // sender: { _id: string; userName: string }
           }) => {
             return d._id === msgID
           },
         )[0]
+        const checkListO =
+          filterData.reactions_info.length > 0 &&
+          filterData.reactions_info.find(
+            (e: { reactionType: string }) => e.reactionType === 'Check',
+          )
+        const favoriteListO =
+          filterData.reactions_info.length > 0 &&
+          filterData.reactions_info.find(
+            (e: { reactionType: string }) => e.reactionType === 'Favorite',
+          )
+        const moodbadListO =
+          filterData.reactions_info.length > 0 &&
+          filterData.reactions_info.find(
+            (e: { reactionType: string }) => e.reactionType === 'Moodbad',
+          )
+        const thumbupListO =
+          filterData.reactions_info.length > 0 &&
+          filterData.reactions_info.find(
+            (e: { reactionType: string }) => e.reactionType === 'Thumbup',
+          )
         setChat({
           id: filterData._id /* eslint no-underscore-dangle: 0 */,
           content: filterData.content,
-          responses: filterData.responses,
+          responses: filterData.responses_info.map(
+            (r: {
+              _id: string
+              content: string
+              channel: string
+              reactions_info: {
+                reactionType: string
+                user_info: { _id: string; userName: string }[]
+              }[]
+              sender: string
+            }) => {
+              // console.log('reaction')
+              // console.log(r.reactions_info)
+              const checkListI =
+                r.reactions_info.length > 0 &&
+                r.reactions_info.find(
+                  (e: { reactionType: string }) => e.reactionType === 'Check',
+                )
+              const favoriteListI =
+                r.reactions_info.length > 0 &&
+                r.reactions_info.find(
+                  (e: { reactionType: string }) =>
+                    e.reactionType === 'Favorite',
+                )
+              const moodbadListI =
+                r.reactions_info.length > 0 &&
+                r.reactions_info.find(
+                  (e: { reactionType: string }) => e.reactionType === 'Moodbad',
+                )
+              const thumbupListI =
+                r.reactions_info.length > 0 &&
+                r.reactions_info.find(
+                  (e: { reactionType: string }) => e.reactionType === 'Thumbup',
+                )
+              return {
+                id: r._id,
+                content: r.content,
+                responses: [],
+                reactions: {
+                  Check: checkListI
+                    ? checkListI.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      )
+                    : [],
+                  Favorite: favoriteListI
+                    ? favoriteListI.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      )
+                    : [],
+                  Moodbad: moodbadListI
+                    ? moodbadListI.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      )
+                    : [],
+                  Thumbup: thumbupListI
+                    ? thumbupListI.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      )
+                    : [],
+                },
+                sender: { id: r.sender, name: 'Sihyun2' }, // TODO: need to change sender name
+              }
+            },
+          ),
           reactions: {
-            Check: [],
-            Favorite: [],
-            Moodbad: [],
-            Thumbup: [],
+            Check: checkListO
+              ? checkListO.user_info.map(
+                  (u: { _id: string; userName: string }) => ({
+                    userID: u._id,
+                    userName: u.userName,
+                  }),
+                )
+              : [],
+            Favorite: favoriteListO
+              ? favoriteListO.user_info.map(
+                  (u: { _id: string; userName: string }) => ({
+                    userID: u._id,
+                    userName: u.userName,
+                  }),
+                )
+              : [],
+            Moodbad: moodbadListO
+              ? moodbadListO.user_info.map(
+                  (u: { _id: string; userName: string }) => ({
+                    userID: u._id,
+                    userName: u.userName,
+                  }),
+                )
+              : [],
+            Thumbup: thumbupListO
+              ? thumbupListO.user_info.map(
+                  (u: { _id: string; userName: string }) => ({
+                    userID: u._id,
+                    userName: u.userName,
+                  }),
+                )
+              : [],
           },
           sender: {
-            id: filterData.sender._id,
-            name: filterData.sender.userName,
+            id: filterData.sender,
+            name: 'Jiwon', // TODO: need to change sender name
           },
         })
         setChannel(() => {
           const filteredList = channels.filter(
-            (ch: {
-              _id: string
-              name: string
-              description: string
-              owner: string[]
-              members: string[]
-            }) => ch._id === channelID,
+            (ch: { _id: string; name: string }) => ch._id === channelID,
           )
           const filteredChannel = filteredList[0]
           return filteredChannel.name
@@ -242,7 +372,11 @@ export default function ChannelRespComp({
             </Stack>
           </div>
         </Stack>
-        <InputBox channelID={String(channelID)} respond socket={socket} />
+        <InputBox
+          channelID={String(channelID)}
+          respond={chat.id}
+          socket={socket}
+        />
       </Stack>
     </SideBar>
   )

@@ -94,12 +94,7 @@ function Reaction({
   onClick,
   user,
 }: {
-  reactions: {
-    Check: { userID: string; userName: string }[]
-    Favorite: { userID: string; userName: string }[]
-    Moodbad: { userID: string; userName: string }[]
-    Thumbup: { userID: string; userName: string }[]
-  }
+  reactions: MsgProps['reactions']
   onClick: (reactionType: string, reactionExist: boolean) => void
   user: { userID: string; userName: string }
 }) {
@@ -299,11 +294,11 @@ export default function MessageBlock({
   }
 
   const onDelete = () => {
-    socket.emit('deleteMessge', { id: msgState.id, content: '' })
+    socket.emit('deleteMessage', { id: msgState.id, content: '' })
   }
 
   const onEdit = () => {
-    socket.emit('editMessge', msgState.id)
+    socket.emit('editMessage', msgState.id)
   }
 
   return (
@@ -344,6 +339,7 @@ export default function MessageBlock({
               <div id={styles.reaction}>
                 <Reaction
                   reactions={msgState.reactions}
+                  msgState={msgState}
                   onClick={onClick}
                   user={user}
                 />

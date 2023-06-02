@@ -187,7 +187,7 @@ export default function ChannelComp({
           ))}
           <div ref={messagesEndRef} />
         </Stack>
-        <InputBox channelID={String(dmID)} respond={false} socket={socket} />
+        <InputBox channelID={String(dmID)} respond="" socket={socket} />
       </Stack>
     </SideBar>
   )

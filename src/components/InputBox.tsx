@@ -15,7 +15,7 @@ export default function InputBox({
   socket,
 }: {
   channelID: string
-  respond: boolean
+  respond: string
   socket: Socket
 }) {
   const router = useRouter()
@@ -26,11 +26,12 @@ export default function InputBox({
     setText(e.target.value)
   }
   const onClick = () => {
-    if (respond) {
+    if (respond !== '') {
       socket.emit('addResponse', {
+        sender: user.userID,
         content: text,
         channel: channelID,
-        sender: user,
+        chatId: respond,
       })
     } else {
       socket.emit('postMessage', {

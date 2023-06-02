@@ -78,15 +78,13 @@ export default function ChannelComp({
   }
 
   const onDeleteMessage = (res: { messageId: string; content: string }) => {
-    setChat((prevChat: MsgProps[]) => {
-      return [
-        ...prevChat.filter((c) => c.id !== res.messageId),
-        {
-          ...prevChat.filter((c) => c.id === res.messageId)[0],
-          content: res.content,
-        },
-      ]
-    })
+    setChat((prevChat: MsgProps[]) => [
+      ...prevChat.filter((c) => c.id !== res.messageId),
+      {
+        ...prevChat.filter((c) => c.id === res.messageId)[0],
+        content: res.content,
+      },
+    ])
   }
 
   useEffect(() => {
@@ -129,34 +127,167 @@ export default function ChannelComp({
               _id: string
               content: string
               channel: string
-              responses: string[]
-              reactions: string[]
-              sender: { _id: string; userId: string; userName: string }
+              responses_info: {
+                _id: string
+                content: string
+                channel: string
+                reactions_info: {
+                  reactionType: string
+                  user_info: { _id: string; userName: string }[]
+                }[]
+                sender: string
+              }[]
+              reactions_info: {
+                reactionType: string
+                user_info: { _id: string; userName: string }[]
+              }[]
+              sender: string
+              // sender: { _id: string; userName: string }
             }) => {
               return {
                 id: d._id /* eslint no-underscore-dangle: 0 */,
                 content: d.content,
-                responses: d.responses,
+                responses: d.responses_info.map(
+                  (r: {
+                    _id: string
+                    content: string
+                    channel: string
+                    reactions_info: {
+                      reactionType: string
+                      user_info: { _id: string; userName: string }[]
+                    }[]
+                    sender: string
+                  }) => ({
+                    id: r._id,
+                    content: r.content,
+                    responses: [],
+                    reactions: {
+                      Check:
+                        r.reactions_info
+                          .find(
+                            (e: {
+                              reactionType: string
+                              user_info: { _id: string; userName: string }[]
+                            }) => e.reactionType === 'Check',
+                          )
+                          ?.user_info.map(
+                            (u: { _id: string; userName: string }) => ({
+                              userID: u._id,
+                              userName: u.userName,
+                            }),
+                          ) || [],
+                      Favorite:
+                        r.reactions_info
+                          .find(
+                            (e: {
+                              reactionType: string
+                              user_info: { _id: string; userName: string }[]
+                            }) => e.reactionType === 'Favorite',
+                          )
+                          ?.user_info.map(
+                            (u: { _id: string; userName: string }) => ({
+                              userID: u._id,
+                              userName: u.userName,
+                            }),
+                          ) || [],
+                      Moodbad:
+                        r.reactions_info
+                          .find(
+                            (e: {
+                              reactionType: string
+                              user_info: { _id: string; userName: string }[]
+                            }) => e.reactionType === 'Moodbad',
+                          )
+                          ?.user_info.map(
+                            (u: { _id: string; userName: string }) => ({
+                              userID: u._id,
+                              userName: u.userName,
+                            }),
+                          ) || [],
+                      Thumbup:
+                        r.reactions_info
+                          .find(
+                            (e: {
+                              reactionType: string
+                              user_info: { _id: string; userName: string }[]
+                            }) => e.reactionType === 'Thumbup',
+                          )
+                          ?.user_info.map(
+                            (u: { _id: string; userName: string }) => ({
+                              userID: u._id,
+                              userName: u.userName,
+                            }),
+                          ) || [],
+                    },
+                    sender: { id: r.sender, name: 'Sihyun2' }, // TODO: need to change sender name
+                  }),
+                ),
                 reactions: {
-                  Check: [],
-                  Favorite: [],
-                  Moodbad: [],
-                  Thumbup: [],
+                  Check:
+                    d.reactions_info
+                      .find(
+                        (e: {
+                          reactionType: string
+                          user_info: { _id: string; userName: string }[]
+                        }) => e.reactionType === 'Check',
+                      )
+                      ?.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      ) || [],
+                  Favorite:
+                    d.reactions_info
+                      .find(
+                        (e: {
+                          reactionType: string
+                          user_info: { _id: string; userName: string }[]
+                        }) => e.reactionType === 'Favorite',
+                      )
+                      ?.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      ) || [],
+                  Moodbad:
+                    d.reactions_info
+                      .find(
+                        (e: {
+                          reactionType: string
+                          user_info: { _id: string; userName: string }[]
+                        }) => e.reactionType === 'Moodbad',
+                      )
+                      ?.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      ) || [],
+                  Thumbup:
+                    d.reactions_info
+                      .find(
+                        (e: {
+                          reactionType: string
+                          user_info: { _id: string; userName: string }[]
+                        }) => e.reactionType === 'Thumbup',
+                      )
+                      ?.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      ) || [],
                 },
-                sender: { id: d.sender._id, name: d.sender.userName },
+                sender: { id: d.sender, name: 'Sihyun' }, // TODO: change to sender name
               }
             },
           ),
         )
         setChannel(() => {
           const filteredList = channels.filter(
-            (ch: {
-              _id: string
-              name: string
-              description: string
-              owner: string[]
-              members: string[]
-            }) => ch._id === channelID,
+            (ch: { _id: string; name: string }) => ch._id === channelID,
           )
           const filteredChannel = filteredList[0]
           return filteredChannel.name
@@ -187,11 +318,7 @@ export default function ChannelComp({
           ))}
           <div ref={messagesEndRef} />
         </Stack>
-        <InputBox
-          channelID={String(channelID)}
-          respond={false}
-          socket={socket}
-        />
+        <InputBox channelID={String(channelID)} respond="" socket={socket} />
       </Stack>
     </SideBar>
   )

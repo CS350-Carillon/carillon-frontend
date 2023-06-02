@@ -60,7 +60,7 @@ export default function ChannelRespComp({
 
   const onAddResponse = (res: {
     chatId: string
-    sender: string
+    sender: { id: string; name: string }
     content: string
   }) => {
     setChat((prevChat: MsgProps) => {
@@ -72,10 +72,10 @@ export default function ChannelRespComp({
         responses: [
           ...(prevChat.responses ? prevChat.responses : []),
           {
-            id: '10',
+            id: res.chatId,
             content: res.content,
             reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
-            sender: { id: '100', name: res.sender },
+            sender: { id: res.sender.id, name: res.sender.name }, // id needed?
           },
         ],
       }
@@ -242,7 +242,7 @@ export default function ChannelRespComp({
             </Stack>
           </div>
         </Stack>
-        <InputBox channelID={String(dmID)} respond socket={socket} />
+        <InputBox channelID={String(dmID)} respond={chat.id} socket={socket} />
       </Stack>
     </SideBar>
   )
