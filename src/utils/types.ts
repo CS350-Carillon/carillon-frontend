@@ -1,4 +1,5 @@
 export interface IWorkspace {
+  _id: string
   name: string
   owner: IUser
   invitationCode: string
@@ -8,6 +9,7 @@ export interface IWorkspace {
 }
 
 export interface IUser {
+  _id: string
   userId: string
   password: string
   userType: UserType
@@ -47,6 +49,7 @@ export interface IChat {
 }
 
 export interface IChannel {
+  _id: string
   name: string
   description: string
   owner: IUser
