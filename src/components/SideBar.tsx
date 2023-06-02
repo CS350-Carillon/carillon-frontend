@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
@@ -22,8 +22,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
   const [includedWorkspace, setIncludedWorkspace] = useState<any>(null)
   // 해당 유저가 속한 워크스페이스의 목록
   const [userChannel, setUserChannel] = useState<any>(null)
-  // 디비 전체의 채널 목록
-  // const [allChannels, setChannel] = useState(null)
+
   const styles = {
     accordion: {
       width: '150px',
@@ -85,6 +84,10 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       setUserChannel(null)
     }
   }
+
+  useEffect(() => {
+    getUser()
+  })
 
   getUser()
 
