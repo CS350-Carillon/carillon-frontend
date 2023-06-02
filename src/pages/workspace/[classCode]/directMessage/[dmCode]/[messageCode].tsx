@@ -2,9 +2,9 @@ import { useRouter } from 'next/router'
 import Divider from '@mui/material/Divider'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import SideBar from '../../../../components/SideBar'
-import MessageBlock from '../../../../components/MessageBlock'
-import InputBox from '../../../../components/InputBox'
+import SideBar from '../../../../../components/SideBar'
+import MessageBlock from '../../../../../components/MessageBlock'
+import InputBox from '../../../../../components/InputBox'
 import { dummyData } from '../../channel/[channelCode]'
 
 export default function DmRespComp() {

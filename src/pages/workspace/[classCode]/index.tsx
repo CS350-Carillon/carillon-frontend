@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import '../../app/globals.css'
+import '../../../app/globals.css'
 import React from 'react'
 import CloudQueueIcon from '@mui/icons-material/CloudQueue'
 import Box from '@mui/material/Box'
@@ -13,7 +13,7 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import SearchBar from '@/components/SearchBar'
-import SideBar from '../../components/SideBar'
+import SideBar from '../../../components/SideBar'
 
 const dummyData = {
   workspaceDescription: `Lorem ipsum dolor sit amet, consectetur adipiscing elit.Cras
