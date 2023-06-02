@@ -9,7 +9,6 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import { placeholder, localPort } from '@/utils/constants'
-import SearchBar from '@/components/SearchBar'
 import { IUser } from '@/utils/types'
 import { useRouter } from 'next/router'
 import SideBar from '@/components/SideBar'
@@ -21,21 +20,16 @@ interface UsersProps {
 export default function Channel({ users }: UsersProps) {
   const router = useRouter()
   const [channelName, setChannelName] = useState('')
-  const [description, setDescription] = useState('')
-  const [, setSearchQuery] = useState('')
+  const [channelDescription, setchannelDescription] = useState('')
   const [searchResults, setSearchResults] = useState<IUser[]>([])
   const [selectedMembers, setSelectedMembers] = useState<IUser[]>([])
+  const [searchModalOpen, setSearchModalOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const handleChannelNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setChannelName(event.target.value)
-  }
-
-  const handleDescriptionChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setDescription(event.target.value)
+  const handleAddMember = (member: IUser) => {
+    if (!selectedMembers.includes(member)) {
+      setSelectedMembers((prevMembers) => [...prevMembers, member])
+    }
   }
 
   const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -57,11 +51,25 @@ export default function Channel({ users }: UsersProps) {
     }
   }
 
+  const handleChannelNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setChannelName(event.target.value)
+  }
+
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setchannelDescription(event.target.value)
+  }
+
   const handleCreateChannel = () => {
     const channelData = {
       name: channelName,
-      description,
-      members: selectedMembers.map((member) => member.userId),
+      description: channelDescription,
+      // eslint-disable-next-line no-underscore-dangle
+      members: selectedMembers.map((member) => member._id),
+      // To Do: workspace id로 바꾸기
       workspace: router.query.classCode,
     }
 
@@ -72,17 +80,26 @@ export default function Channel({ users }: UsersProps) {
         Accept: 'application/json',
         'Content-Type': 'application/json',
         token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzM3MTYwZjJjNzNkMDgzMTgxNGM2ZiIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1MzIzMTkyLCJleHAiOjE2ODU0MDk1OTJ9.2bSfViIASj6K-9DGppFiZBlo0s3PSK70kdPxDibYb6g',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzhhZjM3ODJmZjQyYmYyZTA2NGRmOSIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1NjM5MTg3LCJleHAiOjE2ODU3MjU1ODd9.My5reXinjQ9hNpbAlVlzUV8se6uSvlclMzNS9RWAKb4',
       },
       body: JSON.stringify(channelData),
     }).then((response) => {
       if (response.ok) {
-        console.log('response.ok')
-        router.push(`/channel/${channelData.name}`)
+        router.push(
+          `/workspace/${router.query.classCode}/channel/${channelName}`,
+        )
       } else {
         console.log('not response.ok')
       }
     })
+  }
+
+  const openSearchModal = () => {
+    setSearchModalOpen(true)
+  }
+
+  const closeSearchModal = () => {
+    setSearchModalOpen(false)
   }
 
   return (
@@ -106,9 +123,9 @@ export default function Channel({ users }: UsersProps) {
           </Typography>
           <TextField
             fullWidth
-            placeholder={placeholder.description}
+            placeholder={placeholder.channelDescription}
             variant="standard"
-            value={description}
+            value={channelDescription}
             onChange={handleDescriptionChange}
           />
         </Box>
@@ -120,7 +137,13 @@ export default function Channel({ users }: UsersProps) {
               </Typography>
             </Grid>
             <Grid item xs={2}>
-              <SearchBar onChange={handleSearchQueryChange} />
+              <Button
+                variant="outlined"
+                onClick={openSearchModal}
+                disableRipple
+              >
+                🔍 Search members
+              </Button>
             </Grid>
           </Grid>
           <List dense sx={{ pl: 2 }}>
@@ -135,26 +158,6 @@ export default function Channel({ users }: UsersProps) {
               )
             })}
           </List>
-          {searchResults.length > 0 && (
-            <Box mt={4}>
-              <Typography variant="h6">Search Results</Typography>
-              <List dense sx={{ pl: 2 }}>
-                {searchResults.map((value) => {
-                  const labelId = `member-${value.userId}`
-                  return (
-                    <ListItem key={value.userId} disablePadding>
-                      <ListItem>
-                        <ListItemText
-                          id={labelId}
-                          primary={`${value.userId}`}
-                        />
-                      </ListItem>
-                    </ListItem>
-                  )
-                })}
-              </List>
-            </Box>
-          )}
         </Box>
         <Box
           sx={{
@@ -175,6 +178,55 @@ export default function Channel({ users }: UsersProps) {
           </Button>
         </Box>
       </Stack>
+      {/* Search Modal */}
+      {searchModalOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              background: '#fff',
+              padding: 20,
+              borderRadius: 4,
+            }}
+          >
+            {/* Modal content goes here */}
+            <TextField
+              fullWidth
+              placeholder="Search members"
+              variant="standard"
+              value={searchQuery}
+              onChange={handleSearchQueryChange}
+            />
+
+            <List dense>
+              {searchResults.map((value) => {
+                const labelId = `member-${value.userId}`
+                return (
+                  <ListItem key={value.userId} disablePadding>
+                    <ListItem button onClick={() => handleAddMember(value)}>
+                      <ListItemText id={labelId} primary={`${value.userId}`} />
+                    </ListItem>
+                  </ListItem>
+                )
+              })}
+            </List>
+
+            <Button onClick={closeSearchModal}>Close</Button>
+          </div>
+        </div>
+      )}
     </SideBar>
   )
 }
