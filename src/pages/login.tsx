@@ -38,6 +38,7 @@ export default function Login() {
       })
       const data = await res.json()
       localStorage.setItem('token', data.token)
+      localStorage.setItem('user', form.userId)
       router.push('/workspace') // TODO: change routing page
     } catch (err) {
       setFailed(true)

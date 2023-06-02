@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
@@ -14,6 +14,16 @@ import useWindowDimensions from './WindowSize'
 import style from './SideBar.module.css'
 
 export default function SideBar({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const [expanded, setExpanded] = React.useState<string | false>(false)
+  // const [user, setUser] = useState(null)
+
+  // const [currentworkspace, setWorkspace] = useState(null)
+  const [includedWorkspace, setIncludedWorkspace] = useState(null)
+  // 해당 유저가 속한 워크스페이스의 목록
+  const [userChannel, setUserChannel] = useState(null)
+  // 디비 전체의 채널 목록
+  // const [allChannels, setChannel] = useState(null)
   const styles = {
     accordion: {
       width: '150px',
@@ -23,65 +33,59 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       boxShadow: 0,
     },
   }
+  // resizing the sidebar height
   const { height } = useWindowDimensions()
   let gap = 0
   let h = 0
-
-  const router = useRouter()
-
   if (height) {
-    gap = height - 400
+    gap = height - 500
     h = height
   }
+  // logout function
+  const logout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    router.push('/')
+  }
 
-  const [expanded, setExpanded] = React.useState<string | false>(false)
-  const [data, setData] = useState(null)
-  const [currentworkspace, setWorkspace] = useState('')
-  const [allChannels, setChannel] = useState(null)
-  const channels = []
-
+  // handling accordion design
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false)
     }
 
-  const fetchData = async () => {
+  // get list of workspaces that the user belongs to\
+
+  async function getUser() {
     try {
-      const result = await axios(`${localPort}/workspaces/`)
-      return result
+      const userList = await axios.get(`${localPort}/users/`)
+      const workspaceList = await axios.get(`${localPort}/workspaces/`)
+      const channelList = await axios.get(`${localPort}/channels/`)
+      const filteredList = userList.data.filter(
+        (u) => localStorage.getItem('user') === u.userId,
+      )
+      const filteredWorkspace = workspaceList.data.filter((a) =>
+        filteredList[0].participatingWorkspaces.includes(a.id),
+      )
+
+      const filteredChannel = channelList.data.filter((c) =>
+        filteredList[0].participatingChannels.includes(c.id),
+      )
+      const finalfilteredChannel = filteredChannel.filter(
+        (c) => c.workspace.name === router.query.classCode,
+      )
+      setIncludedWorkspace(filteredWorkspace)
+      if (router.query.classCode == null) {
+        setUserChannel(filteredChannel)
+      } else {
+        setUserChannel(finalfilteredChannel)
+      }
     } catch (err) {
-      return err
+      setIncludedWorkspace(null)
     }
   }
 
-  const fetchChannels = async () => {
-    try {
-      const result = await axios(`${localPort}/channels/`)
-      return result
-    } catch (err) {
-      return err
-    }
-  }
-
-  useEffect(() => {
-    fetchData().then((res) => setData(res.data))
-    fetchChannels().then((res) => setChannel(res.data))
-  }, [])
-
-  // const channels = currentworkspace.channels
-  const currentchannels = currentworkspace.channels
-
-  function filterById(object, id) {
-    return object.filter((o) => o.id === id)[0]
-  }
-
-  if (currentchannels != null) {
-    currentchannels.map((item) => {
-      const tempChannel = filterById(allChannels, item.id)
-      channels.push(tempChannel)
-      return true
-    })
-  }
+  getUser()
 
   return (
     <div
@@ -170,13 +174,12 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                 }}
               >
                 <div>
-                  {data &&
-                    data.map((workspace) => (
+                  {includedWorkspace &&
+                    includedWorkspace.map((workspace) => (
                       <Link
-                        key={workspace.name}
+                        key={workspace.id}
                         href={`/workspace/${workspace.name}`}
                         className={style.accordionChild}
-                        onClick={() => setWorkspace(workspace)}
                       >
                         {workspace.name}
                         <br />
@@ -200,14 +203,14 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               </AccordionSummary>
               <AccordionDetails sx={{ height: gap }}>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {channels &&
-                    channels.map((c) => (
+                  {userChannel &&
+                    userChannel.map((c) => (
                       <Link
                         key={c}
-                        href={`/workspace/cs350/channel/${c.description}`}
+                        href={`/workspace/cs350/channel/${c.name}`}
                         className={style.accordionChild}
                       >
-                        {c.description}
+                        {c.name}
                       </Link>
                     ))}
                 </div>
@@ -260,6 +263,24 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                 </div>
               </AccordionSummary>
             </Accordion>
+            <div
+              style={{ display: 'flex', bottom: '40px', position: 'absolute' }}
+            >
+              <Image src="/logout.png" height={30} width={30} alt="logo" />
+              <button
+                type="button"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '12pxs',
+                }}
+                onClick={logout}
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
         <div style={{ width: '90%' }}>{children}</div>
