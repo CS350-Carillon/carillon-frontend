@@ -4,7 +4,7 @@ import LinkButton from '@/components/LinkButton'
 import { useEffect, useState } from 'react'
 import { localPort } from '@/utils/constants'
 import { useRouter } from 'next/router'
-import { socket } from '../utils/socket'
+// import { socketInit } from '../utils/socket'/
 
 export default function Login() {
   const router = useRouter()
@@ -30,8 +30,9 @@ export default function Login() {
   const handleLogin = async ({ id, token }: { id: string; token: string }) => {
     localStorage.setItem('_id', id)
     localStorage.setItem('token', token)
-    socket.emit('connection')
-    socket.emit('init', { userId: id })
+    // socket.emit('connection')
+    // socket.emit('init', { userId: id })
+    // socketInit(id)
     router.push('/workspace') // TODO: change routing page
   }
 

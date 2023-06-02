@@ -3,17 +3,65 @@ import Stack from '@mui/material/Stack'
 import IconButton from '@mui/material/IconButton'
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined'
 import SendIcon from '@mui/icons-material/Send'
-import { useRef, useState } from 'react'
+import { Socket } from 'socket.io-client'
+import { useRef, useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
+import { localPort } from '@/utils/constants'
+// import { socketEmit } from '@/utils/socket'
 
-export default function InputBox() {
+export default function InputBox({
+  channelID,
+  respond,
+  socket,
+}: {
+  channelID: string
+  respond: boolean
+  socket: Socket
+}) {
+  const router = useRouter()
   const selectFile = useRef<HTMLInputElement>(null)
   const [text, setText] = useState('')
+  const [user, setUser] = useState({ userID: '', userName: '' })
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value)
   }
   const onClick = () => {
+    if (respond) {
+      socket.emit('addResponse', {
+        content: text,
+        channel: channelID,
+        sender: user,
+      })
+    } else {
+      socket.emit('postMessage', {
+        content: text,
+        channel: channelID,
+        sender: user.userID,
+      })
+    }
     setText('')
   }
+  useEffect(() => {
+    const i = localStorage.getItem('_id') || ''
+    const t = localStorage.getItem('token') || ''
+    const getData = async () => {
+      try {
+        const uRes = await fetch(`${localPort}/users/${i}`, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            token: t,
+          },
+        })
+        const uData = await uRes.json()
+        setUser({ userID: i, userName: uData.userName })
+      } catch (err) {
+        router.push('/')
+      }
+    }
+    getData()
+  }, [router])
   return (
     <Stack
       direction="column"

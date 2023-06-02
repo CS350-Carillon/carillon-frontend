@@ -2,6 +2,7 @@ import AddIcon from '@mui/icons-material/Add'
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import MoodBadIcon from '@mui/icons-material/MoodBad'
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt'
@@ -11,23 +12,23 @@ import Typography from '@mui/material/Typography'
 import Tooltip from '@mui/material/Tooltip'
 import Stack from '@mui/material/Stack'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Socket } from 'socket.io-client'
+import { localPort } from '@/utils/constants'
 import styles from './MessageBlock.module.css'
-
-const dummyUser = { userName: 'Sihyun', userID: 1 }
 
 export interface MsgProps {
   id: string
   content: string
   responses?: MsgProps[]
   reactions: {
-    [index: string]: { userID: number; userName: string }[]
-    check: { userID: number; userName: string }[]
-    favorite: { userID: number; userName: string }[]
-    moodbad: { userID: number; userName: string }[]
-    thumbup: { userID: number; userName: string }[]
+    [index: string]: { userID: string; userName: string }[]
+    Check: { userID: string; userName: string }[]
+    Favorite: { userID: string; userName: string }[]
+    Moodbad: { userID: string; userName: string }[]
+    Thumbup: { userID: string; userName: string }[]
   }
-  sender: { name: string }
+  sender: { id: string; name: string }
 }
 
 function Profile() {
@@ -38,7 +39,19 @@ function Profile() {
   )
 }
 
-function Content({ content, userName }: { content: string; userName: string }) {
+function Content({
+  content,
+  userName,
+  myMsg,
+  onDelete,
+  onEdit,
+}: {
+  content: string
+  userName: string
+  myMsg: boolean
+  onDelete: () => void
+  onEdit: () => void
+}) {
   return (
     <Stack direction="column" spacing={1}>
       <Stack
@@ -48,9 +61,28 @@ function Content({ content, userName }: { content: string; userName: string }) {
         paddingBottom={0.5}
       >
         <div> {userName} </div>
-        <IconButton aria-label="check" size="small" sx={{ paddingRight: 2 }}>
-          <DeleteIcon />
-        </IconButton>
+        {myMsg ? (
+          <Stack direction="row">
+            <IconButton
+              aria-label="check"
+              size="small"
+              sx={{ paddingRight: 2 }}
+              onClick={onEdit}
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              aria-label="check"
+              size="small"
+              sx={{ paddingRight: 2 }}
+              onClick={onDelete}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Stack>
+        ) : (
+          <div />
+        )}
       </Stack>
       <div id="content">{content}</div>
     </Stack>
@@ -60,53 +92,44 @@ function Content({ content, userName }: { content: string; userName: string }) {
 function Reaction({
   reactions,
   onClick,
+  user,
 }: {
   reactions: {
-    check: { userID: number; userName: string }[]
-    favorite: { userID: number; userName: string }[]
-    moodbad: { userID: number; userName: string }[]
-    thumbup: { userID: number; userName: string }[]
+    Check: { userID: string; userName: string }[]
+    Favorite: { userID: string; userName: string }[]
+    Moodbad: { userID: string; userName: string }[]
+    Thumbup: { userID: string; userName: string }[]
   }
-  onClick: (
-    targetUser: {
-      userID: number
-      userName: string
-    },
-    reactionType: string,
-    reactionExist: boolean,
-  ) => void
+  onClick: (reactionType: string, reactionExist: boolean) => void
+  user: { userID: string; userName: string }
 }) {
   const checkExist: boolean =
-    reactions.check.filter(
-      (e: { userID: number; userName: string }) =>
-        e.userID === dummyUser.userID,
+    reactions.Check.filter(
+      (e: { userID: string; userName: string }) => e.userID === user.userID,
     ).length > 0
   const favoriteExist: boolean =
-    reactions.favorite.filter(
-      (e: { userID: number; userName: string }) =>
-        e.userID === dummyUser.userID,
+    reactions.Favorite.filter(
+      (e: { userID: string; userName: string }) => e.userID === user.userID,
     ).length > 0
   const moodbadExist: boolean =
-    reactions.moodbad.filter(
-      (e: { userID: number; userName: string }) =>
-        e.userID === dummyUser.userID,
+    reactions.Moodbad.filter(
+      (e: { userID: string; userName: string }) => e.userID === user.userID,
     ).length > 0
   const thumbupExist: boolean =
-    reactions.thumbup.filter(
-      (e: { userID: number; userName: string }) =>
-        e.userID === dummyUser.userID,
+    reactions.Thumbup.filter(
+      (e: { userID: string; userName: string }) => e.userID === user.userID,
     ).length > 0
 
-  const checkList = reactions.check.map((e) => (
+  const checkList = reactions.Check.map((e) => (
     <div key={e.userID}>{e.userName}</div>
   ))
-  const favoriteList = reactions.favorite.map((e) => (
+  const favoriteList = reactions.Favorite.map((e) => (
     <div key={e.userID}>{e.userName}</div>
   ))
-  const moodbadList = reactions.moodbad.map((e) => (
+  const moodbadList = reactions.Moodbad.map((e) => (
     <div key={e.userID}>{e.userName}</div>
   ))
-  const thumbupList = reactions.thumbup.map((e) => (
+  const thumbupList = reactions.Thumbup.map((e) => (
     <div key={e.userID}>{e.userName}</div>
   ))
 
@@ -128,12 +151,12 @@ function Reaction({
           <IconButton
             aria-label="check"
             size="small"
-            onClick={() => onClick(dummyUser, 'check', checkExist)}
+            onClick={() => onClick('Check', checkExist)}
             sx={{ color: checkExist ? 'blue' : 'gray' }}
           >
             <CheckCircleIcon />
             <Typography variant="caption">
-              {reactions.check.length !== 0 && reactions.check.length}
+              {reactions.Check.length !== 0 && reactions.Check.length}
             </Typography>
           </IconButton>
         </Tooltip>
@@ -145,13 +168,13 @@ function Reaction({
           <IconButton
             aria-label="heart"
             size="small"
-            onClick={() => onClick(dummyUser, 'favorite', favoriteExist)}
+            onClick={() => onClick('Favorite', favoriteExist)}
             sx={{ color: favoriteExist ? 'red' : 'gray' }}
           >
             <FavoriteIcon />
             <Typography variant="caption">
               {' '}
-              {reactions.favorite.length !== 0 && reactions.favorite.length}
+              {reactions.Favorite.length !== 0 && reactions.Favorite.length}
             </Typography>
           </IconButton>
         </Tooltip>
@@ -163,13 +186,13 @@ function Reaction({
           <IconButton
             aria-label="mood-bad"
             size="small"
-            onClick={() => onClick(dummyUser, 'moodbad', moodbadExist)}
+            onClick={() => onClick('Moodbad', moodbadExist)}
             sx={{ color: moodbadExist ? 'orange' : 'gray' }}
           >
             <MoodBadIcon />
             <Typography variant="caption">
               {' '}
-              {reactions.moodbad.length !== 0 && reactions.moodbad.length}
+              {reactions.Moodbad.length !== 0 && reactions.Moodbad.length}
             </Typography>
           </IconButton>
         </Tooltip>
@@ -181,13 +204,13 @@ function Reaction({
           <IconButton
             aria-label="thumb-up"
             size="small"
-            onClick={() => onClick(dummyUser, 'thumbup', thumbupExist)}
+            onClick={() => onClick('Thumbup', thumbupExist)}
             sx={{ color: thumbupExist ? 'purple' : 'gray' }}
           >
             <ThumbUpAltIcon />
             <Typography variant="caption">
               {' '}
-              {reactions.thumbup.length !== 0 && reactions.thumbup.length}
+              {reactions.Thumbup.length !== 0 && reactions.Thumbup.length}
             </Typography>
           </IconButton>
         </Tooltip>
@@ -214,18 +237,38 @@ function RespondButton({
 export default function MessageBlock({
   message,
   respond,
+  socket,
 }: {
   message: MsgProps
   respond: boolean
+  socket: Socket
 }) {
   const router = useRouter()
   const [msgState, setMsgState] = useState<MsgProps>(message)
+  const [user, setUser] = useState({ userID: '', userName: '' })
+  useEffect(() => {
+    const i = localStorage.getItem('_id') || ''
+    const t = localStorage.getItem('token') || ''
+    const getData = async () => {
+      try {
+        const res = await fetch(`${localPort}/users/${i}`, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            token: t,
+          },
+        })
+        const data = await res.json()
+        setUser({ userID: i, userName: data.userName })
+      } catch (err) {
+        router.push('/')
+      }
+    }
+    getData()
+  }, [router])
 
-  const onClick = (
-    targetUser: { userID: number; userName: string },
-    reactionType: string,
-    reactionExist: boolean,
-  ) => {
+  const onClick = (reactionType: string, reactionExist: boolean) => {
     if (reactionExist) {
       setMsgState((prevMsg: MsgProps) => {
         return {
@@ -233,22 +276,34 @@ export default function MessageBlock({
           reactions: {
             ...prevMsg.reactions,
             [reactionType]: prevMsg.reactions[reactionType].filter(
-              (e) => e.userID !== targetUser.userID,
+              (e) => e.userID !== user.userID,
             ),
           },
         }
       })
     } else {
+      socket.emit('addReaction', {
+        reactionType,
+        reactor: user.userID,
+      })
       setMsgState((prevMsg: MsgProps) => {
         return {
           ...prevMsg,
           reactions: {
             ...prevMsg.reactions,
-            [reactionType]: [...prevMsg.reactions[reactionType], targetUser],
+            [reactionType]: [...prevMsg.reactions[reactionType], user],
           },
         }
       })
     }
+  }
+
+  const onDelete = () => {
+    socket.emit('deleteMessge', { id: msgState.id, content: '' })
+  }
+
+  const onEdit = () => {
+    socket.emit('editMessge', msgState.id)
   }
 
   return (
@@ -266,6 +321,9 @@ export default function MessageBlock({
             <Content
               content={msgState.content}
               userName={msgState.sender.name}
+              myMsg={msgState.sender.id === user.userID}
+              onDelete={onDelete}
+              onEdit={onEdit}
             />
             <Stack direction="row" justifyContent="space-between">
               {respond ? (
@@ -284,7 +342,11 @@ export default function MessageBlock({
                 <div />
               )}
               <div id={styles.reaction}>
-                <Reaction reactions={msgState.reactions} onClick={onClick} />
+                <Reaction
+                  reactions={msgState.reactions}
+                  onClick={onClick}
+                  user={user}
+                />
               </div>
             </Stack>
           </Stack>
