@@ -295,8 +295,9 @@ export default function MessageBlock({
       })
     } else {
       socket.emit('addReaction', {
-        reactionType,
         reactor: user.userID,
+        reactionType,
+        chatId: msgState.id,
       })
       setMsgState((prevMsg: MsgProps) => {
         return {

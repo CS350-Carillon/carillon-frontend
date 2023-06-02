@@ -101,6 +101,34 @@ export default function ChannelComp({
     // })
   }
 
+  const onAddReaction = (res: {
+    reactor: string
+    reactionType: string
+    chatId: string
+  }) => {
+    setChat((prevChat: MsgProps[]) => [
+      ...prevChat.filter((c) => c.id !== res.chatId),
+      {
+        ...prevChat.filter((c) => c.id === res.chatId)[0],
+        reactions: {
+          ...prevChat.filter((c) => c.id === res.chatId)[0].reactions,
+          [res.reactionType]: [
+            ...prevChat.filter((c) => c.id === res.chatId)[0].reactions[
+              res.reactionType
+            ],
+            { userID: res.reactor, userName: 'Quaka' }, // TODO: change sender name
+          ],
+        },
+      },
+    ])
+  }
+
+  // const onDeleteReaction = () => {} // TODO: after socket is fixed
+
+  const onAddResponse = () => {}
+
+  // const onDeleteResponse = () => {} // TODO: after socket is fixed
+
   useEffect(() => {
     const skt = io(localPort)
     setSocket(skt)
@@ -123,6 +151,10 @@ export default function ChannelComp({
     socket.on('postMessage', onPostMessage)
     socket.on('deleteMessage', onDeleteMessage)
     socket.on('editMessage', onEditMessage)
+    socket.on('addReaction', onAddReaction)
+    // socket.on('deleteReaction', onDeleteReaction)
+    socket.on('addResponse', onAddResponse)
+    // socket.on('delteResponse', onDeleteResponse)
   }, [socket, router])
 
   useEffect(() => {
