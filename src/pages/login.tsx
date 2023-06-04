@@ -27,6 +27,9 @@ export default function Login() {
   }, [router])
 
   const handleOnClick = async () => {
+    if (form.userId === '' || form.password === '') {
+      return
+    }
     try {
       const res = await fetch(`${localPort}/users/login`, {
         method: 'POST',
@@ -38,7 +41,7 @@ export default function Login() {
       })
       const data = await res.json()
       localStorage.setItem('token', data.token)
-      localStorage.setItem('user', form.userId)
+      localStorage.setItem('_id', data._id) /* eslint no-underscore-dangle: 0 */
       router.push('/workspace') // TODO: change routing page
     } catch (err) {
       setFailed(true)
@@ -102,6 +105,7 @@ export default function Login() {
               setForm((prev) => ({ ...prev, password: e.target.value }))
               setFailed(false)
             }}
+            onEnter={handleOnClick}
           />
           <Stack justifyContent="center" alignItems="center" spacing={1}>
             <Typography

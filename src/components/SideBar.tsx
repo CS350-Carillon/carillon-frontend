@@ -61,7 +61,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       const workspaceList = await axios.get(`${localPort}/workspaces/`)
       const channelList = await axios.get(`${localPort}/channels/`)
       const filteredList = userList.data.filter(
-        (u: any) => localStorage.getItem('user') === u.userId,
+        (u: any) => localStorage.getItem('_id') === u._id,
       )
       const filteredWorkspace = workspaceList.data.filter((a: any) =>
         filteredList[0].participatingWorkspaces.includes(a._id),
