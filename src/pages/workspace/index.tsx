@@ -36,8 +36,7 @@ export default function Workspace({ users }: UsersProps) {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzhhZjM3ODJmZjQyYmYyZTA2NGRmOSIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1NjMwODI5LCJleHAiOjE2ODU3MTcyMjl9.ANaWZVXOG1TilUVDijDv8SXhsSV4AMXekqE7F_YUGWE',
+        token: JSON.stringify(localStorage.getItem('token')),
       },
       body: JSON.stringify({ name: workspaceName }),
     }).then((response) => {

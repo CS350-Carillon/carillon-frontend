@@ -73,14 +73,12 @@ export default function Channel({ users }: UsersProps) {
       workspace: router.query.classCode,
     }
 
-    // To Do: token 가져오는 방식
     fetch(`${localPort}/channels/`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzhhZjM3ODJmZjQyYmYyZTA2NGRmOSIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1NjM5MTg3LCJleHAiOjE2ODU3MjU1ODd9.My5reXinjQ9hNpbAlVlzUV8se6uSvlclMzNS9RWAKb4',
+        token: JSON.stringify(localStorage.getItem('token')),
       },
       body: JSON.stringify(channelData),
     }).then((response) => {

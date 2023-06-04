@@ -71,9 +71,7 @@ export default function ChannelComp({
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        // To Do: token 얻는 방법 바꾸기
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzhhZjM3ODJmZjQyYmYyZTA2NGRmOSIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1Njc0OTg4LCJleHAiOjE2ODU3NjEzODh9.sgKBUMfkp3kuacOuJhvq_zElCgjDK_4S1AufAY1hCQg',
+        token: JSON.stringify(localStorage.getItem('token')),
       },
       // To Do: worskapce 바꾸기
       body: JSON.stringify({ members: [member] }),
@@ -101,9 +99,7 @@ export default function ChannelComp({
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        // To Do: token 얻는 방법 바꾸기
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzhhZjM3ODJmZjQyYmYyZTA2NGRmOSIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1NjMwODI5LCJleHAiOjE2ODU3MTcyMjl9.ANaWZVXOG1TilUVDijDv8SXhsSV4AMXekqE7F_YUGWE',
+        token: JSON.stringify(localStorage.getItem('token')),
       },
       // To Do: worskapce 바꾸기
       body: JSON.stringify({ name: channels[0].name, workspace: 'workspace' }),
