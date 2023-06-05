@@ -74,9 +74,6 @@ export default function InputBox({
     setText('')
   }
 
-  // const handleChange = (e) => {
-  //   console.log(e.target.files[0])
-  // }
   useEffect(() => {
     const i = localStorage.getItem('_id') || ''
     const t = localStorage.getItem('token') || ''

@@ -53,6 +53,7 @@ export default function ChannelRespComp({
     reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
     sender: { id: '', name: '' },
     isFile: false,
+    isDeleted: false,
   })
   const [socket, setSocket] = useState<Socket | null>(null)
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
@@ -63,10 +64,10 @@ export default function ChannelRespComp({
     respondedChatId: string
     response: {
       content: string
-      isDeleted: boolean
       sender: { _id: string; userName: string }
       _id: string
       isFile: boolean
+      isDeleted: boolean
     }
   }) => {
     setChat((prevChat: MsgProps) => {
@@ -86,6 +87,7 @@ export default function ChannelRespComp({
               name: res.response.sender.userName,
             },
             isFile: res.response.isFile,
+            isDeleted: res.response.isDeleted,
           },
         ],
       }
@@ -96,6 +98,7 @@ export default function ChannelRespComp({
     _id: string
     content: string
     isFile: boolean
+    isDeleted: boolean
   }) => {
     setChat((prevChat: MsgProps) => {
       if (!prevChat) {
@@ -106,6 +109,7 @@ export default function ChannelRespComp({
           reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
           sender: { id: '', name: '' },
           isFile: false,
+          isDeleted: false,
         }
       }
       if (prevChat.id === res._id) {
@@ -194,6 +198,7 @@ export default function ChannelRespComp({
               sender: string
               // sender_info: { _id: string; userName: string }[] // TODO
               isFile: boolean
+              isDeleted: boolean
             }[]
             reactions_info: {
               reactionType: string
@@ -201,6 +206,7 @@ export default function ChannelRespComp({
             }[]
             sender_info: { _id: string; userName: string }[]
             isFile: boolean
+            isDeleted: boolean
           }) => {
             return d._id === msgID
           },
@@ -239,6 +245,7 @@ export default function ChannelRespComp({
               }[]
               sender: string
               isFile: boolean
+              isDeleted: boolean
             }) => {
               const checkListI =
                 r.reactions_info.length > 0 &&
@@ -301,6 +308,7 @@ export default function ChannelRespComp({
                 },
                 sender: { id: r.sender, name: 'Sihyun2' }, // TODO: need to change sender name
                 isFile: r.isFile,
+                isDeleted: r.isDeleted,
               }
             },
           ),
@@ -345,6 +353,7 @@ export default function ChannelRespComp({
               : 'unknown user',
           },
           isFile: filterData.isFile,
+          isDeleted: filterData.isDeleted,
         })
         setChannel(() => {
           const filteredList = channels.filter(

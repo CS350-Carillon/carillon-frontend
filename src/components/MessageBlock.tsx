@@ -33,6 +33,7 @@ export interface MsgProps {
   }
   sender: { id: string; name: string }
   isFile: boolean
+  isDeleted: boolean
 }
 
 function Profile() {
@@ -48,6 +49,7 @@ function Content({
   userName,
   myMsg,
   isFile,
+  isDeleted,
   onDelete,
   onEdit,
 }: {
@@ -55,6 +57,7 @@ function Content({
   userName: string
   myMsg: boolean
   isFile: boolean
+  isDeleted: boolean
   onDelete: () => void
   onEdit: (content: string) => void
 }) {
@@ -70,7 +73,7 @@ function Content({
         paddingBottom={0.5}
       >
         <div> {userName} </div>
-        {myMsg ? (
+        {myMsg && !isDeleted ? (
           <Stack direction="row">
             <IconButton
               aria-label="check"
@@ -378,6 +381,7 @@ export default function MessageBlock({
               userName={msgState.sender.name}
               myMsg={msgState.sender.id === user.userID}
               isFile={msgState.isFile}
+              isDeleted={msgState.isDeleted}
               onDelete={onDelete}
               onEdit={onEdit}
             />

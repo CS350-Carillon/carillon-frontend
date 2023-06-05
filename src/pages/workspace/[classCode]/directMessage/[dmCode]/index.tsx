@@ -61,24 +61,25 @@ export default function ChannelComp({
     _id: string
     content: string
     sender: { _id: string; userName: string }
+    isFile: boolean
+    isDeleted: boolean
   }) => {
     setChat((prevChat: MsgProps[]) => {
-      return [
-        ...prevChat,
-        {
-          id: res._id,
-          content: res.content,
-          responses: [],
-          reactions: {
-            Check: [],
-            Favorite: [],
-            Moodbad: [],
-            Thumbup: [],
-          },
-          sender: { id: res.sender._id, name: res.sender.userName },
-          isFile: false,
+      const newChat = {
+        id: res._id,
+        content: res.content,
+        responses: [],
+        reactions: {
+          Check: [],
+          Favorite: [],
+          Moodbad: [],
+          Thumbup: [],
         },
-      ]
+        sender: { id: res.sender._id, name: res.sender.userName },
+        isFile: res.isFile && !res.isDeleted,
+        isDeleted: res.isDeleted,
+      }
+      return [...prevChat, newChat]
     })
   }
 
@@ -86,7 +87,7 @@ export default function ChannelComp({
   const onDeleteMessage = (res: {
     _id: string
     content: string
-    isFile: false
+    isFile: boolean
   }) => {
     setChat((prevChat: MsgProps[]) => {
       const index0 = prevChat.findIndex((c) => c.id === res._id)
@@ -130,10 +131,11 @@ export default function ChannelComp({
           c.id === res._id
             ? {
                 ...res,
-                id: res._id,
+                // id: res._id,
                 responses: c.responses,
                 reactions: c.reactions,
                 sender: c.sender,
+                isFile: false,
               }
             : c,
         )
@@ -146,45 +148,11 @@ export default function ChannelComp({
   const onEditMessage = (res: {
     _id: string
     content: string
-    isFile: false
+    isFile: boolean
+    isDeleted: boolean
   }) => {
     setChat((prevChat: MsgProps[]) => {
       const index0 = prevChat.findIndex((c) => c.id === res._id)
-      const index1 = prevChat.findIndex((c) => {
-        const filterResponse =
-          c.responses?.filter((r) => r.id === res._id) ?? []
-        return filterResponse.length > 0
-      })
-      if (index1 && prevChat[index1]) {
-        const indexResponse = prevChat[index1].responses?.findIndex(
-          (r) => r.id === res._id,
-        )
-        const newChatList = [
-          ...prevChat.slice(0, index1),
-          ...prevChat.slice(index1 + 1),
-        ]
-        const responseIndex1 = prevChat[index1].responses
-        const newChat =
-          indexResponse && indexResponse >= 0 && responseIndex1
-            ? {
-                ...prevChat[index1],
-                responses: [
-                  ...responseIndex1.slice(0, indexResponse),
-                  {
-                    ...responseIndex1[indexResponse],
-                    content: res.content,
-                  },
-                  ...responseIndex1.slice(indexResponse + 1),
-                ],
-              }
-            : {
-                ...prevChat[index1],
-              }
-
-        newChatList.splice(index1, 0, newChat)
-        return JSON.parse(JSON.stringify(newChatList))
-      }
-
       if (index0 >= 0) {
         return prevChat.map((c) =>
           c.id === res._id
@@ -242,10 +210,10 @@ export default function ChannelComp({
     respondedChatId: string
     response: {
       content: string
-      isDeleted: boolean
       sender: { _id: string; userName: string }
       _id: string
       isFile: boolean
+      isDeleted: boolean
     }
   }) => {
     setChat((prevChat: MsgProps[]) => {
@@ -270,6 +238,7 @@ export default function ChannelComp({
               name: res.response.sender.userName,
             },
             isFile: res.response.isFile,
+            isDeleted: res.response.isDeleted,
           },
         ],
       }
@@ -334,6 +303,7 @@ export default function ChannelComp({
                 }[]
                 sender_info: { _id: string; userName: string }[]
                 isFile: boolean
+                isDeleted: boolean
               }[]
               reactions_info: {
                 reactionType: string
@@ -341,6 +311,7 @@ export default function ChannelComp({
               }[]
               sender_info: { _id: string; userName: string }[]
               isFile: boolean
+              isDeleted: boolean
             }) => {
               return {
                 id: d._id /* eslint no-underscore-dangle: 0 */,
@@ -356,6 +327,7 @@ export default function ChannelComp({
                     }[]
                     sender_info: { _id: string; userName: string }[]
                     isFile: boolean
+                    isDeleted: boolean
                   }) => ({
                     id: r._id,
                     content: r.content,
@@ -425,6 +397,7 @@ export default function ChannelComp({
                         : 'unknown user',
                     },
                     isFile: r.isFile,
+                    isDeleted: r.isDeleted,
                   }),
                 ),
                 reactions: {
@@ -492,6 +465,7 @@ export default function ChannelComp({
                     : 'unknown user',
                 },
                 isFile: d.isFile,
+                isDeleted: d.isDeleted,
               }
             },
           ),
