@@ -52,6 +52,7 @@ export default function ChannelRespComp({
     responses: [],
     reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
     sender: { id: '', name: '' },
+    isFile: false,
   })
   const [socket, setSocket] = useState<Socket | null>(null)
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
@@ -59,12 +60,17 @@ export default function ChannelRespComp({
   const msgID = router.query.messageCode
 
   const onAddResponse = (res: {
-    chatId: string
-    sender: string
-    content: string
+    respondedChatId: string
+    response: {
+      content: string
+      isDeleted: boolean
+      sender: { _id: string; userName: string }
+      _id: string
+      isFile: boolean
+    }
   }) => {
     setChat((prevChat: MsgProps) => {
-      if (res.chatId !== prevChat.id) {
+      if (res.respondedChatId !== prevChat.id) {
         return prevChat
       }
       return {
@@ -72,10 +78,14 @@ export default function ChannelRespComp({
         responses: [
           ...(prevChat.responses ? prevChat.responses : []),
           {
-            id: '1000',
-            content: res.content,
+            id: res.response._id,
+            content: res.response.content,
             reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
-            sender: { id: '100', name: res.sender },
+            sender: {
+              id: res.response.sender._id,
+              name: res.response.sender.userName,
+            },
+            isFile: res.response.isFile,
           },
         ],
       }
@@ -91,6 +101,7 @@ export default function ChannelRespComp({
           responses: [],
           reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
           sender: { id: '', name: '' },
+          isFile: false,
         }
       }
       if (prevChat.id === res.messageId) {
@@ -173,13 +184,15 @@ export default function ChannelRespComp({
                 user_info: { _id: string; userName: string }[]
               }[]
               sender: string
+              // sender_info: { _id: string; userName: string }[] // TODO
+              isFile: boolean
             }[]
             reactions_info: {
               reactionType: string
               user_info: { _id: string; userName: string }[]
             }[]
-            sender: string
-            // sender: { _id: string; userName: string }
+            sender_info: { _id: string; userName: string }[]
+            isFile: boolean
           }) => {
             return d._id === msgID
           },
@@ -217,9 +230,8 @@ export default function ChannelRespComp({
                 user_info: { _id: string; userName: string }[]
               }[]
               sender: string
+              isFile: boolean
             }) => {
-              // console.log('reaction')
-              // console.log(r.reactions_info)
               const checkListI =
                 r.reactions_info.length > 0 &&
                 r.reactions_info.find(
@@ -280,6 +292,7 @@ export default function ChannelRespComp({
                     : [],
                 },
                 sender: { id: r.sender, name: 'Sihyun2' }, // TODO: need to change sender name
+                isFile: r.isFile,
               }
             },
           ),
@@ -318,9 +331,12 @@ export default function ChannelRespComp({
               : [],
           },
           sender: {
-            id: filterData.sender,
-            name: 'Jiwon', // TODO: need to change sender name
+            id: filterData.sender_info ? filterData.sender_info[0]._id : '1',
+            name: filterData.sender_info
+              ? filterData.sender_info[0].userName
+              : 'unknown user',
           },
+          isFile: filterData.isFile,
         })
         setChannel(() => {
           const filteredList = channels.filter(

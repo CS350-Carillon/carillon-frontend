@@ -57,12 +57,16 @@ export default function ChannelComp({
     scrollToBottom()
   }, [chatList])
 
-  const onPostMessage = (res: { sender: string; content: string }) => {
+  const onPostMessage = (res: {
+    _id: string
+    content: string
+    sender: { _id: string; userName: string }
+  }) => {
     setChat((prevChat: MsgProps[]) => {
       return [
         ...prevChat,
         {
-          id: '1',
+          id: res._id,
           content: res.content,
           responses: [],
           reactions: {
@@ -71,40 +75,92 @@ export default function ChannelComp({
             Moodbad: [],
             Thumbup: [],
           },
-          sender: { id: '1', name: res.sender },
+          sender: { id: res.sender._id, name: res.sender.userName },
+          isFile: false,
         },
       ]
     })
   }
 
-  const onDeleteMessage = (res: { messageId: string; content: string }) => {
-    setChat((prevChat: MsgProps[]) => [
-      ...prevChat.filter((c) => c.id !== res.messageId),
-      {
-        ...prevChat.filter((c) => c.id === res.messageId)[0],
-        content: res.content,
-      },
-    ])
+  // TODO: not updating immediately
+  const onDeleteMessage = (res: { _id: string; content: string }) => {
+    setChat((prevChat: MsgProps[]) => {
+      const index0 = prevChat.findIndex((c) => c.id === res._id)
+      const index1 = prevChat.findIndex((c) => {
+        const filterResponse =
+          c.responses?.filter((r) => r.id === res._id) ?? []
+        return filterResponse.length > 0
+      })
+      const responseIndex1 = prevChat[index1].responses
+      if (index1) {
+        const indexResponse = prevChat[index1].responses?.findIndex(
+          (r) => r.id === res._id,
+        )
+        const newChatList = [
+          ...prevChat.slice(0, index1),
+          ...prevChat.slice(index1 + 1),
+        ]
+        const newChat =
+          indexResponse && indexResponse >= 0 && responseIndex1
+            ? {
+                ...prevChat[index1],
+                responses: [
+                  ...responseIndex1.slice(0, indexResponse),
+                  {
+                    ...responseIndex1[indexResponse],
+                    content: res.content,
+                  },
+                  ...responseIndex1.slice(indexResponse + 1),
+                ],
+              }
+            : {
+                ...prevChat[index1],
+              }
+
+        newChatList.splice(index1, 0, newChat)
+        return JSON.parse(JSON.stringify(newChatList))
+      }
+
+      if (index0 >= 0) {
+        const newChatList = [
+          ...prevChat.slice(0, index0),
+          ...prevChat.slice(index0 + 1),
+        ]
+        const newChat = {
+          ...prevChat[index0],
+          content: res.content,
+        }
+        newChatList.splice(index0, 0, newChat)
+        return JSON.parse(JSON.stringify(newChatList))
+      }
+      return { ...prevChat }
+    })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onEditMessage = (res: { messageId: string; content: string }) => {
-    // FIXME: uncomment after server socket is fixed
-    // setChat((prevChat: MsgProps[]) => {
-    //   return [
-    //     ...prevChat.filter((c) => c.id !== res.messageId),
-    //     {
-    //       ...prevChat.filter((c) => c.id === res.messageId)[0],
-    //       content: res.content,
-    //     },
-    //   ]
-    // })
+  // TODO: not updating immediately
+  const onEditMessage = (res: { _id: string; content: string }) => {
+    setChat((prevChat: MsgProps[]) => {
+      const index = prevChat.findIndex((c) => c.id === res._id)
+      const newChatList = [
+        ...prevChat.slice(0, index),
+        ...prevChat.slice(index + 1),
+      ]
+      const newChat = {
+        ...prevChat[index],
+        content: res.content,
+      }
+      newChatList.splice(index, 0, newChat)
+      return JSON.parse(JSON.stringify(newChatList))
+    })
   }
 
   const onAddReaction = (res: {
-    reactor: string
-    reactionType: string
     chatId: string
+    reaction: {
+      reactionType: string
+      reactor: { _id: string; userName: string }
+      _id: string
+    }
   }) => {
     setChat((prevChat: MsgProps[]) => [
       ...prevChat.filter((c) => c.id !== res.chatId),
@@ -112,20 +168,67 @@ export default function ChannelComp({
         ...prevChat.filter((c) => c.id === res.chatId)[0],
         reactions: {
           ...prevChat.filter((c) => c.id === res.chatId)[0].reactions,
-          [res.reactionType]: [
+          [res.reaction.reactionType]: [
             ...prevChat.filter((c) => c.id === res.chatId)[0].reactions[
-              res.reactionType
+              res.reaction.reactionType
             ],
-            { userID: res.reactor, userName: 'Quaka' }, // TODO: change sender name
+            {
+              id: res.reaction._id,
+              userID: res.reaction.reactor._id,
+              userName: res.reaction.reactor.userName,
+            },
           ],
         },
       },
     ])
   }
 
-  // const onDeleteReaction = () => {} // TODO: after socket is fixed
+  const onDeleteReaction = () => {}
 
-  const onAddResponse = () => {}
+  // const onDeleteReaction = (res: any) => {
+  //   console.log('DELETED REACTION')
+  //   console.log(res)
+  // } // TODO: after socket is fixed
+
+  const onAddResponse = (res: {
+    respondedChatId: string
+    response: {
+      content: string
+      isDeleted: boolean
+      sender: { _id: string; userName: string }
+      _id: string
+      isFile: boolean
+    }
+  }) => {
+    setChat((prevChat: MsgProps[]) => {
+      if (!prevChat) {
+        return prevChat
+      }
+      const index = prevChat.findIndex((c) => c.id === res.respondedChatId)
+      const newChatList = [
+        ...prevChat.slice(0, index),
+        ...prevChat.slice(index + 1),
+      ]
+      const newChat = {
+        ...prevChat[index],
+        responses: [
+          ...(prevChat[index].responses ?? []),
+          {
+            id: res.response._id,
+            content: res.response.content,
+            reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
+            sender: {
+              id: res.response.sender._id,
+              name: res.response.sender.userName,
+            },
+            isFile: res.response.isFile,
+          },
+        ],
+      }
+      newChatList.splice(index, 0, newChat)
+      return newChatList
+    })
+  } // TODO: needed for increamenting responses length
 
   // const onDeleteResponse = () => {} // TODO: after socket is fixed
 
@@ -152,9 +255,8 @@ export default function ChannelComp({
     socket.on('deleteMessage', onDeleteMessage)
     socket.on('editMessage', onEditMessage)
     socket.on('addReaction', onAddReaction)
-    // socket.on('deleteReaction', onDeleteReaction)
+    socket.on('deleteReaction', onDeleteReaction)
     socket.on('addResponse', onAddResponse)
-    // socket.on('delteResponse', onDeleteResponse)
   }, [socket, router])
 
   useEffect(() => {
@@ -182,14 +284,15 @@ export default function ChannelComp({
                   reactionType: string
                   user_info: { _id: string; userName: string }[]
                 }[]
-                sender: string
+                sender_info: { _id: string; userName: string }[]
+                isFile: boolean
               }[]
               reactions_info: {
                 reactionType: string
                 user_info: { _id: string; userName: string }[]
               }[]
-              sender: string
-              // sender: { _id: string; userName: string }
+              sender_info: { _id: string; userName: string }[]
+              isFile: boolean
             }) => {
               return {
                 id: d._id /* eslint no-underscore-dangle: 0 */,
@@ -203,7 +306,8 @@ export default function ChannelComp({
                       reactionType: string
                       user_info: { _id: string; userName: string }[]
                     }[]
-                    sender: string
+                    sender_info: { _id: string; userName: string }[]
+                    isFile: boolean
                   }) => ({
                     id: r._id,
                     content: r.content,
@@ -266,7 +370,13 @@ export default function ChannelComp({
                             }),
                           ) || [],
                     },
-                    sender: { id: r.sender, name: 'Sihyun2' }, // TODO: need to change sender name
+                    sender: {
+                      id: r.sender_info ? r.sender_info[0]._id : 'unknown id',
+                      name: r.sender_info
+                        ? r.sender_info[0].userName
+                        : 'unknown user',
+                    },
+                    isFile: r.isFile,
                   }),
                 ),
                 reactions: {
@@ -327,7 +437,13 @@ export default function ChannelComp({
                         }),
                       ) || [],
                 },
-                sender: { id: d.sender, name: 'Sihyun' }, // TODO: change to sender name
+                sender: {
+                  id: d.sender_info ? d.sender_info[0]._id : 'unknown id',
+                  name: d.sender_info
+                    ? d.sender_info[0].userName
+                    : 'unknown user',
+                },
+                isFile: d.isFile,
               }
             },
           ),
@@ -349,7 +465,6 @@ export default function ChannelComp({
   if (chatList.length === 0 || socket === null) {
     return <div></div>
   }
-
   return (
     <SideBar>
       <Stack spacing={2} sx={{ height: '90vh', display: 'flex' }}>

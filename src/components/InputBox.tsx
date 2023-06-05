@@ -7,7 +7,6 @@ import { Socket } from 'socket.io-client'
 import { useRef, useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { localPort } from '@/utils/constants'
-// import { socketEmit } from '@/utils/socket'
 
 export default function InputBox({
   channelID,
@@ -25,23 +24,59 @@ export default function InputBox({
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value)
   }
-  const onClick = () => {
+  const onClick = async () => {
+    if (selectFile.current?.files?.length !== 0) {
+      const form = new FormData()
+      if (selectFile && selectFile.current && selectFile.current.files) {
+        form.append('file', selectFile.current.files[0])
+        const res = await fetch(`${localPort}/chats/file`, {
+          method: 'POST',
+          headers: {
+            Accept: '*/*',
+          },
+          body: form,
+        })
+        const data = await res.text()
+        if (respond !== '') {
+          socket.emit('addResponse', {
+            chatId: respond,
+            channel: channelID,
+            content: data,
+            sender: user.userID,
+            isFile: true,
+          })
+        } else {
+          socket.emit('postMessage', {
+            content: data,
+            channel: channelID,
+            sender: user.userID,
+            isFile: true,
+          })
+        }
+      }
+    }
     if (respond !== '') {
       socket.emit('addResponse', {
         sender: user.userID,
         content: text,
         channel: channelID,
         chatId: respond,
+        isFile: false,
       })
     } else {
       socket.emit('postMessage', {
         content: text,
         channel: channelID,
         sender: user.userID,
+        isFile: false,
       })
     }
     setText('')
   }
+
+  // const handleChange = (e) => {
+  //   console.log(e.target.files[0])
+  // }
   useEffect(() => {
     const i = localStorage.getItem('_id') || ''
     const t = localStorage.getItem('token') || ''

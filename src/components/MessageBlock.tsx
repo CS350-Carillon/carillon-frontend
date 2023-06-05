@@ -7,6 +7,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import MoodBadIcon from '@mui/icons-material/MoodBad'
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt'
+import FileOpenIcon from '@mui/icons-material/FileOpen'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
@@ -25,12 +26,13 @@ export interface MsgProps {
   responses?: MsgProps[]
   reactions: {
     [index: string]: { userID: string; userName: string }[]
-    Check: { userID: string; userName: string }[]
-    Favorite: { userID: string; userName: string }[]
-    Moodbad: { userID: string; userName: string }[]
-    Thumbup: { userID: string; userName: string }[]
+    Check: { id: string; userID: string; userName: string }[]
+    Favorite: { id: string; userID: string; userName: string }[]
+    Moodbad: { id: string; userID: string; userName: string }[]
+    Thumbup: { id: string; userID: string; userName: string }[]
   }
   sender: { id: string; name: string }
+  isFile: boolean
 }
 
 function Profile() {
@@ -45,12 +47,14 @@ function Content({
   content,
   userName,
   myMsg,
+  isFile,
   onDelete,
   onEdit,
 }: {
   content: string
   userName: string
   myMsg: boolean
+  isFile: boolean
   onDelete: () => void
   onEdit: (content: string) => void
 }) {
@@ -96,12 +100,21 @@ function Content({
           <div />
         )}
       </Stack>
-      <TextField
-        className={styles.content}
-        value={cont}
-        disabled={!editing}
-        onChange={(e) => setCont(e.target.value)}
-      />
+      {!isFile ? (
+        <TextField
+          className={styles.content}
+          value={cont}
+          disabled={!editing}
+          onChange={(e) => setCont(e.target.value)}
+        />
+      ) : (
+        <a href={cont.slice(1, -1)} style={{ display: 'block', width: '100%' }}>
+          <Stack direction="row" spacing={1} sx={{ width: '100%' }}>
+            <FileOpenIcon color="primary" />
+            <Typography>{cont.slice(1, -1).split('/').slice(-1)}</Typography>
+          </Stack>
+        </a>
+      )}
     </Stack>
   )
 }
@@ -112,7 +125,11 @@ function Reaction({
   user,
 }: {
   reactions: MsgProps['reactions']
-  onClick: (reactionType: string, reactionExist: boolean) => void
+  onClick: (
+    reactionType: string,
+    reactionExist: boolean,
+    userID: string,
+  ) => void
   user: { userID: string; userName: string }
 }) {
   const checkExist: boolean =
@@ -163,7 +180,7 @@ function Reaction({
           <IconButton
             aria-label="check"
             size="small"
-            onClick={() => onClick('Check', checkExist)}
+            onClick={() => onClick('Check', checkExist, user.userID)}
             sx={{ color: checkExist ? 'blue' : 'gray' }}
           >
             <CheckCircleIcon />
@@ -180,7 +197,7 @@ function Reaction({
           <IconButton
             aria-label="heart"
             size="small"
-            onClick={() => onClick('Favorite', favoriteExist)}
+            onClick={() => onClick('Favorite', favoriteExist, user.userID)}
             sx={{ color: favoriteExist ? 'red' : 'gray' }}
           >
             <FavoriteIcon />
@@ -198,7 +215,7 @@ function Reaction({
           <IconButton
             aria-label="mood-bad"
             size="small"
-            onClick={() => onClick('Moodbad', moodbadExist)}
+            onClick={() => onClick('Moodbad', moodbadExist, user.userID)}
             sx={{ color: moodbadExist ? 'orange' : 'gray' }}
           >
             <MoodBadIcon />
@@ -216,7 +233,7 @@ function Reaction({
           <IconButton
             aria-label="thumb-up"
             size="small"
-            onClick={() => onClick('Thumbup', thumbupExist)}
+            onClick={() => onClick('Thumbup', thumbupExist, user.userID)}
             sx={{ color: thumbupExist ? 'purple' : 'gray' }}
           >
             <ThumbUpAltIcon />
@@ -280,8 +297,21 @@ export default function MessageBlock({
     getData()
   }, [router])
 
-  const onClick = (reactionType: string, reactionExist: boolean) => {
+  const onClick = (
+    reactionType: string,
+    reactionExist: boolean,
+    userID: string,
+  ) => {
     if (reactionExist) {
+      // const targetReaction = msgState.reactions[reactionType].filter(
+      //   (e) => e.userID === userID,
+      // )
+      // TODO: after list messages API fixed
+      // socket.emit('deleteReaction', {
+      //   reactor: user.userID,
+      //   reactionId: targetReaction[0].id,
+      //   chatId: msgState.id,
+      // })
       setMsgState((prevMsg: MsgProps) => {
         return {
           ...prevMsg,
@@ -304,7 +334,10 @@ export default function MessageBlock({
           ...prevMsg,
           reactions: {
             ...prevMsg.reactions,
-            [reactionType]: [...prevMsg.reactions[reactionType], user],
+            [reactionType]: [
+              ...prevMsg.reactions[reactionType],
+              { id: 'unknown', userID: user.userID, userName: user.userName },
+            ],
           },
         }
       })
@@ -312,7 +345,7 @@ export default function MessageBlock({
   }
 
   const onDelete = () => {
-    socket.emit('deleteMessage', { id: msgState.id, content: '' })
+    socket.emit('deleteMessage', { sender: user.userID, chatId: msgState.id })
   }
 
   const onEdit = (content: string) => {
@@ -344,6 +377,7 @@ export default function MessageBlock({
               content={msgState.content}
               userName={msgState.sender.name}
               myMsg={msgState.sender.id === user.userID}
+              isFile={msgState.isFile}
               onDelete={onDelete}
               onEdit={onEdit}
             />
