@@ -33,6 +33,7 @@
     ],
     "no-useless-catch": "off",
     "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/no-noninteractive-tabindex": "off",
     "react/self-closing-comp": "off",
     "dot-notation": 0,
     "quotes": ["error", "single"],

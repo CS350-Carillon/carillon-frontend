@@ -1,83 +1,81 @@
-import '../../app/globals.css'
-import React from 'react'
+import React, { useState } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
-import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import ListItemAvatar from '@mui/material/ListItemAvatar'
-import Avatar from '@mui/material/Avatar'
-import SearchBar from '@/components/SearchBar'
-import SideBar from '../../components/SideBar'
+import { placeholder, localPort } from '@/utils/constants'
+import { IUser } from '@/utils/types'
+import { useRouter } from 'next/router'
+import SideBar from '@/components/SideBar'
 
-const dummyData = {
-  workspaceNamePlaceholder: 'Enter Workspace Name',
-  descriptionPlaceholder: 'Enter Workspace Description',
-  members: ['Mina', 'Whyojin', 'Erik'],
+interface UsersProps {
+  users: IUser[]
 }
 
-export default function Workspace() {
+export default function Workspace({ users }: UsersProps) {
+  const router = useRouter()
+  const [workspaceName, setWorkspaceName] = useState('')
+  const [workspaceDescription, setWorkspaceDescription] = useState('')
+
+  const handleWorkspaceNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setWorkspaceName(event.target.value)
+  }
+
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setWorkspaceDescription(event.target.value)
+  }
+
+  const handleCreateWorkspace = () => {
+    fetch(`${localPort}/workspaces/`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        token: JSON.stringify(localStorage.getItem('token')),
+      },
+      body: JSON.stringify({ name: workspaceName }),
+    }).then((response) => {
+      if (response.ok) {
+        router.push(`/workspace/${workspaceName}`)
+      } else {
+        console.log('not response.ok')
+      }
+    })
+  }
+
   return (
     <SideBar>
       <Stack sx={{ paddingTop: 4 }} spacing={2}>
         <Box>
-          <Typography sx={{ paddingBottom: 2 }} variant="h5">
+          <Typography sx={{ pb: 2 }} variant="h5">
             Workspace Name
           </Typography>
           <TextField
+            sx={{ mt: 2 }}
             fullWidth
-            placeholder={dummyData.workspaceNamePlaceholder}
+            placeholder={placeholder.workspaceName}
             variant="standard"
+            value={workspaceName}
+            onChange={handleWorkspaceNameChange}
           />
         </Box>
         <Box>
-          <Typography sx={{ paddingBottom: 2 }} variant="h5">
+          <Typography sx={{ mt: 2, pb: 2 }} variant="h5">
             Description
           </Typography>
           <TextField
+            sx={{ mt: 2 }}
             fullWidth
-            placeholder={dummyData.descriptionPlaceholder}
+            placeholder={placeholder.workspaceDescription}
             variant="standard"
+            value={workspaceDescription}
+            onChange={handleDescriptionChange}
           />
-        </Box>
-        <Box>
-          <Grid container spacing={2}>
-            <Grid item xs={10}>
-              <Typography variant="h5">
-                Members ({dummyData.members.length})
-              </Typography>
-            </Grid>
-            <Grid item xs={2}>
-              <SearchBar />
-            </Grid>
-          </Grid>
-          <List
-            dense
-            sx={{
-              pl: 2,
-            }}
-          >
-            {dummyData.members.map((value) => {
-              const labelId = `member-${value}`
-              return (
-                <ListItem key={value} disablePadding>
-                  <ListItem>
-                    <ListItemAvatar>
-                      <Avatar
-                        alt={`Avatar ${value}`}
-                        src={`/static/images/avatar/${value}.jpg`}
-                      />
-                    </ListItemAvatar>
-                    <ListItemText id={labelId} primary={`${value}`} />
-                  </ListItem>
-                </ListItem>
-              )
-            })}
-          </List>
         </Box>
         <Box
           sx={{
@@ -89,9 +87,11 @@ export default function Workspace() {
           <Button
             variant="contained"
             sx={{
+              mt: 2,
               width: 300,
               height: 50,
             }}
+            onClick={handleCreateWorkspace}
           >
             Create
           </Button>
@@ -99,4 +99,20 @@ export default function Workspace() {
       </Stack>
     </SideBar>
   )
+}
+
+export async function getServerSideProps() {
+  const options = {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  }
+
+  const res = await fetch(`${localPort}/users/`, options)
+  const users = await res.json()
+
+  return {
+    props: { users },
+  }
 }
