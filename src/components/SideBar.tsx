@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import style from './SideBar.module.css'
 import useWindowDimensions from './WindowSize'
+import Notifier from './Notifier'
 
 export default function SideBar({ children }: { children: React.ReactNode }) {
   const styles = {
@@ -186,6 +187,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <div style={{ width: '90%' }}>{children}</div>
+      <Notifier />
     </div>
   )
 }
