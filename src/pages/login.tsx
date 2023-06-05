@@ -37,6 +37,9 @@ export default function Login() {
   }
 
   const handleOnClick = async () => {
+    if (form.userId === '' || form.password === '') {
+      return
+    }
     try {
       const res = await fetch(`${localPort}/users/login`, {
         method: 'POST',
@@ -116,6 +119,7 @@ export default function Login() {
               setForm((prev) => ({ ...prev, password: e.target.value }))
               setFailed(false)
             }}
+            onEnter={handleOnClick}
           />
           <Stack justifyContent="center" alignItems="center" spacing={1}>
             <Typography

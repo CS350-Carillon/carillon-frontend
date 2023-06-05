@@ -4,12 +4,16 @@ export default function LabeledInputBox({
   label,
   value,
   style,
+  type,
   onChange,
+  onEnter,
 }: {
   label: string
   value: string
+  type?: string
   style?: React.CSSProperties
   onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
+  onEnter?: () => void
 }) {
   const styles: { [key: string]: React.CSSProperties } = {
     label: {
@@ -29,13 +33,16 @@ export default function LabeledInputBox({
       </Grid>
       <Grid item xs={8}>
         <TextField
-          id="standard-basic"
           type={label === 'Password' ? 'password' : ''}
           variant="standard"
           defaultValue={value}
           placeholder={label}
           fullWidth
           onChange={onChange}
+          onKeyDown={(e) => {
+            if (!onEnter) return
+            if (e.key === 'Enter') onEnter()
+          }}
         />
       </Grid>
     </Grid>
