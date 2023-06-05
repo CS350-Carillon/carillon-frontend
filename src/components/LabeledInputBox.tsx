@@ -4,11 +4,13 @@ export default function LabeledInputBox({
   label,
   value,
   style,
+  type,
   onChange,
   onEnter,
 }: {
   label: string
   value: string
+  type?: string
   style?: React.CSSProperties
   onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
   onEnter?: () => void

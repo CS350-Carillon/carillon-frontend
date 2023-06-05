@@ -12,6 +12,7 @@ import LinkButton from '@/components/LinkButton'
 import React, { useState, useEffect } from 'react'
 import { localPort } from '@/utils/constants'
 import { useRouter } from 'next/router'
+import validatePassword from '@/utils/validatePassword'
 
 export default function SignUp() {
   const router = useRouter()
@@ -190,6 +191,7 @@ export default function SignUp() {
             <LabeledInputBox
               label="Password"
               value=""
+              type="password"
               onChange={(e) => {
                 setForm((prev) => ({ ...prev, password: e.target.value }))
               }}
