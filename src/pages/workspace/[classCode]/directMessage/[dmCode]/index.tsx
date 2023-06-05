@@ -57,12 +57,16 @@ export default function ChannelComp({
     scrollToBottom()
   }, [chatList])
 
-  const onPostMessage = (res: { sender: string; content: string }) => {
+  const onPostMessage = (res: {
+    _id: string
+    content: string
+    sender: { _id: string; userName: string }
+  }) => {
     setChat((prevChat: MsgProps[]) => {
       return [
         ...prevChat,
         {
-          id: '1',
+          id: res._id,
           content: res.content,
           responses: [],
           reactions: {
@@ -71,23 +75,210 @@ export default function ChannelComp({
             Moodbad: [],
             Thumbup: [],
           },
-          sender: { id: '1', name: res.sender },
+          sender: { id: res.sender._id, name: res.sender.userName },
+          isFile: false,
         },
       ]
     })
   }
 
-  const onDeleteMessage = (res: { messageId: string; content: string }) => {
+  // TODO: not updating immediately
+  const onDeleteMessage = (res: {
+    _id: string
+    content: string
+    isFile: false
+  }) => {
     setChat((prevChat: MsgProps[]) => {
-      return [
-        ...prevChat.filter((c) => c.id !== res.messageId),
-        {
-          ...prevChat.filter((c) => c.id === res.messageId)[0],
-          content: res.content,
-        },
-      ]
+      const index0 = prevChat.findIndex((c) => c.id === res._id)
+      const index1 = prevChat.findIndex((c) => {
+        const filterResponse =
+          c.responses?.filter((r) => r.id === res._id) ?? []
+        return filterResponse.length > 0
+      })
+      if (index1 && prevChat[index1]) {
+        const indexResponse = prevChat[index1].responses?.findIndex(
+          (r) => r.id === res._id,
+        )
+        const newChatList = [
+          ...prevChat.slice(0, index1),
+          ...prevChat.slice(index1 + 1),
+        ]
+        const responseIndex1 = prevChat[index1].responses
+        const newChat =
+          indexResponse && indexResponse >= 0 && responseIndex1
+            ? {
+                ...prevChat[index1],
+                responses: [
+                  ...responseIndex1.slice(0, indexResponse),
+                  {
+                    ...responseIndex1[indexResponse],
+                    content: res.content,
+                  },
+                  ...responseIndex1.slice(indexResponse + 1),
+                ],
+              }
+            : {
+                ...prevChat[index1],
+              }
+
+        newChatList.splice(index1, 0, newChat)
+        return JSON.parse(JSON.stringify(newChatList))
+      }
+
+      if (index0 >= 0) {
+        return prevChat.map((c) =>
+          c.id === res._id
+            ? {
+                ...res,
+                id: res._id,
+                responses: c.responses,
+                reactions: c.reactions,
+                sender: c.sender,
+              }
+            : c,
+        )
+      }
+      return { ...prevChat }
     })
   }
+
+  // TODO: not updating immediately
+  const onEditMessage = (res: {
+    _id: string
+    content: string
+    isFile: false
+  }) => {
+    setChat((prevChat: MsgProps[]) => {
+      const index0 = prevChat.findIndex((c) => c.id === res._id)
+      const index1 = prevChat.findIndex((c) => {
+        const filterResponse =
+          c.responses?.filter((r) => r.id === res._id) ?? []
+        return filterResponse.length > 0
+      })
+      if (index1 && prevChat[index1]) {
+        const indexResponse = prevChat[index1].responses?.findIndex(
+          (r) => r.id === res._id,
+        )
+        const newChatList = [
+          ...prevChat.slice(0, index1),
+          ...prevChat.slice(index1 + 1),
+        ]
+        const responseIndex1 = prevChat[index1].responses
+        const newChat =
+          indexResponse && indexResponse >= 0 && responseIndex1
+            ? {
+                ...prevChat[index1],
+                responses: [
+                  ...responseIndex1.slice(0, indexResponse),
+                  {
+                    ...responseIndex1[indexResponse],
+                    content: res.content,
+                  },
+                  ...responseIndex1.slice(indexResponse + 1),
+                ],
+              }
+            : {
+                ...prevChat[index1],
+              }
+
+        newChatList.splice(index1, 0, newChat)
+        return JSON.parse(JSON.stringify(newChatList))
+      }
+
+      if (index0 >= 0) {
+        return prevChat.map((c) =>
+          c.id === res._id
+            ? {
+                ...res,
+                id: res._id,
+                responses: c.responses,
+                reactions: c.reactions,
+                sender: c.sender,
+              }
+            : c,
+        )
+      }
+      return { ...prevChat }
+    })
+  }
+
+  const onAddReaction = (res: {
+    chatId: string
+    reaction: {
+      reactionType: string
+      reactor: { _id: string; userName: string }
+      _id: string
+    }
+  }) => {
+    setChat((prevChat: MsgProps[]) => [
+      ...prevChat.filter((c) => c.id !== res.chatId),
+      {
+        ...prevChat.filter((c) => c.id === res.chatId)[0],
+        reactions: {
+          ...prevChat.filter((c) => c.id === res.chatId)[0].reactions,
+          [res.reaction.reactionType]: [
+            ...prevChat.filter((c) => c.id === res.chatId)[0].reactions[
+              res.reaction.reactionType
+            ],
+            {
+              id: res.reaction._id,
+              userID: res.reaction.reactor._id,
+              userName: res.reaction.reactor.userName,
+            },
+          ],
+        },
+      },
+    ])
+  }
+
+  const onDeleteReaction = () => {}
+
+  // const onDeleteReaction = (res: any) => {
+  //   console.log('DELETED REACTION')
+  //   console.log(res)
+  // } // TODO: after socket is fixed
+
+  const onAddResponse = (res: {
+    respondedChatId: string
+    response: {
+      content: string
+      isDeleted: boolean
+      sender: { _id: string; userName: string }
+      _id: string
+      isFile: boolean
+    }
+  }) => {
+    setChat((prevChat: MsgProps[]) => {
+      if (!prevChat) {
+        return prevChat
+      }
+      const index = prevChat.findIndex((c) => c.id === res.respondedChatId)
+      const newChatList = [
+        ...prevChat.slice(0, index),
+        ...prevChat.slice(index + 1),
+      ]
+      const newChat = {
+        ...prevChat[index],
+        responses: [
+          ...(prevChat[index].responses ?? []),
+          {
+            id: res.response._id,
+            content: res.response.content,
+            reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
+            sender: {
+              id: res.response.sender._id,
+              name: res.response.sender.userName,
+            },
+            isFile: res.response.isFile,
+          },
+        ],
+      }
+      newChatList.splice(index, 0, newChat)
+      return newChatList
+    })
+  } // TODO: needed for increamenting responses length
+
+  // const onDeleteResponse = () => {} // TODO: after socket is fixed
 
   useEffect(() => {
     const skt = io(localPort)
@@ -110,6 +301,10 @@ export default function ChannelComp({
     socket.emit('init', { userId: id })
     socket.on('postMessage', onPostMessage)
     socket.on('deleteMessage', onDeleteMessage)
+    socket.on('editMessage', onEditMessage)
+    socket.on('addReaction', onAddReaction)
+    socket.on('deleteReaction', onDeleteReaction)
+    socket.on('addResponse', onAddResponse)
   }, [socket, router])
 
   useEffect(() => {
@@ -129,34 +324,181 @@ export default function ChannelComp({
               _id: string
               content: string
               channel: string
-              responses: string[]
-              reactions: string[]
-              sender: { _id: string; userId: string; userName: string }
+              responses_info: {
+                _id: string
+                content: string
+                channel: string
+                reactions_info: {
+                  reactionType: string
+                  user_info: { _id: string; userName: string }[]
+                }[]
+                sender_info: { _id: string; userName: string }[]
+                isFile: boolean
+              }[]
+              reactions_info: {
+                reactionType: string
+                user_info: { _id: string; userName: string }[]
+              }[]
+              sender_info: { _id: string; userName: string }[]
+              isFile: boolean
             }) => {
               return {
                 id: d._id /* eslint no-underscore-dangle: 0 */,
                 content: d.content,
-                responses: d.responses,
+                responses: d.responses_info.map(
+                  (r: {
+                    _id: string
+                    content: string
+                    channel: string
+                    reactions_info: {
+                      reactionType: string
+                      user_info: { _id: string; userName: string }[]
+                    }[]
+                    sender_info: { _id: string; userName: string }[]
+                    isFile: boolean
+                  }) => ({
+                    id: r._id,
+                    content: r.content,
+                    responses: [],
+                    reactions: {
+                      Check:
+                        r.reactions_info
+                          .find(
+                            (e: {
+                              reactionType: string
+                              user_info: { _id: string; userName: string }[]
+                            }) => e.reactionType === 'Check',
+                          )
+                          ?.user_info.map(
+                            (u: { _id: string; userName: string }) => ({
+                              userID: u._id,
+                              userName: u.userName,
+                            }),
+                          ) || [],
+                      Favorite:
+                        r.reactions_info
+                          .find(
+                            (e: {
+                              reactionType: string
+                              user_info: { _id: string; userName: string }[]
+                            }) => e.reactionType === 'Favorite',
+                          )
+                          ?.user_info.map(
+                            (u: { _id: string; userName: string }) => ({
+                              userID: u._id,
+                              userName: u.userName,
+                            }),
+                          ) || [],
+                      Moodbad:
+                        r.reactions_info
+                          .find(
+                            (e: {
+                              reactionType: string
+                              user_info: { _id: string; userName: string }[]
+                            }) => e.reactionType === 'Moodbad',
+                          )
+                          ?.user_info.map(
+                            (u: { _id: string; userName: string }) => ({
+                              userID: u._id,
+                              userName: u.userName,
+                            }),
+                          ) || [],
+                      Thumbup:
+                        r.reactions_info
+                          .find(
+                            (e: {
+                              reactionType: string
+                              user_info: { _id: string; userName: string }[]
+                            }) => e.reactionType === 'Thumbup',
+                          )
+                          ?.user_info.map(
+                            (u: { _id: string; userName: string }) => ({
+                              userID: u._id,
+                              userName: u.userName,
+                            }),
+                          ) || [],
+                    },
+                    sender: {
+                      id: r.sender_info ? r.sender_info[0]._id : 'unknown id',
+                      name: r.sender_info
+                        ? r.sender_info[0].userName
+                        : 'unknown user',
+                    },
+                    isFile: r.isFile,
+                  }),
+                ),
                 reactions: {
-                  Check: [],
-                  Favorite: [],
-                  Moodbad: [],
-                  Thumbup: [],
+                  Check:
+                    d.reactions_info
+                      .find(
+                        (e: {
+                          reactionType: string
+                          user_info: { _id: string; userName: string }[]
+                        }) => e.reactionType === 'Check',
+                      )
+                      ?.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      ) || [],
+                  Favorite:
+                    d.reactions_info
+                      .find(
+                        (e: {
+                          reactionType: string
+                          user_info: { _id: string; userName: string }[]
+                        }) => e.reactionType === 'Favorite',
+                      )
+                      ?.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      ) || [],
+                  Moodbad:
+                    d.reactions_info
+                      .find(
+                        (e: {
+                          reactionType: string
+                          user_info: { _id: string; userName: string }[]
+                        }) => e.reactionType === 'Moodbad',
+                      )
+                      ?.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      ) || [],
+                  Thumbup:
+                    d.reactions_info
+                      .find(
+                        (e: {
+                          reactionType: string
+                          user_info: { _id: string; userName: string }[]
+                        }) => e.reactionType === 'Thumbup',
+                      )
+                      ?.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      ) || [],
                 },
-                sender: { id: d.sender._id, name: d.sender.userName },
+                sender: {
+                  id: d.sender_info ? d.sender_info[0]._id : 'unknown id',
+                  name: d.sender_info
+                    ? d.sender_info[0].userName
+                    : 'unknown user',
+                },
+                isFile: d.isFile,
               }
             },
           ),
         )
         setChannel(() => {
           const filteredList = channels.filter(
-            (ch: {
-              _id: string
-              name: string
-              description: string
-              owner: string[]
-              members: string[]
-            }) => ch._id === dmID,
+            (ch: { _id: string; name: string }) => ch._id === dmID,
           )
           const filteredChannel = filteredList[0]
           return filteredChannel.name
@@ -166,12 +508,11 @@ export default function ChannelComp({
       }
     }
     getData()
-  }, [router, channels, dmID])
+  }, [router, dmID, channels])
 
   if (chatList.length === 0 || socket === null) {
     return <div></div>
   }
-
   return (
     <SideBar>
       <Stack spacing={2} sx={{ height: '90vh', display: 'flex' }}>

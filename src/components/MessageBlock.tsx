@@ -300,7 +300,7 @@ export default function MessageBlock({
   const onClick = (
     reactionType: string,
     reactionExist: boolean,
-    userID: string,
+    // userID: string, // later used in emiting deleteReaction
   ) => {
     if (reactionExist) {
       // const targetReaction = msgState.reactions[reactionType].filter(

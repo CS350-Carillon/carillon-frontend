@@ -52,6 +52,7 @@ export default function ChannelRespComp({
     responses: [],
     reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
     sender: { id: '', name: '' },
+    isFile: false,
   })
   const [socket, setSocket] = useState<Socket | null>(null)
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
@@ -59,12 +60,17 @@ export default function ChannelRespComp({
   const msgID = router.query.messageCode
 
   const onAddResponse = (res: {
-    chatId: string
-    sender: { id: string; name: string }
-    content: string
+    respondedChatId: string
+    response: {
+      content: string
+      isDeleted: boolean
+      sender: { _id: string; userName: string }
+      _id: string
+      isFile: boolean
+    }
   }) => {
     setChat((prevChat: MsgProps) => {
-      if (res.chatId === prevChat.id) {
+      if (res.respondedChatId !== prevChat.id) {
         return prevChat
       }
       return {
@@ -72,17 +78,26 @@ export default function ChannelRespComp({
         responses: [
           ...(prevChat.responses ? prevChat.responses : []),
           {
-            id: res.chatId,
-            content: res.content,
+            id: res.response._id,
+            content: res.response.content,
             reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
-            sender: { id: res.sender.id, name: res.sender.name }, // id needed?
+            sender: {
+              id: res.response.sender._id,
+              name: res.response.sender.userName,
+            },
+            isFile: res.response.isFile,
           },
         ],
       }
     })
   }
 
-  const onDeleteMessage = (res: { messageId: string; content: string }) => {
+  // TODO: not updated immediately
+  const onDeleteMessage = (res: {
+    _id: string
+    content: string
+    isFile: boolean
+  }) => {
     setChat((prevChat: MsgProps) => {
       if (!prevChat) {
         return {
@@ -91,30 +106,35 @@ export default function ChannelRespComp({
           responses: [],
           reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
           sender: { id: '', name: '' },
+          isFile: false,
         }
       }
-      if (prevChat.id === res.messageId) {
+      if (prevChat.id === res._id) {
+        return {
+          ...res,
+          id: res._id,
+          responses: prevChat.responses,
+          reactions: prevChat.reactions,
+          sender: prevChat.sender,
+        }
+      }
+      if (prevChat && prevChat.responses) {
         return {
           ...prevChat,
-          content: res.content,
+          responses: prevChat.responses.map((c) =>
+            c.id === res._id
+              ? {
+                  ...res,
+                  id: res._id,
+                  responses: c.responses,
+                  reactions: c.reactions,
+                  sender: c.sender,
+                }
+              : c,
+          ),
         }
       }
-      if (
-        prevChat.responses &&
-        prevChat.responses.filter((c) => c.id === res.messageId)
-      ) {
-        return {
-          ...prevChat,
-          responses: [
-            ...prevChat.responses,
-            {
-              ...prevChat.responses.filter((c) => c.id === res.messageId)[0],
-              content: res.content,
-            },
-          ],
-        }
-      }
-      return prevChat
+      return { ...prevChat }
     })
   }
 
@@ -164,37 +184,172 @@ export default function ChannelRespComp({
             _id: string
             content: string
             channel: string
-            responses: string[]
-            reactions: string[]
-            sender: { _id: string; userId: string; userName: string }
+            responses_info: {
+              _id: string
+              content: string
+              channel: string
+              reactions_info: {
+                reactionType: string
+                user_info: { _id: string; userName: string }[]
+              }[]
+              sender: string
+              // sender_info: { _id: string; userName: string }[] // TODO
+              isFile: boolean
+            }[]
+            reactions_info: {
+              reactionType: string
+              user_info: { _id: string; userName: string }[]
+            }[]
+            sender_info: { _id: string; userName: string }[]
+            isFile: boolean
           }) => {
             return d._id === msgID
           },
         )[0]
+        const checkListO =
+          filterData.reactions_info.length > 0 &&
+          filterData.reactions_info.find(
+            (e: { reactionType: string }) => e.reactionType === 'Check',
+          )
+        const favoriteListO =
+          filterData.reactions_info.length > 0 &&
+          filterData.reactions_info.find(
+            (e: { reactionType: string }) => e.reactionType === 'Favorite',
+          )
+        const moodbadListO =
+          filterData.reactions_info.length > 0 &&
+          filterData.reactions_info.find(
+            (e: { reactionType: string }) => e.reactionType === 'Moodbad',
+          )
+        const thumbupListO =
+          filterData.reactions_info.length > 0 &&
+          filterData.reactions_info.find(
+            (e: { reactionType: string }) => e.reactionType === 'Thumbup',
+          )
         setChat({
           id: filterData._id /* eslint no-underscore-dangle: 0 */,
           content: filterData.content,
-          responses: filterData.responses,
+          responses: filterData.responses_info.map(
+            (r: {
+              _id: string
+              content: string
+              channel: string
+              reactions_info: {
+                reactionType: string
+                user_info: { _id: string; userName: string }[]
+              }[]
+              sender: string
+              isFile: boolean
+            }) => {
+              const checkListI =
+                r.reactions_info.length > 0 &&
+                r.reactions_info.find(
+                  (e: { reactionType: string }) => e.reactionType === 'Check',
+                )
+              const favoriteListI =
+                r.reactions_info.length > 0 &&
+                r.reactions_info.find(
+                  (e: { reactionType: string }) =>
+                    e.reactionType === 'Favorite',
+                )
+              const moodbadListI =
+                r.reactions_info.length > 0 &&
+                r.reactions_info.find(
+                  (e: { reactionType: string }) => e.reactionType === 'Moodbad',
+                )
+              const thumbupListI =
+                r.reactions_info.length > 0 &&
+                r.reactions_info.find(
+                  (e: { reactionType: string }) => e.reactionType === 'Thumbup',
+                )
+              return {
+                id: r._id,
+                content: r.content,
+                responses: [],
+                reactions: {
+                  Check: checkListI
+                    ? checkListI.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      )
+                    : [],
+                  Favorite: favoriteListI
+                    ? favoriteListI.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      )
+                    : [],
+                  Moodbad: moodbadListI
+                    ? moodbadListI.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      )
+                    : [],
+                  Thumbup: thumbupListI
+                    ? thumbupListI.user_info.map(
+                        (u: { _id: string; userName: string }) => ({
+                          userID: u._id,
+                          userName: u.userName,
+                        }),
+                      )
+                    : [],
+                },
+                sender: { id: r.sender, name: 'Sihyun2' }, // TODO: need to change sender name
+                isFile: r.isFile,
+              }
+            },
+          ),
           reactions: {
-            Check: [],
-            Favorite: [],
-            Moodbad: [],
-            Thumbup: [],
+            Check: checkListO
+              ? checkListO.user_info.map(
+                  (u: { _id: string; userName: string }) => ({
+                    userID: u._id,
+                    userName: u.userName,
+                  }),
+                )
+              : [],
+            Favorite: favoriteListO
+              ? favoriteListO.user_info.map(
+                  (u: { _id: string; userName: string }) => ({
+                    userID: u._id,
+                    userName: u.userName,
+                  }),
+                )
+              : [],
+            Moodbad: moodbadListO
+              ? moodbadListO.user_info.map(
+                  (u: { _id: string; userName: string }) => ({
+                    userID: u._id,
+                    userName: u.userName,
+                  }),
+                )
+              : [],
+            Thumbup: thumbupListO
+              ? thumbupListO.user_info.map(
+                  (u: { _id: string; userName: string }) => ({
+                    userID: u._id,
+                    userName: u.userName,
+                  }),
+                )
+              : [],
           },
           sender: {
-            id: filterData.sender._id,
-            name: filterData.sender.userName,
+            id: filterData.sender_info ? filterData.sender_info[0]._id : '1',
+            name: filterData.sender_info
+              ? filterData.sender_info[0].userName
+              : 'unknown user',
           },
+          isFile: filterData.isFile,
         })
         setChannel(() => {
           const filteredList = channels.filter(
-            (ch: {
-              _id: string
-              name: string
-              description: string
-              owner: string[]
-              members: string[]
-            }) => ch._id === dmID,
+            (ch: { _id: string; name: string }) => ch._id === dmID,
           )
           const filteredChannel = filteredList[0]
           return filteredChannel.name
@@ -204,7 +359,7 @@ export default function ChannelRespComp({
       }
     }
     getData()
-  }, [router, channels, dmID, msgID])
+  }, [router, dmID, channels, msgID])
 
   if (chat.id === '' || socket === null) {
     return <div></div>

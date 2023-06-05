@@ -92,7 +92,11 @@ export default function ChannelRespComp({
     })
   }
 
-  const onDeleteMessage = (res: { messageId: string; content: string }) => {
+  const onDeleteMessage = (res: {
+    _id: string
+    content: string
+    isFile: boolean
+  }) => {
     setChat((prevChat: MsgProps) => {
       if (!prevChat) {
         return {
@@ -104,28 +108,32 @@ export default function ChannelRespComp({
           isFile: false,
         }
       }
-      if (prevChat.id === res.messageId) {
+      if (prevChat.id === res._id) {
         return {
-          ...prevChat,
-          content: res.content,
+          ...res,
+          id: res._id,
+          responses: prevChat.responses,
+          reactions: prevChat.reactions,
+          sender: prevChat.sender,
         }
       }
-      if (
-        prevChat.responses &&
-        prevChat.responses.filter((c) => c.id === res.messageId)
-      ) {
+      if (prevChat && prevChat.responses) {
         return {
           ...prevChat,
-          responses: [
-            ...prevChat.responses,
-            {
-              ...prevChat.responses.filter((c) => c.id === res.messageId)[0],
-              content: res.content,
-            },
-          ],
+          responses: prevChat.responses.map((c) =>
+            c.id === res._id
+              ? {
+                  ...res,
+                  id: res._id,
+                  responses: c.responses,
+                  reactions: c.reactions,
+                  sender: c.sender,
+                }
+              : c,
+          ),
         }
       }
-      return prevChat
+      return { ...prevChat }
     })
   }
 

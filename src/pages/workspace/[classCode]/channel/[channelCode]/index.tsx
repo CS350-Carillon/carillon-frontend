@@ -83,7 +83,11 @@ export default function ChannelComp({
   }
 
   // TODO: not updating immediately
-  const onDeleteMessage = (res: { _id: string; content: string }) => {
+  const onDeleteMessage = (res: {
+    _id: string
+    content: string
+    isFile: boolean
+  }) => {
     setChat((prevChat: MsgProps[]) => {
       const index0 = prevChat.findIndex((c) => c.id === res._id)
       const index1 = prevChat.findIndex((c) => {
@@ -91,8 +95,7 @@ export default function ChannelComp({
           c.responses?.filter((r) => r.id === res._id) ?? []
         return filterResponse.length > 0
       })
-      const responseIndex1 = prevChat[index1].responses
-      if (index1) {
+      if (index1 && prevChat[index1]) {
         const indexResponse = prevChat[index1].responses?.findIndex(
           (r) => r.id === res._id,
         )
@@ -100,6 +103,7 @@ export default function ChannelComp({
           ...prevChat.slice(0, index1),
           ...prevChat.slice(index1 + 1),
         ]
+        const responseIndex1 = prevChat[index1].responses
         const newChat =
           indexResponse && indexResponse >= 0 && responseIndex1
             ? {
@@ -122,35 +126,44 @@ export default function ChannelComp({
       }
 
       if (index0 >= 0) {
-        const newChatList = [
-          ...prevChat.slice(0, index0),
-          ...prevChat.slice(index0 + 1),
-        ]
-        const newChat = {
-          ...prevChat[index0],
-          content: res.content,
-        }
-        newChatList.splice(index0, 0, newChat)
-        return JSON.parse(JSON.stringify(newChatList))
+        return prevChat.map((c) =>
+          c.id === res._id
+            ? {
+                ...res,
+                // id: res._id,
+                responses: c.responses,
+                reactions: c.reactions,
+                sender: c.sender,
+              }
+            : c,
+        )
       }
       return { ...prevChat }
     })
   }
 
   // TODO: not updating immediately
-  const onEditMessage = (res: { _id: string; content: string }) => {
+  const onEditMessage = (res: {
+    _id: string
+    content: string
+    isFile: boolean
+  }) => {
     setChat((prevChat: MsgProps[]) => {
-      const index = prevChat.findIndex((c) => c.id === res._id)
-      const newChatList = [
-        ...prevChat.slice(0, index),
-        ...prevChat.slice(index + 1),
-      ]
-      const newChat = {
-        ...prevChat[index],
-        content: res.content,
+      const index0 = prevChat.findIndex((c) => c.id === res._id)
+      if (index0 >= 0) {
+        return prevChat.map((c) =>
+          c.id === res._id
+            ? {
+                ...res,
+                id: res._id,
+                responses: c.responses,
+                reactions: c.reactions,
+                sender: c.sender,
+              }
+            : c,
+        )
       }
-      newChatList.splice(index, 0, newChat)
-      return JSON.parse(JSON.stringify(newChatList))
+      return { ...prevChat }
     })
   }
 
