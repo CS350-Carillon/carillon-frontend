@@ -37,6 +37,8 @@
     "react/self-closing-comp": "off",
     "dot-notation": 0,
     "quotes": ["error", "single"],
-    "react/require-default-props": "off"
+    "react/require-default-props": "off",
+    "no-underscore-dangle":"off",
+    "@typescript-eslint/no-explicit-any":"off"
   }
 }
