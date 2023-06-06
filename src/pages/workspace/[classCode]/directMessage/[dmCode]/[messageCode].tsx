@@ -41,7 +41,7 @@ export const getStaticProps: GetStaticProps = async () => {
   }
 }
 
-export default function ChannelRespComp({
+export default function DMRespComp({
   channels,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter()
@@ -141,6 +141,168 @@ export default function ChannelRespComp({
     })
   }
 
+  const onEditMessage = (res: {
+    _id: string
+    content: string
+    isFile: boolean
+    isDeleted: boolean
+  }) => {
+    setChat((prevChat: MsgProps) => {
+      if (!prevChat) {
+        return {
+          id: '',
+          content: '',
+          responses: [],
+          reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
+          sender: { id: '', name: '' },
+          isFile: false,
+          isDeleted: false,
+        }
+      }
+      if (prevChat.id === res._id) {
+        return {
+          ...res,
+          id: res._id,
+          responses: prevChat.responses,
+          reactions: prevChat.reactions,
+          sender: prevChat.sender,
+        }
+      }
+      if (prevChat && prevChat.responses) {
+        return {
+          ...prevChat,
+          responses: prevChat.responses.map((c) =>
+            c.id === res._id
+              ? {
+                  ...res,
+                  id: res._id,
+                  responses: c.responses,
+                  reactions: c.reactions,
+                  sender: c.sender,
+                }
+              : c,
+          ),
+        }
+      }
+      return { ...prevChat }
+    })
+  }
+
+  const onAddReaction = (res: {
+    chatId: string
+    reaction: {
+      reactionType: string
+      reactor: { _id: string; userName: string }
+      _id: string
+    }
+  }) => {
+    setChat((prevChat: MsgProps) => {
+      if (!prevChat) {
+        return {
+          id: '',
+          content: '',
+          responses: [],
+          reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
+          sender: { id: '', name: '' },
+          isFile: false,
+          isDeleted: false,
+        }
+      }
+      if (prevChat.id === res.chatId) {
+        return {
+          ...prevChat,
+          reactions: {
+            ...prevChat.reactions,
+            [res.reaction.reactionType]: [
+              ...prevChat.reactions[res.reaction.reactionType],
+              {
+                id: res.reaction._id,
+                userID: res.reaction.reactor._id,
+                userName: res.reaction.reactor.userName,
+              },
+            ],
+          },
+        }
+      }
+      if (prevChat && prevChat.responses) {
+        return {
+          ...prevChat,
+          responses: prevChat.responses.map((c) =>
+            c.id === res.chatId
+              ? {
+                  ...c,
+                  reactions: {
+                    ...c.reactions,
+                    [res.reaction.reactionType]: [
+                      ...c.reactions[res.reaction.reactionType],
+                      {
+                        id: res.reaction._id,
+                        userID: res.reaction.reactor._id,
+                        userName: res.reaction.reactor.userName,
+                      },
+                    ],
+                  },
+                }
+              : c,
+          ),
+        }
+      }
+      return { ...prevChat }
+    })
+  }
+
+  const onDeleteReaction = (res: {
+    chatId: string
+    reaction: {
+      reactionType: string
+      _id: string
+    }
+  }) => {
+    setChat((prevChat: MsgProps) => {
+      if (!prevChat) {
+        return {
+          id: '',
+          content: '',
+          responses: [],
+          reactions: { Check: [], Favorite: [], Moodbad: [], Thumbup: [] },
+          sender: { id: '', name: '' },
+          isFile: false,
+          isDeleted: false,
+        }
+      }
+      if (prevChat.id === res.chatId) {
+        return {
+          ...prevChat,
+          reactions: {
+            ...prevChat.reactions,
+            [res.reaction.reactionType]: prevChat.reactions[
+              res.reaction.reactionType
+            ].filter((r) => r.id !== res.reaction._id),
+          },
+        }
+      }
+      if (prevChat && prevChat.responses) {
+        return {
+          ...prevChat,
+          responses: prevChat.responses.map((c) =>
+            c.id === res.chatId
+              ? {
+                  ...c,
+                  reactions: {
+                    ...c.reactions,
+                    [res.reaction.reactionType]: c.reactions[
+                      res.reaction.reactionType
+                    ].filter((r) => r.id !== res.reaction._id),
+                  },
+                }
+              : c,
+          ),
+        }
+      }
+      return { ...prevChat }
+    })
+  }
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -169,6 +331,9 @@ export default function ChannelRespComp({
     socket.emit('init', { userId: id })
     socket.on('addResponse', onAddResponse)
     socket.on('deleteMessage', onDeleteMessage)
+    socket.on('editMessage', onEditMessage)
+    socket.on('addReaction', onAddReaction)
+    socket.on('deleteReaction', onDeleteReaction)
   }, [socket, router])
 
   useEffect(() => {
@@ -193,18 +358,25 @@ export default function ChannelRespComp({
               channel: string
               reactions_info: {
                 reactionType: string
-                user_info: { _id: string; userName: string }[]
+                reaction: {
+                  _id: string
+                  reactorId: string
+                  reactorName: string
+                }[]
               }[]
-              sender: string
-              // sender_info: { _id: string; userName: string }[] // TODO
+              sender_info: { _id: string; userName: string }
               isFile: boolean
               isDeleted: boolean
             }[]
             reactions_info: {
               reactionType: string
-              user_info: { _id: string; userName: string }[]
+              reaction: {
+                _id: string
+                reactorId: string
+                reactorName: string
+              }[]
             }[]
-            sender_info: { _id: string; userName: string }[]
+            sender_info: { _id: string; userName: string }
             isFile: boolean
             isDeleted: boolean
           }) => {
@@ -241,9 +413,13 @@ export default function ChannelRespComp({
               channel: string
               reactions_info: {
                 reactionType: string
-                user_info: { _id: string; userName: string }[]
+                reaction: {
+                  _id: string
+                  reactorId: string
+                  reactorName: string
+                }[]
               }[]
-              sender: string
+              sender_info: { _id: string; userName: string }
               isFile: boolean
               isDeleted: boolean
             }) => {
@@ -274,39 +450,62 @@ export default function ChannelRespComp({
                 responses: [],
                 reactions: {
                   Check: checkListI
-                    ? checkListI.user_info.map(
-                        (u: { _id: string; userName: string }) => ({
-                          userID: u._id,
-                          userName: u.userName,
+                    ? checkListI.reaction.map(
+                        (u: {
+                          _id: string
+                          reactorId: string
+                          reactorName: string
+                        }) => ({
+                          id: u._id,
+                          userID: u.reactorId,
+                          userName: u.reactorName,
                         }),
                       )
                     : [],
                   Favorite: favoriteListI
-                    ? favoriteListI.user_info.map(
-                        (u: { _id: string; userName: string }) => ({
-                          userID: u._id,
-                          userName: u.userName,
+                    ? favoriteListI.reaction.map(
+                        (u: {
+                          _id: string
+                          reactorId: string
+                          reactorName: string
+                        }) => ({
+                          id: u._id,
+                          userID: u.reactorId,
+                          userName: u.reactorName,
                         }),
                       )
                     : [],
                   Moodbad: moodbadListI
-                    ? moodbadListI.user_info.map(
-                        (u: { _id: string; userName: string }) => ({
-                          userID: u._id,
-                          userName: u.userName,
+                    ? moodbadListI.reaction.map(
+                        (u: {
+                          _id: string
+                          reactorId: string
+                          reactorName: string
+                        }) => ({
+                          id: u._id,
+                          userID: u.reactorId,
+                          userName: u.reactorName,
                         }),
                       )
                     : [],
                   Thumbup: thumbupListI
-                    ? thumbupListI.user_info.map(
-                        (u: { _id: string; userName: string }) => ({
-                          userID: u._id,
-                          userName: u.userName,
+                    ? thumbupListI.reaction.map(
+                        (u: {
+                          _id: string
+                          reactorId: string
+                          reactorName: string
+                        }) => ({
+                          id: u._id,
+                          userID: u.reactorId,
+                          userName: u.reactorName,
                         }),
                       )
                     : [],
                 },
-                sender: { id: r.sender, name: 'Sihyun2' }, // TODO: need to change sender name
+                sender: {
+                  id: r.sender_info._id,
+                  name: r.sender_info.userName,
+                },
                 isFile: r.isFile,
                 isDeleted: r.isDeleted,
               }
@@ -314,43 +513,61 @@ export default function ChannelRespComp({
           ),
           reactions: {
             Check: checkListO
-              ? checkListO.user_info.map(
-                  (u: { _id: string; userName: string }) => ({
-                    userID: u._id,
-                    userName: u.userName,
+              ? checkListO.reaction.map(
+                  (u: {
+                    _id: string
+                    reactorId: string
+                    reactorName: string
+                  }) => ({
+                    id: u._id,
+                    userID: u.reactorId,
+                    userName: u.reactorName,
                   }),
                 )
               : [],
             Favorite: favoriteListO
-              ? favoriteListO.user_info.map(
-                  (u: { _id: string; userName: string }) => ({
-                    userID: u._id,
-                    userName: u.userName,
+              ? favoriteListO.reaction.map(
+                  (u: {
+                    _id: string
+                    reactorId: string
+                    reactorName: string
+                  }) => ({
+                    id: u._id,
+                    userID: u.reactorId,
+                    userName: u.reactorName,
                   }),
                 )
               : [],
             Moodbad: moodbadListO
-              ? moodbadListO.user_info.map(
-                  (u: { _id: string; userName: string }) => ({
-                    userID: u._id,
-                    userName: u.userName,
+              ? moodbadListO.reaction.map(
+                  (u: {
+                    _id: string
+                    reactorId: string
+                    reactorName: string
+                  }) => ({
+                    id: u._id,
+                    userID: u.reactorId,
+                    userName: u.reactorName,
                   }),
                 )
               : [],
             Thumbup: thumbupListO
-              ? thumbupListO.user_info.map(
-                  (u: { _id: string; userName: string }) => ({
-                    userID: u._id,
-                    userName: u.userName,
+              ? thumbupListO.reaction.map(
+                  (u: {
+                    _id: string
+                    reactorId: string
+                    reactorName: string
+                  }) => ({
+                    id: u._id,
+                    userID: u.reactorId,
+                    userName: u.reactorName,
                   }),
                 )
               : [],
           },
           sender: {
-            id: filterData.sender_info ? filterData.sender_info[0]._id : '1',
-            name: filterData.sender_info
-              ? filterData.sender_info[0].userName
-              : 'unknown user',
+            id: filterData.sender_info._id,
+            name: filterData.sender_info.userName,
           },
           isFile: filterData.isFile,
           isDeleted: filterData.isDeleted,

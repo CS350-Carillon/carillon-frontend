@@ -25,7 +25,7 @@ export interface MsgProps {
   content: string
   responses?: MsgProps[]
   reactions: {
-    [index: string]: { userID: string; userName: string }[]
+    [index: string]: { id: string; userID: string; userName: string }[]
     Check: { id: string; userID: string; userName: string }[]
     Favorite: { id: string; userID: string; userName: string }[]
     Moodbad: { id: string; userID: string; userName: string }[]
@@ -103,7 +103,7 @@ function Content({
           <div />
         )}
       </Stack>
-      {!isFile ? (
+      {!isFile || isDeleted ? (
         <TextField
           className={styles.content}
           value={cont}
@@ -303,18 +303,18 @@ export default function MessageBlock({
   const onClick = (
     reactionType: string,
     reactionExist: boolean,
-    // userID: string, // later used in emiting deleteReaction
+    userID: string, // later used in emiting deleteReaction
   ) => {
     if (reactionExist) {
-      // const targetReaction = msgState.reactions[reactionType].filter(
-      //   (e) => e.userID === userID,
-      // )
+      const targetReaction = msgState.reactions[reactionType].filter(
+        (e) => e.userID === userID,
+      )
       // TODO: after list messages API fixed
-      // socket.emit('deleteReaction', {
-      //   reactor: user.userID,
-      //   reactionId: targetReaction[0].id,
-      //   chatId: msgState.id,
-      // })
+      socket.emit('deleteReaction', {
+        reactor: user.userID,
+        reactionId: targetReaction[0].id,
+        chatId: msgState.id,
+      })
       setMsgState((prevMsg: MsgProps) => {
         return {
           ...prevMsg,
