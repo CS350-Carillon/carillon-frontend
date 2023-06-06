@@ -195,8 +195,7 @@ export default function ChannelRespComp({
                 reactionType: string
                 user_info: { _id: string; userName: string }[]
               }[]
-              sender: string
-              // sender_info: { _id: string; userName: string }[] // TODO
+              sender_info: { _id: string; userName: string }[]
               isFile: boolean
               isDeleted: boolean
             }[]
@@ -243,7 +242,7 @@ export default function ChannelRespComp({
                 reactionType: string
                 user_info: { _id: string; userName: string }[]
               }[]
-              sender: string
+              sender_info: { _id: string; userName: string }[]
               isFile: boolean
               isDeleted: boolean
             }) => {
@@ -306,7 +305,10 @@ export default function ChannelRespComp({
                       )
                     : [],
                 },
-                sender: { id: r.sender, name: 'Sihyun2' }, // TODO: need to change sender name
+                sender: {
+                  id: r.sender_info[0]._id,
+                  name: r.sender_info[0].userName,
+                }, // TODO: need to change sender name
                 isFile: r.isFile,
                 isDeleted: r.isDeleted,
               }
