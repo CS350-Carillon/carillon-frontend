@@ -12,7 +12,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import { IUser, IWorkspace, IChannel } from '@/utils/types'
-import { placeholder, localPort } from '@/utils/constants'
+import { localPort } from '@/utils/constants'
 import { useRouter } from 'next/router'
 import SideBar from '@/components/SideBar'
 import TextField from '@mui/material/TextField'
@@ -176,7 +176,7 @@ export default function ClassMainPage({
           </Typography>
           {/* To Do: workspace에 description 추가 필요 */}
           <Typography variant="body1">
-            {placeholder.workspaceDescription}
+            {currentWorkspace.description}
           </Typography>
         </Box>
         <Box

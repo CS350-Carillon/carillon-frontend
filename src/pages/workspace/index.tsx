@@ -5,15 +5,10 @@ import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import { placeholder, localPort } from '@/utils/constants'
-import { IUser } from '@/utils/types'
 import { useRouter } from 'next/router'
 import SideBar from '@/components/SideBar'
 
-interface UsersProps {
-  users: IUser[]
-}
-
-export default function Workspace({ users }: UsersProps) {
+export default function Workspace() {
   const router = useRouter()
   const [workspaceName, setWorkspaceName] = useState('')
   const [workspaceDescription, setWorkspaceDescription] = useState('')
@@ -31,6 +26,11 @@ export default function Workspace({ users }: UsersProps) {
   }
 
   const handleCreateWorkspace = () => {
+    const workspaceData = {
+      name: workspaceName,
+      description: workspaceDescription,
+    }
+
     fetch(`${localPort}/workspaces/`, {
       method: 'POST',
       headers: {
@@ -38,7 +38,7 @@ export default function Workspace({ users }: UsersProps) {
         'Content-Type': 'application/json',
         token: String(localStorage.getItem('token')),
       },
-      body: JSON.stringify({ name: workspaceName }),
+      body: JSON.stringify(workspaceData),
     }).then((response) => {
       if (response.ok) {
         router.push(`/workspace/${workspaceName}`)
@@ -99,20 +99,4 @@ export default function Workspace({ users }: UsersProps) {
       </Stack>
     </SideBar>
   )
-}
-
-export async function getServerSideProps() {
-  const options = {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-    },
-  }
-
-  const res = await fetch(`${localPort}/users/`, options)
-  const users = await res.json()
-
-  return {
-    props: { users },
-  }
 }
