@@ -596,7 +596,13 @@ export default function ChannelComp({
               overflowY: 'scroll',
             }}
           ></Stack>
-          {socket && <InputBox channelID={String(channelID)} respond="" socket={socket} /> }
+          {socket && (
+            <InputBox
+              channelID={String(channelID)}
+              respond=""
+              socket={socket}
+            />
+          )}
         </Stack>
       </SideBar>
     )
