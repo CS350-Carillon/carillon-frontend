@@ -40,7 +40,7 @@ export const getStaticProps: GetStaticProps = async () => {
   }
 }
 
-export default function ChannelComp({
+export default function DMComp({
   channels,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter()
@@ -178,33 +178,56 @@ export default function ChannelComp({
       _id: string
     }
   }) => {
-    setChat((prevChat: MsgProps[]) => [
-      ...prevChat.filter((c) => c.id !== res.chatId),
-      {
-        ...prevChat.filter((c) => c.id === res.chatId)[0],
-        reactions: {
-          ...prevChat.filter((c) => c.id === res.chatId)[0].reactions,
-          [res.reaction.reactionType]: [
-            ...prevChat.filter((c) => c.id === res.chatId)[0].reactions[
-              res.reaction.reactionType
-            ],
-            {
-              id: res.reaction._id,
-              userID: res.reaction.reactor._id,
-              userName: res.reaction.reactor.userName,
-            },
-          ],
-        },
-      },
-    ])
+    setChat((prevChat: MsgProps[]) => {
+      return prevChat.map((c) =>
+        c.id === res.chatId
+          ? {
+              ...res,
+              id: res.chatId,
+              content: c.content,
+              responses: c.responses,
+              reactions: {
+                ...c.reactions,
+                [res.reaction.reactionType]: [
+                  ...c.reactions[res.reaction.reactionType],
+                  {
+                    id: res.reaction._id,
+                    userID: res.reaction.reactor._id,
+                    userName: res.reaction.reactor.userName,
+                  },
+                ],
+              },
+              sender: c.sender,
+              isFile: c.isFile,
+              isDeleted: c.isDeleted,
+            }
+          : c,
+      )
+    })
   }
-
-  const onDeleteReaction = () => {}
-
-  // const onDeleteReaction = (res: any) => {
-  //   console.log('DELETED REACTION')
-  //   console.log(res)
-  // } // TODO: after socket is fixed
+  const onDeleteReaction = (res: {
+    chatId: string
+    reaction: {
+      reactionType: string
+      _id: string
+    }
+  }) => {
+    setChat((prevChat: MsgProps[]) => {
+      return prevChat.map((c) =>
+        c.id === res.chatId
+          ? {
+              ...c,
+              reactions: {
+                ...c.reactions,
+                [res.reaction.reactionType]: c.reactions[
+                  res.reaction.reactionType
+                ].filter((r) => r.id !== res.reaction._id),
+              },
+            }
+          : c,
+      )
+    })
+  }
 
   const onAddResponse = (res: {
     respondedChatId: string
@@ -245,9 +268,7 @@ export default function ChannelComp({
       newChatList.splice(index, 0, newChat)
       return newChatList
     })
-  } // TODO: needed for increamenting responses length
-
-  // const onDeleteResponse = () => {} // TODO: after socket is fixed
+  }
 
   useEffect(() => {
     const skt = io(localPort)
@@ -299,17 +320,25 @@ export default function ChannelComp({
                 channel: string
                 reactions_info: {
                   reactionType: string
-                  user_info: { _id: string; userName: string }[]
+                  reaction: {
+                    _id: string
+                    reactorId: string
+                    reactorName: string
+                  }[] // TODO: need to be changed after API modification
                 }[]
-                sender_info: { _id: string; userName: string }[]
+                sender_info: { _id: string; userName: string }
                 isFile: boolean
                 isDeleted: boolean
               }[]
               reactions_info: {
                 reactionType: string
-                user_info: { _id: string; userName: string }[]
+                reaction: {
+                  _id: string
+                  reactorId: string
+                  reactorName: string
+                }[]
               }[]
-              sender_info: { _id: string; userName: string }[]
+              sender_info: { _id: string; userName: string }
               isFile: boolean
               isDeleted: boolean
             }) => {
@@ -323,9 +352,13 @@ export default function ChannelComp({
                     channel: string
                     reactions_info: {
                       reactionType: string
-                      user_info: { _id: string; userName: string }[]
+                      reaction: {
+                        _id: string
+                        reactorId: string
+                        reactorName: string
+                      }[]
                     }[]
-                    sender_info: { _id: string; userName: string }[]
+                    sender_info: { _id: string; userName: string }
                     isFile: boolean
                     isDeleted: boolean
                   }) => ({
@@ -338,13 +371,22 @@ export default function ChannelComp({
                           .find(
                             (e: {
                               reactionType: string
-                              user_info: { _id: string; userName: string }[]
+                              reaction: {
+                                _id: string
+                                reactorId: string
+                                reactorName: string
+                              }[]
                             }) => e.reactionType === 'Check',
                           )
-                          ?.user_info.map(
-                            (u: { _id: string; userName: string }) => ({
-                              userID: u._id,
-                              userName: u.userName,
+                          ?.reaction.map(
+                            (u: {
+                              _id: string
+                              reactorId: string
+                              reactorName: string
+                            }) => ({
+                              id: u._id,
+                              userID: u.reactorId,
+                              userName: u.reactorName,
                             }),
                           ) || [],
                       Favorite:
@@ -352,13 +394,22 @@ export default function ChannelComp({
                           .find(
                             (e: {
                               reactionType: string
-                              user_info: { _id: string; userName: string }[]
+                              reaction: {
+                                _id: string
+                                reactorId: string
+                                reactorName: string
+                              }[]
                             }) => e.reactionType === 'Favorite',
                           )
-                          ?.user_info.map(
-                            (u: { _id: string; userName: string }) => ({
-                              userID: u._id,
-                              userName: u.userName,
+                          ?.reaction.map(
+                            (u: {
+                              _id: string
+                              reactorId: string
+                              reactorName: string
+                            }) => ({
+                              id: u._id,
+                              userID: u.reactorId,
+                              userName: u.reactorName,
                             }),
                           ) || [],
                       Moodbad:
@@ -366,13 +417,22 @@ export default function ChannelComp({
                           .find(
                             (e: {
                               reactionType: string
-                              user_info: { _id: string; userName: string }[]
+                              reaction: {
+                                _id: string
+                                reactorId: string
+                                reactorName: string
+                              }[]
                             }) => e.reactionType === 'Moodbad',
                           )
-                          ?.user_info.map(
-                            (u: { _id: string; userName: string }) => ({
-                              userID: u._id,
-                              userName: u.userName,
+                          ?.reaction.map(
+                            (u: {
+                              _id: string
+                              reactorId: string
+                              reactorName: string
+                            }) => ({
+                              id: u._id,
+                              userID: u.reactorId,
+                              userName: u.reactorName,
                             }),
                           ) || [],
                       Thumbup:
@@ -380,21 +440,28 @@ export default function ChannelComp({
                           .find(
                             (e: {
                               reactionType: string
-                              user_info: { _id: string; userName: string }[]
+                              reaction: {
+                                _id: string
+                                reactorId: string
+                                reactorName: string
+                              }[]
                             }) => e.reactionType === 'Thumbup',
                           )
-                          ?.user_info.map(
-                            (u: { _id: string; userName: string }) => ({
-                              userID: u._id,
-                              userName: u.userName,
+                          ?.reaction.map(
+                            (u: {
+                              _id: string
+                              reactorId: string
+                              reactorName: string
+                            }) => ({
+                              id: u._id,
+                              userID: u.reactorId,
+                              userName: u.reactorName,
                             }),
                           ) || [],
                     },
                     sender: {
-                      id: r.sender_info ? r.sender_info[0]._id : 'unknown id',
-                      name: r.sender_info
-                        ? r.sender_info[0].userName
-                        : 'unknown user',
+                      id: r.sender_info._id,
+                      name: r.sender_info.userName,
                     },
                     isFile: r.isFile,
                     isDeleted: r.isDeleted,
@@ -406,13 +473,22 @@ export default function ChannelComp({
                       .find(
                         (e: {
                           reactionType: string
-                          user_info: { _id: string; userName: string }[]
+                          reaction: {
+                            _id: string
+                            reactorId: string
+                            reactorName: string
+                          }[]
                         }) => e.reactionType === 'Check',
                       )
-                      ?.user_info.map(
-                        (u: { _id: string; userName: string }) => ({
-                          userID: u._id,
-                          userName: u.userName,
+                      ?.reaction.map(
+                        (u: {
+                          _id: string
+                          reactorId: string
+                          reactorName: string
+                        }) => ({
+                          id: u._id,
+                          userID: u.reactorId,
+                          userName: u.reactorName,
                         }),
                       ) || [],
                   Favorite:
@@ -420,13 +496,22 @@ export default function ChannelComp({
                       .find(
                         (e: {
                           reactionType: string
-                          user_info: { _id: string; userName: string }[]
+                          reaction: {
+                            _id: string
+                            reactorId: string
+                            reactorName: string
+                          }[]
                         }) => e.reactionType === 'Favorite',
                       )
-                      ?.user_info.map(
-                        (u: { _id: string; userName: string }) => ({
-                          userID: u._id,
-                          userName: u.userName,
+                      ?.reaction.map(
+                        (u: {
+                          _id: string
+                          reactorId: string
+                          reactorName: string
+                        }) => ({
+                          id: u._id,
+                          userID: u.reactorId,
+                          userName: u.reactorName,
                         }),
                       ) || [],
                   Moodbad:
@@ -434,13 +519,22 @@ export default function ChannelComp({
                       .find(
                         (e: {
                           reactionType: string
-                          user_info: { _id: string; userName: string }[]
+                          reaction: {
+                            _id: string
+                            reactorId: string
+                            reactorName: string
+                          }[]
                         }) => e.reactionType === 'Moodbad',
                       )
-                      ?.user_info.map(
-                        (u: { _id: string; userName: string }) => ({
-                          userID: u._id,
-                          userName: u.userName,
+                      ?.reaction.map(
+                        (u: {
+                          _id: string
+                          reactorId: string
+                          reactorName: string
+                        }) => ({
+                          id: u._id,
+                          userID: u.reactorId,
+                          userName: u.reactorName,
                         }),
                       ) || [],
                   Thumbup:
@@ -448,21 +542,28 @@ export default function ChannelComp({
                       .find(
                         (e: {
                           reactionType: string
-                          user_info: { _id: string; userName: string }[]
+                          reaction: {
+                            _id: string
+                            reactorId: string
+                            reactorName: string
+                          }[]
                         }) => e.reactionType === 'Thumbup',
                       )
-                      ?.user_info.map(
-                        (u: { _id: string; userName: string }) => ({
-                          userID: u._id,
-                          userName: u.userName,
+                      ?.reaction.map(
+                        (u: {
+                          _id: string
+                          reactorId: string
+                          reactorName: string
+                        }) => ({
+                          id: u._id,
+                          userID: u.reactorId,
+                          userName: u.reactorName,
                         }),
                       ) || [],
                 },
                 sender: {
-                  id: d.sender_info ? d.sender_info[0]._id : 'unknown id',
-                  name: d.sender_info
-                    ? d.sender_info[0].userName
-                    : 'unknown user',
+                  id: d.sender_info._id,
+                  name: d.sender_info.userName,
                 },
                 isFile: d.isFile,
                 isDeleted: d.isDeleted,
