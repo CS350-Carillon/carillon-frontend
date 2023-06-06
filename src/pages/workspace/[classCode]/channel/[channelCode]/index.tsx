@@ -579,8 +579,7 @@ export default function ChannelComp({
           return filteredChannel.name
         })
       } catch (err) {
-        // router.push('/')
-        return err
+        router.push('/')
       }
     }
     getData()
@@ -597,7 +596,7 @@ export default function ChannelComp({
               overflowY: 'scroll',
             }}
           ></Stack>
-          <InputBox channelID={String(channelID)} respond="" socket={socket} />
+          {socket && <InputBox channelID={String(channelID)} respond="" socket={socket} /> }
         </Stack>
       </SideBar>
     )
