@@ -48,8 +48,9 @@ export default function ClassMainPage({
   const [currentWorkspace, setCurrentWorkspace] = useState<IWorkspace>(cur)
 
   const currentChannels = []
+
   for (let i = 0; i < channels.length; i += 1) {
-    if (channels[i].workspace._id === currentWorkspace._id) {
+    if (channels[i].workspace?._id === currentWorkspace?._id) {
       currentChannels.push(channels[i])
     }
   }
@@ -118,15 +119,18 @@ export default function ClassMainPage({
   }
 
   const handleDeleteWorkspace = () => {
-    // To Do: token 바꾸기
+    const workspaceData = {
+      name: currentWorkspace.name,
+    }
+
     fetch(`${localPort}/workspaces/`, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        token: JSON.stringify(localStorage.getItem('token')),
+        token: String(localStorage.getItem('token')),
       },
-      body: JSON.stringify(searchWorkspaceResults[0].name),
+      body: JSON.stringify(workspaceData),
     }).then((response) => {
       if (response.ok) {
         router.push('/workspace')
@@ -200,10 +204,7 @@ export default function ClassMainPage({
                   return (
                     <ListItem key={value._id} disablePadding>
                       <FolderOpenIcon sx={{ mr: 2 }} />
-                      <ListItemText
-                        id={value._id}
-                        primary={`Channel ${value._id}`}
-                      />
+                      <ListItemText id={value._id} primary={`${value.name}`} />
                     </ListItem>
                   )
                 })}

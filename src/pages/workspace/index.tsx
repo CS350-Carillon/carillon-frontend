@@ -36,7 +36,7 @@ export default function Workspace({ users }: UsersProps) {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        token: JSON.stringify(localStorage.getItem('token')),
+        token: String(localStorage.getItem('token')),
       },
       body: JSON.stringify({ name: workspaceName }),
     }).then((response) => {
