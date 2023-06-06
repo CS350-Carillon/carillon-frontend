@@ -579,14 +579,28 @@ export default function ChannelComp({
           return filteredChannel.name
         })
       } catch (err) {
-        router.push('/')
+        // router.push('/')
+        return err
       }
     }
     getData()
   }, [router, channelID, channels])
 
   if (chatList.length === 0 || socket === null) {
-    return <div></div>
+    return (
+      <SideBar>
+        <Stack spacing={2} sx={{ height: '90vh', display: 'flex' }}>
+          <Typography variant="h3">{channel}</Typography>
+          <Stack
+            sx={{
+              flexGrow: 1,
+              overflowY: 'scroll',
+            }}
+          ></Stack>
+          <InputBox channelID={String(channelID)} respond="" socket={socket} />
+        </Stack>
+      </SideBar>
+    )
   }
   return (
     <SideBar>
