@@ -191,7 +191,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                       </Link>
                     ))}
                 </div>
-                <Link href="/"> New Workspace </Link>
+                <Link href="/workspace"> New Workspace </Link>
               </AccordionDetails>
             </Accordion>
             <Accordion
@@ -212,7 +212,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                     userChannel.map((c: any) => (
                       <Link
                         key={c}
-                        href={`/workspace/cs350/channel/${c.name}`}
+                        href={`/workspace/cs350/channel/${c._id}`}
                         className={style.accordionChild}
                       >
                         {c.name}
@@ -289,9 +289,8 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <div style={{ width: '90%' }}>{children}</div>
+        <Notifier />
       </div>
-      <div style={{ width: '90%' }}>{children}</div>
-      <Notifier />
     </div>
   )
 }

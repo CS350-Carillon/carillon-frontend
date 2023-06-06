@@ -574,7 +574,7 @@ export default function ChannelRespComp({
         })
         setChannel(() => {
           const filteredList = channels.filter(
-            (ch: { _id: string; name: string }) => ch._id === channelID,
+            (ch: { _id: string; name: string }) => ch.name === channelID,
           )
           const filteredChannel = filteredList[0]
           return filteredChannel.name
