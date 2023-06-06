@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useState, ChangeEvent } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -9,15 +10,16 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import { placeholder, localPort } from '@/utils/constants'
-import { IUser } from '@/utils/types'
+import { IUser, IWorkspace } from '@/utils/types'
 import { useRouter } from 'next/router'
 import SideBar from '@/components/SideBar'
 
-interface UsersProps {
+interface ChannelProps {
   users: IUser[]
+  workspaces: IWorkspace[]
 }
 
-export default function Channel({ users }: UsersProps) {
+export default function Channel({ users, workspaces }: ChannelProps) {
   const router = useRouter()
   const [channelName, setChannelName] = useState('')
   const [channelDescription, setchannelDescription] = useState('')
@@ -25,6 +27,13 @@ export default function Channel({ users }: UsersProps) {
   const [selectedMembers, setSelectedMembers] = useState<IUser[]>([])
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+
+  let cur = workspaces[0]
+  for (let i = 0; i < workspaces.length; i += 1) {
+    if (workspaces[i].name === router.query.classCode) {
+      cur = workspaces[i]
+    }
+  }
 
   const handleAddMember = (member: IUser) => {
     if (!selectedMembers.includes(member)) {
@@ -69,8 +78,7 @@ export default function Channel({ users }: UsersProps) {
       description: channelDescription,
       // eslint-disable-next-line no-underscore-dangle
       members: selectedMembers.map((member) => member._id),
-      // To Do: workspace id로 바꾸기
-      workspace: router.query.classCode,
+      workspace: cur,
     }
 
     fetch(`${localPort}/channels/`, {
@@ -78,14 +86,12 @@ export default function Channel({ users }: UsersProps) {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        token: JSON.stringify(localStorage.getItem('token')),
+        token: String(localStorage.getItem('token')),
       },
       body: JSON.stringify(channelData),
     }).then((response) => {
       if (response.ok) {
-        router.push(
-          `/workspace/${router.query.classCode}/channel/${channelName}`,
-        )
+        router.push(`/workspace/${router.query.classCode}`)
       } else {
         console.log('not response.ok')
       }
@@ -240,7 +246,20 @@ export async function getServerSideProps() {
   const res = await fetch(`${localPort}/users/`, options)
   const users = await res.json()
 
+  const workspacesOptions = {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  }
+
+  const workspacesRes = await fetch(
+    `${localPort}/workspaces/`,
+    workspacesOptions,
+  )
+  const workspaces = await workspacesRes.json()
+
   return {
-    props: { users },
+    props: { users, workspaces },
   }
 }
