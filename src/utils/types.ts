@@ -6,6 +6,7 @@ export interface IWorkspace {
   members: IUser[]
   defaultChannel: IChannel
   channels: IChannel[]
+  description: string
 }
 
 export interface IUser {
