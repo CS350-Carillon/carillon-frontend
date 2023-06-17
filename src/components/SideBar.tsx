@@ -23,6 +23,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
   const [includedWorkspace, setIncludedWorkspace] = useState<any>(null)
   // 해당 유저가 속한 워크스페이스의 목록
   const [userChannel, setUserChannel] = useState<any>(null)
+  const [dmList, setDmList] = useState<any>(null)
 
   const styles = {
     accordion: {
@@ -67,7 +68,10 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       const filteredWorkspace = workspaceList.data.filter((a: any) =>
         filteredList[0].participatingWorkspaces.includes(a._id),
       )
-      // console.log(filteredWorkspace)
+
+      const filteredDm = workspaceList.data.filter((a: any) =>
+        filteredList[0].participatingDMs.includes(a._id),
+      )
 
       const filteredChannel = channelList.data.filter((c: any) =>
         filteredList[0].participatingChannels.includes(c._id),
@@ -75,11 +79,18 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       const finalfilteredChannel = filteredChannel.filter(
         (c: any) => c.workspace.name === router.query.classCode,
       )
+      const finalfilteredDm = filteredDm.filter(
+        (c: any) => c.workspace.name === router.query.classCode,
+      )
+
       setIncludedWorkspace(filteredWorkspace)
+
       if (router.query.classCode == null) {
         setUserChannel(filteredChannel)
+        setDmList(filteredDm)
       } else {
         setUserChannel(finalfilteredChannel)
+        setDmList(finalfilteredDm)
       }
     } catch (err) {
       setUserChannel(null)
@@ -235,20 +246,16 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               </AccordionSummary>
               <AccordionDetails sx={{ height: gap }}>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <Link
-                    href="/workspace/cs350/Sally"
-                    className={style.accordionChild}
-                  >
-                    {' '}
-                    Sally{' '}
-                  </Link>
-                  <Link
-                    href="/workspace/cs350/Sam"
-                    className={style.accordionChild}
-                  >
-                    {' '}
-                    Sam{' '}
-                  </Link>
+                  {dmList &&
+                    dmList.map((c: any) => (
+                      <Link
+                        key={c}
+                        href={`/workspace/cs350/directMessage/${c._id}`}
+                        className={style.accordionChild}
+                      >
+                        {c.name}
+                      </Link>
+                    ))}
                 </div>
               </AccordionDetails>
             </Accordion>
