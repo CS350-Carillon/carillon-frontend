@@ -1,7 +1,9 @@
 # Carillon
+### Made by Team 1 of CS350
+Team members : 20170319 변경호 , 20170595 정유민, 20180517 이채영, 20200365 안시현, 20210128 김우일
+
 ## What is Carillon?
 Carillon is a project made to manage the workspaces and chatting channels for the students attending a lecture. Workspaces are the lectures that the students are taking and the channels serve specific purpose within the lectures - it can be chatting room for homework, for questions, and so on. The client of the service is Team 6.
-
 
 ## Built with .. 
 Frontend : NextJS\
@@ -10,16 +12,17 @@ Database : MongoDB
 
 ## How to run the frontend code
 1. clone the repository into your local machine
-2. ```npm install``` in the root directory (in /carillon-frontend directory)
-3.``` npm run dev``` in the root directory (in /carillon-frontend directory)
+2.  ```npm install``` in the root directory (in /carillon-frontend directory)
+3.  ```npm run dev``` in the root directory (in /carillon-frontend directory)
 
-## How to connect with the backend 
+## How to run the backend code 
 1. clone carillon-backend repository into your local machine
-2. ```npm install``` in the root directory(in /carillon-backend directory)
+2. ```npm install``` in the root directory (in /carillon-backend directory)
 3. ```npm run dev``` in teh root directory (in /carillon-backend directory)
 
-#### Advice
-If this doesn't work, there is high probability that the port number is not set right. Please compare the port number of backend and frontend  carefully. 
+## Connecting backend and frontend code
+If backend code is running and the frontend code is running without any bugs, it should be ready for use. However, if there is any problem in connecting the frontend and backend, please check the port that you are using for each of them. 
+
 
 
 ### References
