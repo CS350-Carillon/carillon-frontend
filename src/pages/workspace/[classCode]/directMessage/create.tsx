@@ -9,7 +9,7 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import { placeholder, localPort } from '@/utils/constants'
-import { IUser } from '@/utils/types'
+import { IUser, IWorkspace } from '@/utils/types'
 import { useRouter } from 'next/router'
 import SideBar from '@/components/SideBar'
 import TextField from '@mui/material/TextField'
@@ -25,7 +25,7 @@ export default function Channel({ users }: UsersProps) {
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [dmdescription, setchannelDescription] = useState('')
-  const [currworkspace, setWorkspace] = useState(null)
+  const [currworkspace, setWorkspace] = useState<IWorkspace[]>([])
 
   const handleAddMember = (member: IUser) => {
     if (!selectedMembers.includes(member)) {
@@ -60,13 +60,12 @@ export default function Channel({ users }: UsersProps) {
 
   const handleCreateWorkspace = () => {
     // To Do: workspace 정보 바꾸기
-    const currentUser = ''
 
     const directMessageData = {
       name: dmdescription,
       owner: localStorage.getItem('_id'),
       members: selectedMembers.map((member) => member._id),
-      workspace: currworkspace._id,
+      workspace: currworkspace,
       muteMembers: [],
     }
     console.log(directMessageData)
@@ -106,7 +105,7 @@ export default function Channel({ users }: UsersProps) {
       )
       setWorkspace(filteredWorkspace[0])
     } catch (err) {
-      setWorkspace(null)
+      setWorkspace([])
     }
   }
 
