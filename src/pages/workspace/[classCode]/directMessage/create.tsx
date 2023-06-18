@@ -1,4 +1,5 @@
-import React, { useState, ChangeEvent } from 'react'
+import React, { useState, ChangeEvent, useEffect } from 'react'
+import axios from 'axios'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
@@ -7,7 +8,7 @@ import Button from '@mui/material/Button'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
-import { localPort } from '@/utils/constants'
+import { placeholder, localPort } from '@/utils/constants'
 import { IUser } from '@/utils/types'
 import { useRouter } from 'next/router'
 import SideBar from '@/components/SideBar'
@@ -23,6 +24,8 @@ export default function Channel({ users }: UsersProps) {
   const [selectedMembers, setSelectedMembers] = useState<IUser[]>([])
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [dmdescription, setchannelDescription] = useState('')
+  const [currworkspace, setWorkspace] = useState(null)
 
   const handleAddMember = (member: IUser) => {
     if (!selectedMembers.includes(member)) {
@@ -49,36 +52,42 @@ export default function Channel({ users }: UsersProps) {
     }
   }
 
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setchannelDescription(event.target.value)
+  }
+
+
   const handleCreateWorkspace = () => {
     // To Do: workspace 정보 바꾸기
     const currentUser = ''
 
     const directMessageData = {
-      name: 'directMessage',
-      owner: currentUser,
-      members: selectedMembers.map((member) => member.userId),
+      name: dmdescription,
+      owner: localStorage.getItem('_id'),
+      members: selectedMembers.map((member) => member._id),
+      workspace: currworkspace._id,
       muteMembers: [],
     }
+    console.log(directMessageData)
 
     // To Do: dmCreate 정보 저장 어떻게??
-    // fetch(`${localPort}/workspaces/`, {
-    //   method: 'POST',
-    //   headers: {
-    //     Accept: 'application/json',
-    //     'Content-Type': 'application/json',
-    //     token:
-    //       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NzM3MTYwZjJjNzNkMDgzMTgxNGM2ZiIsInR5cGUiOiJTVFVERU5UIiwiaWF0IjoxNjg1Mjk2NDY1LCJleHAiOjE2ODUzODI4NjV9.-5OLJTlGNBc63n8UNoJdOp60gBYOPqQLI90mAI3ZEr0',
-    //   },
-    //   body: JSON.stringify(directMessageData),
-    // }).then((response) => {
-    //   if (response.ok) {
-    //     router.push(
-    //       `/workspace/${router.query.classCode}/directMessage/${1111}`,
-    //     )
-    //   } else {
-    //     console.log('not response.ok')
-    //   }
-    // })
+    fetch(`${localPort}/directmessages/`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        token: String(localStorage.getItem('token')),
+      },
+      body: JSON.stringify(directMessageData),
+    }).then((response) => {
+      if (response.ok) {
+        router.push(`/workspace/${router.query.classCode}`)
+      } else {
+        console.log('not response.ok')
+      }
+    })
   }
 
   const openSearchModal = () => {
@@ -89,9 +98,37 @@ export default function Channel({ users }: UsersProps) {
     setSearchModalOpen(false)
   }
 
+  async function getWorkspace() {
+    try {
+
+      const workspaceList = await axios.get(`${localPort}/workspaces/`)
+
+      const filteredWorkspace = workspaceList.data.filter((a: any) =>
+        router.query.classCode == a.name,
+      )
+      setWorkspace(filteredWorkspace[0])
+    } catch (err) {
+      setWorkspace(null)
+    }
+  }
+
+  useEffect(()=> {getWorkspace()})
+
   return (
     <SideBar>
       <Stack sx={{ paddingTop: 4 }} spacing={2}>
+      <Box>
+          <Typography sx={{ paddingBottom: 2 }} variant="h5">
+            Dm Name
+          </Typography>
+          <TextField
+            fullWidth
+            placeholder={placeholder.dmDescription}
+            variant="standard"
+            value={dmdescription}
+            onChange={handleDescriptionChange}
+          />
+        </Box>
         <Box>
           <Grid container spacing={2}>
             <Grid item xs={10}>

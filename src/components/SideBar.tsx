@@ -62,6 +62,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       const userList = await axios.get(`${localPort}/users/`)
       const workspaceList = await axios.get(`${localPort}/workspaces/`)
       const channelList = await axios.get(`${localPort}/channels/`)
+      const dmList = await axios.get(`${localPort}/directmessages/`)
       const filteredList = userList.data.filter(
         (u: any) => localStorage.getItem('_id') === u._id,
       )
@@ -69,10 +70,12 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
         filteredList[0].participatingWorkspaces.includes(a._id),
       )
 
-      const filteredDm = workspaceList.data.filter((a: any) =>
+      const filteredDm = dmList.data.filter((a: any) =>
         filteredList[0].participatingDMs.includes(a._id),
       )
 
+      console.log(filteredDm)
+      
       const filteredChannel = channelList.data.filter((c: any) =>
         filteredList[0].participatingChannels.includes(c._id),
       )
@@ -223,7 +226,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                     userChannel.map((c: any) => (
                       <Link
                         key={c}
-                        href={`/workspace/cs350/channel/${c._id}`}
+                        href={`/workspace/${router.query.classCode}/channel/${c._id}`}
                         className={style.accordionChild}
                       >
                         {c.name}
@@ -250,13 +253,14 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                     dmList.map((c: any) => (
                       <Link
                         key={c}
-                        href={`/workspace/cs350/directMessage/${c._id}`}
+                        href={`/workspace/${router.query.classCode}/directMessage/${c._id}`}
                         className={style.accordionChild}
                       >
                         {c.name}
                       </Link>
                     ))}
                 </div>
+                <Link href={`/workspace/${router.query.classCode}/directMessage/create`}> New DM </Link>
               </AccordionDetails>
             </Accordion>
             <Accordion
