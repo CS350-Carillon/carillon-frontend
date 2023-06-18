@@ -1,6 +1,7 @@
 import '../../app/globals.css'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -13,7 +14,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import LabeledInputBox from '@/components/LabeledInputBox'
 import LinkButton from '@/components/LinkButton'
 import { localPort } from '@/utils/constants'
-import { IUser } from '@/utils/types'
+import { IChannel, IUser } from '@/utils/types'
 import validatePassword from '@/utils/validatePassword'
 import SideBar from '../../components/SideBar'
 
@@ -45,7 +46,23 @@ const StyledAccordion = styled((props: AccordionProps) => (
   },
 }))
 
-function ChannelList({ userInfo }: { userInfo: IUser }) {
+function ChannelList({
+  userInfo,
+  channels,
+}: {
+  userInfo: IUser
+  channels: IChannel[]
+}) {
+  const findWorkspaceName = (id: string) => {
+    return channels.find((c) => c.workspace._id === id)?.workspace.name || ''
+  }
+  const findChannelName = (id: string) => {
+    return channels.find((c) => c._id === id)?.name || ''
+  }
+  const findWorkspace = (id: string) => {
+    return channels.find((c) => c._id === id)?.workspace._id || ''
+  }
+
   return (
     <StyledAccordion sx={{ width: '100%' }}>
       <AccordionSummary
@@ -58,27 +75,34 @@ function ChannelList({ userInfo }: { userInfo: IUser }) {
       </AccordionSummary>
       <AccordionDetails>
         <Grid container rowSpacing={0.4}>
-          {userInfo.owningWorkspaces
-            .concat(userInfo.participatingWorkspaces)
-            .map((item) => (
-              <React.Fragment key={item.name}>
-                <Grid item xs={12}>
-                  <StyledButton variant="text">
-                    <Typography>{item.name}</Typography>
-                  </StyledButton>
-                </Grid>
-                {userInfo.owningChannels
-                  .concat(userInfo.participatingChannels)
-                  .filter((c) => c.workspace.name === item.name)
-                  .map((channel) => (
-                    <Grid item xs={12} paddingLeft={2} key={channel.name}>
-                      <StyledButton variant="text">
-                        <Typography>{channel.name}</Typography>
-                      </StyledButton>
-                    </Grid>
-                  ))}
-              </React.Fragment>
-            ))}
+          {userInfo.participatingWorkspaces.map((item) => (
+            <React.Fragment key={item}>
+              <Grid item xs={12}>
+                <StyledButton variant="text">
+                  <Link
+                    href={`/workspace/${findWorkspaceName(item)}`}
+                    style={{ textDecoration: 'none', color: 'black' }}
+                  >
+                    <Typography>{findWorkspaceName(item)}</Typography>
+                  </Link>
+                </StyledButton>
+              </Grid>
+              {userInfo.participatingChannels
+                .filter((c) => findWorkspace(c) === item)
+                .map((channel) => (
+                  <Grid item xs={12} paddingLeft={2} key={channel}>
+                    <StyledButton variant="text">
+                      <Link
+                        href={`/workspace/${item}/channel/${channel}`}
+                        style={{ textDecoration: 'none', color: 'black' }}
+                      >
+                        <Typography>{findChannelName(channel)}</Typography>
+                      </Link>
+                    </StyledButton>
+                  </Grid>
+                ))}
+            </React.Fragment>
+          ))}
         </Grid>
       </AccordionDetails>
     </StyledAccordion>
@@ -91,6 +115,7 @@ export default function Mypage() {
   const router = useRouter()
   const [form, setForm] = useState({ userId: '', password: '', userName: '' })
   const [userInfo, setUserInfo] = useState<IUser>()
+  const [channels, setChannels] = useState<IChannel[]>([])
   const [saveCode, setSaveCode] = useState(0)
   const [valid, setValid] = useState(true)
 
@@ -132,6 +157,16 @@ export default function Mypage() {
           })
           const data = await res.json()
           setUserInfo(data)
+          const channelss = await fetch(`${localPort}/channels/`, {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              token: t,
+            },
+          })
+          const channelData = await channelss.json()
+          setChannels(channelData.filter((c: any) => c.workspace))
         } catch (err) {
           router.push('/')
         }
@@ -144,7 +179,7 @@ export default function Mypage() {
     if (userInfo) {
       setForm({
         userId: userInfo.userId,
-        password: userInfo.password,
+        password: '',
         userName: userInfo.userName,
       })
     }
@@ -206,7 +241,7 @@ export default function Mypage() {
             setForm((prev) => ({ ...prev, userName: e.target.value }))
           }
         />
-        <ChannelList userInfo={userInfo} />
+        <ChannelList userInfo={userInfo} channels={channels} />
         <Stack justifyContent="center" alignItems="center">
           <Typography
             variant="caption"
