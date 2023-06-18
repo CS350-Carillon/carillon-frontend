@@ -313,11 +313,11 @@ export default function DMComp({
             (d: {
               _id: string
               content: string
-              channel: string
+              directmessage: string
               responses_info: {
                 _id: string
                 content: string
-                channel: string
+                directmessage: string
                 reactions_info: {
                   reactionType: string
                   reaction: {
@@ -349,7 +349,7 @@ export default function DMComp({
                   (r: {
                     _id: string
                     content: string
-                    channel: string
+                    directmessage: string
                     reactions_info: {
                       reactionType: string
                       reaction: {
@@ -586,20 +586,22 @@ export default function DMComp({
   }, [router, dmID, channels])
 
   if (chatList.length === 0 || socket === null) {
-    return ( <SideBar>
-      <Stack spacing={2} sx={{ height: '90vh', display: 'flex' }}>
-        <Typography variant="h3">{channel}</Typography>
-        <Stack
-          sx={{
-            flexGrow: 1,
-            overflowY: 'scroll',
-          }}
-        >
+    return (
+      <SideBar>
+        <Stack spacing={2} sx={{ height: '90vh', display: 'flex' }}>
+          <Typography variant="h3">{channel}</Typography>
+          <Stack
+            sx={{
+              flexGrow: 1,
+              overflowY: 'scroll',
+            }}
+          ></Stack>
+          {socket && (
+            <InputBox channelID={String(dmID)} respond="" socket={socket} />
+          )}
         </Stack>
-       {socket && <InputBox channelID={String(dmID)} respond="" socket={socket} />}
-      </Stack>
-    </SideBar>
-  )
+      </SideBar>
+    )
   }
   return (
     <SideBar>

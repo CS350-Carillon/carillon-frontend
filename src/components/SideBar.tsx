@@ -74,8 +74,6 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
         filteredList[0].participatingDMs.includes(a._id),
       )
 
-      console.log(filteredDm)
-
       const filteredChannel = channelList.data.filter((c: any) =>
         filteredList[0].participatingChannels.includes(c._id),
       )
