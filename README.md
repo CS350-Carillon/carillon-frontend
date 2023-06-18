@@ -1,29 +1,24 @@
 # Carillon
+### Built with .. 
+Frontend : NextJS
+Backend : NodeJS
+Database : MongoDB
 
-### Git Push 전 Prettier + ESLint 실행 방법
+### How to run the code
+1. clone the repository into your local machine
+2. npm install in the root directory (in /carillon-frontend directory)
+3. npm run dev in the root directory (in /carillon-frontend directory)
 
-1. Prettier 규칙대로 코드가 작성되어 있는지 확인
+### To connect with the backend 
+1. clone carillon-backend repository into your local machine
+2. npm install in the root directory(in /carillon-backend directory)
+3. npm run dev in teh root directory (in /carillon-backend directory)
 
-   ```bash
-   npm run format
-   ```
+#### Caution
+If this doesn't work, there is high probability that the port number is not set right. Please compare the port number of backend and frontend  carefully. 
 
-2. [warn]이 나오는 경우 Prettier 규칙대로 다시 작성
-
-   ```bash
-   npm run format:fix
-   ```
-
-3. ESLint로 ESLint 규칙대로 작성되어 있는지 확인
-
-   ```bash
-   npm run lint
-   ```
-
-4. Error가 출력되는 경우 해당 파일 코드 수정하기
 
 ### References
-
 - [Next.js src project directory](https://www.geeksforgeeks.org/next-js-src-directory/)
 - [Git 커밋 컨벤션](https://kdjun97.github.io/git-github/commit-convention/)
 - [Git 브랜치 전략](https://junjunrecord.tistory.com/131)
@@ -31,6 +26,3 @@
 - [ESLint + Prettier 자동화](https://onlydev.tistory.com/122)
 
 
-/workspace/[classCode]
-/workspace/[classCode]/channel/[channelname]
-/workspace/[classCode]/dm/[personname]
