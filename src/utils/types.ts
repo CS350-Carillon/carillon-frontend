@@ -15,12 +15,12 @@ export interface IUser {
   password: string
   userType: UserType
   userName: string
-  owningWorkspaces: IWorkspace[]
-  participatingWorkspaces: IWorkspace[]
-  owningChannels: IChannel[]
-  participatingChannels: IChannel[]
-  owningDMs: IDirectmessage[]
-  participatingDMs: IDirectmessage[]
+  owningWorkspaces: string[]
+  participatingWorkspaces: string[]
+  owningChannels: string[]
+  participatingChannels: string[]
+  owningDMs: string[]
+  participatingDMs: string[]
 }
 
 export enum UserType {
