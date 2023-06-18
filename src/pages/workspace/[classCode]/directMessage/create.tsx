@@ -58,7 +58,6 @@ export default function Channel({ users }: UsersProps) {
     setchannelDescription(event.target.value)
   }
 
-
   const handleCreateWorkspace = () => {
     // To Do: workspace 정보 바꾸기
     const currentUser = ''
@@ -100,11 +99,10 @@ export default function Channel({ users }: UsersProps) {
 
   async function getWorkspace() {
     try {
-
       const workspaceList = await axios.get(`${localPort}/workspaces/`)
 
-      const filteredWorkspace = workspaceList.data.filter((a: any) =>
-        router.query.classCode == a.name,
+      const filteredWorkspace = workspaceList.data.filter(
+        (a: any) => router.query.classCode === a.name,
       )
       setWorkspace(filteredWorkspace[0])
     } catch (err) {
@@ -112,12 +110,14 @@ export default function Channel({ users }: UsersProps) {
     }
   }
 
-  useEffect(()=> {getWorkspace()})
+  useEffect(() => {
+    getWorkspace()
+  })
 
   return (
     <SideBar>
       <Stack sx={{ paddingTop: 4 }} spacing={2}>
-      <Box>
+        <Box>
           <Typography sx={{ paddingBottom: 2 }} variant="h5">
             Dm Name
           </Typography>

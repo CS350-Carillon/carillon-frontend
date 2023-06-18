@@ -23,7 +23,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
   const [includedWorkspace, setIncludedWorkspace] = useState<any>(null)
   // 해당 유저가 속한 워크스페이스의 목록
   const [userChannel, setUserChannel] = useState<any>(null)
-  const [dmList, setDmList] = useState<any>(null)
+  const [dmLists, setDmList] = useState<any>(null)
 
   const styles = {
     accordion: {
@@ -75,7 +75,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
       )
 
       console.log(filteredDm)
-      
+
       const filteredChannel = channelList.data.filter((c: any) =>
         filteredList[0].participatingChannels.includes(c._id),
       )
@@ -249,8 +249,8 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
               </AccordionSummary>
               <AccordionDetails sx={{ height: gap }}>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {dmList &&
-                    dmList.map((c: any) => (
+                  {dmLists &&
+                    dmLists.map((c: any) => (
                       <Link
                         key={c}
                         href={`/workspace/${router.query.classCode}/directMessage/${c._id}`}
@@ -260,7 +260,12 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                       </Link>
                     ))}
                 </div>
-                <Link href={`/workspace/${router.query.classCode}/directMessage/create`}> New DM </Link>
+                <Link
+                  href={`/workspace/${router.query.classCode}/directMessage/create`}
+                >
+                  {' '}
+                  New DM{' '}
+                </Link>
               </AccordionDetails>
             </Accordion>
             <Accordion
