@@ -45,6 +45,7 @@ export default function ClassMainPage({
       cur = workspaces[i]
     }
   }
+
   const [currentWorkspace, setCurrentWorkspace] = useState<IWorkspace>(cur)
 
   const currentChannels = []

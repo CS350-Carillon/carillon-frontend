@@ -22,7 +22,7 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
 }
 export const getStaticProps: GetStaticProps = async () => {
   try {
-    const cRes = await fetch(`${localPort}/channels/`, {
+    const cRes = await fetch(`${localPort}/directmessages/`, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -351,11 +351,11 @@ export default function DMRespComp({
           (d: {
             _id: string
             content: string
-            channel: string
+            directmessage: string
             responses_info: {
               _id: string
               content: string
-              channel: string
+              directmessage: string
               reactions_info: {
                 reactionType: string
                 reaction: {
@@ -410,7 +410,7 @@ export default function DMRespComp({
             (r: {
               _id: string
               content: string
-              channel: string
+              directmessage: string
               reactions_info: {
                 reactionType: string
                 reaction: {

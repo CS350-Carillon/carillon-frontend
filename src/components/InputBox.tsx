@@ -41,6 +41,7 @@ export default function InputBox({
           socket.emit('addResponse', {
             chatId: respond,
             channel: channelID,
+            directmessage: channelID,
             content: data,
             sender: user.userID,
             isFile: true,
@@ -49,6 +50,7 @@ export default function InputBox({
           socket.emit('postMessage', {
             content: data,
             channel: channelID,
+            directmessage: channelID,
             sender: user.userID,
             isFile: true,
           })

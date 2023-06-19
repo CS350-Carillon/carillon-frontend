@@ -5,4 +5,5 @@ export const placeholder = {
   workspaceDescription: 'Enter Workspace Description',
   channelName: 'Enter Channel Name',
   channelDescription: 'Enter Channel Description',
+  dmDescription: 'Enter DM Name',
 }
