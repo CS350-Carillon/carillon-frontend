@@ -1,29 +1,31 @@
 # Carillon
+### Made by Team 1 of CS350
+Team members : 20170319 변경호 , 20170595 정유민, 20180517 이채영, 20200365 안시현, 20210128 김우일
 
-### Git Push 전 Prettier + ESLint 실행 방법
+## What is Carillon?
+Carillon is a project made to manage the workspaces and chatting channels for the students attending a lecture. Workspaces are the lectures that the students are taking and the channels serve specific purpose within the lectures - it can be chatting room for homework, for questions, and so on. The client of the service is Team 6.
 
-1. Prettier 규칙대로 코드가 작성되어 있는지 확인
+## Built with .. 
+Frontend : NextJS\
+Backend : NodeJS\
+Database : MongoDB
 
-   ```bash
-   npm run format
-   ```
+## How to run the frontend code
+1. clone the repository into your local machine
+2.  ```npm install``` in the root directory (in /carillon-frontend directory)
+3.  ```npm run dev``` in the root directory (in /carillon-frontend directory)
 
-2. [warn]이 나오는 경우 Prettier 규칙대로 다시 작성
+## How to run the backend code 
+1. clone carillon-backend repository into your local machine
+2. ```npm install``` in the root directory (in /carillon-backend directory)
+3. ```npm run dev``` in teh root directory (in /carillon-backend directory)
 
-   ```bash
-   npm run format:fix
-   ```
+## Connecting backend and frontend code
+If backend code is running and the frontend code is running without any bugs, it should be ready for use. However, if there is any problem in connecting the frontend and backend, please check the port that you are using for each of them. 
 
-3. ESLint로 ESLint 규칙대로 작성되어 있는지 확인
 
-   ```bash
-   npm run lint
-   ```
-
-4. Error가 출력되는 경우 해당 파일 코드 수정하기
 
 ### References
-
 - [Next.js src project directory](https://www.geeksforgeeks.org/next-js-src-directory/)
 - [Git 커밋 컨벤션](https://kdjun97.github.io/git-github/commit-convention/)
 - [Git 브랜치 전략](https://junjunrecord.tistory.com/131)
@@ -31,6 +33,3 @@
 - [ESLint + Prettier 자동화](https://onlydev.tistory.com/122)
 
 
-/workspace/[classCode]
-/workspace/[classCode]/channel/[channelname]
-/workspace/[classCode]/dm/[personname]
